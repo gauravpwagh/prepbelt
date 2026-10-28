@@ -174,7 +174,7 @@ final class SurveyActionsProvider
   }
 }
 
-String _$surveyActionsHash() => r'35d666fa4fcaafc627ff84e25667ed9bd1be6e84';
+String _$surveyActionsHash() => r'06a246b2ab7ff9fdaae94b426f5e420aedcdce4f';
 
 /// Survey actions for the screen.
 

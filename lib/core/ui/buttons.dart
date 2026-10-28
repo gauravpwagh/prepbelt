@@ -264,6 +264,55 @@ class TextLinkButton extends StatelessWidget {
   }
 }
 
+/// A compact secondary action inside a card, e.g. "Survey" on a source.
+/// Drawn 36 px tall inside a 44 px touch target.
+class SmallButton extends StatelessWidget {
+  const SmallButton({required this.label, required this.onPressed, super.key});
+
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Semantics(
+      button: true,
+      enabled: onPressed != null,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: kMinTouchTarget),
+        child: Center(
+          widthFactor: 1,
+          child: Material(
+            color: c.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadii.button),
+              side: BorderSide(color: c.chipBorder),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: onPressed,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 36),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: Center(
+                    widthFactor: 1,
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      style: AppText.chip.copyWith(color: c.ink),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// A 6 px rounded progress bar (track in line colour, fill in accent).
 class ProgressBar extends StatelessWidget {
   const ProgressBar({required this.value, this.semanticLabel, super.key});

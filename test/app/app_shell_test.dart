@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prepbelt/app/app.dart';
@@ -48,11 +49,20 @@ void main() {
   testWidgets('bottom navigation switches tabs', (tester) async {
     await launch(tester);
     await tester.tap(find.bySemanticsLabel('Sources'));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 50)),
+    );
     await tester.pumpAndSettle();
-    expect(find.text('Sources arrives in a later milestone.'), findsOneWidget);
+    expect(find.text('No sources yet'), findsOneWidget);
     await tester.tap(find.bySemanticsLabel('Quick add'));
     await tester.pumpAndSettle();
     expect(find.text('Add source'), findsOneWidget);
+    // Drift streams close with a zero timer; flush it before teardown.
+    await tester.pumpWidget(const SizedBox());
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 50)),
+    );
+    await tester.pump(const Duration(seconds: 1));
   });
 
   testWidgets('nav bar meets touch-target and label guidelines', (

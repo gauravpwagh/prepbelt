@@ -5,6 +5,23 @@ import '../../../core/db/event_log.dart';
 import '../../../platform/files/file_store.dart';
 import 'chapter_split.dart';
 
+/// A source with its survey progress, for the Sources list.
+final class SourceSummary {
+  const SourceSummary({
+    required this.source,
+    required this.chapterCount,
+    required this.surveyedCount,
+  });
+
+  final Source source;
+
+  /// Top-level chapters (parts from bookmarks are not counted).
+  final int chapterCount;
+  final int surveyedCount;
+
+  bool get surveyed => chapterCount > 0 && surveyedCount >= chapterCount;
+}
+
 /// Writes and reads [Source] rows. Every write logs an Event.
 final class SourceRepository extends EventSourcedRepository {
   SourceRepository(super.ctx);
@@ -172,4 +189,46 @@ final class SourceRepository extends EventSourcedRepository {
   Stream<Source?> watch(String id) => (db.select(
     db.sources,
   )..where((s) => s.id.equals(id) & s.deletedAt.isNull())).watchSingleOrNull();
+
+  /// Every live source with its chapter and surveyed counts, unfinished
+  /// surveys first, then by title (design/notes/sources-list.md).
+  Stream<List<SourceSummary>> watchSummaries() {
+    final chapters = db.chunks.id.count();
+    final surveyed = db.chunkSurveys.id.count();
+    final query =
+        db.select(db.sources).join([
+            leftOuterJoin(
+              db.chunks,
+              db.chunks.sourceId.equalsExp(db.sources.id) &
+                  db.chunks.parentChunkId.isNull() &
+                  db.chunks.deletedAt.isNull(),
+              useColumns: false,
+            ),
+            leftOuterJoin(
+              db.chunkSurveys,
+              db.chunkSurveys.chunkId.equalsExp(db.chunks.id) &
+                  db.chunkSurveys.deletedAt.isNull(),
+              useColumns: false,
+            ),
+          ])
+          ..addColumns([chapters, surveyed])
+          ..where(db.sources.deletedAt.isNull())
+          ..groupBy([db.sources.id]);
+    return query.watch().map((rows) {
+      final out = [
+        for (final r in rows)
+          SourceSummary(
+            source: r.readTable(db.sources),
+            chapterCount: r.read(chapters) ?? 0,
+            surveyedCount: r.read(surveyed) ?? 0,
+          ),
+      ];
+      return out..sort((a, b) {
+        if (a.surveyed != b.surveyed) return a.surveyed ? 1 : -1;
+        return a.source.title.toLowerCase().compareTo(
+          b.source.title.toLowerCase(),
+        );
+      });
+    });
+  }
 }

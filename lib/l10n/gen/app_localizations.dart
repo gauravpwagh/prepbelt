@@ -525,6 +525,408 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try again'**
   String get tryAgain;
+
+  /// No description provided for @sourcesSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 source} other{{count} sources}} · {surveyed} surveyed'**
+  String sourcesSummary(int count, int surveyed);
+
+  /// No description provided for @sourcesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No sources yet'**
+  String get sourcesEmptyTitle;
+
+  /// No description provided for @sourcesEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a PDF, book, video or link you\'ll study from.'**
+  String get sourcesEmptyBody;
+
+  /// No description provided for @sourcesAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a source'**
+  String get sourcesAdd;
+
+  /// No description provided for @sourcesLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your sources.'**
+  String get sourcesLoadError;
+
+  /// No description provided for @sourceTypePdf.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF'**
+  String get sourceTypePdf;
+
+  /// No description provided for @sourceTypeBook.
+  ///
+  /// In en, this message translates to:
+  /// **'Book'**
+  String get sourceTypeBook;
+
+  /// No description provided for @sourceTypeVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get sourceTypeVideo;
+
+  /// No description provided for @sourceTypeLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get sourceTypeLink;
+
+  /// No description provided for @sourceTypeNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get sourceTypeNotes;
+
+  /// No description provided for @sourceTypeQbank.
+  ///
+  /// In en, this message translates to:
+  /// **'Question bank'**
+  String get sourceTypeQbank;
+
+  /// No description provided for @sourceUnits.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit, select, page{{count, plural, =1{1 page} other{{count} pages}}} minute{{count} min} question{{count, plural, =1{1 question} other{{count} questions}}} other{{count} items}}'**
+  String sourceUnits(String unit, int count);
+
+  /// No description provided for @sourceChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 chapter} other{{count} chapters}}'**
+  String sourceChapters(int count);
+
+  /// No description provided for @sourceSurveyedOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Surveyed {done} of {total}'**
+  String sourceSurveyedOf(int done, int total);
+
+  /// No description provided for @sourceSurvey.
+  ///
+  /// In en, this message translates to:
+  /// **'Survey'**
+  String get sourceSurvey;
+
+  /// No description provided for @sourceSurveyed.
+  ///
+  /// In en, this message translates to:
+  /// **'Surveyed'**
+  String get sourceSurveyed;
+
+  /// No description provided for @sourceCardSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}, {type}, {size}, surveyed {done} of {total} chapters.'**
+  String sourceCardSemantics(
+    String title,
+    String type,
+    String size,
+    int done,
+    int total,
+  );
+
+  /// No description provided for @sourceCardHintSurvey.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue the survey'**
+  String get sourceCardHintSurvey;
+
+  /// No description provided for @sourceCardHintReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review the survey'**
+  String get sourceCardHintReview;
+
+  /// No description provided for @sourceRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get sourceRename;
+
+  /// No description provided for @sourceRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get sourceRemove;
+
+  /// No description provided for @sourceRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed {title}'**
+  String sourceRemoved(String title);
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @addSourceWhat.
+  ///
+  /// In en, this message translates to:
+  /// **'What is it?'**
+  String get addSourceWhat;
+
+  /// No description provided for @addSourceDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get addSourceDetails;
+
+  /// No description provided for @addSourceChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters'**
+  String get addSourceChapters;
+
+  /// No description provided for @addSourceChoosePdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose PDF'**
+  String get addSourceChoosePdf;
+
+  /// No description provided for @addSourceChooseOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another'**
+  String get addSourceChooseOther;
+
+  /// No description provided for @addSourceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get addSourceTitle;
+
+  /// No description provided for @addSourcePages.
+  ///
+  /// In en, this message translates to:
+  /// **'Total pages'**
+  String get addSourcePages;
+
+  /// No description provided for @addSourceLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get addSourceLink;
+
+  /// No description provided for @addSourceLinkOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Link (optional)'**
+  String get addSourceLinkOptional;
+
+  /// No description provided for @addSourceMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Length in minutes'**
+  String get addSourceMinutes;
+
+  /// No description provided for @addSourceQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of questions'**
+  String get addSourceQuestions;
+
+  /// No description provided for @addSourceReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading bookmarks…'**
+  String get addSourceReading;
+
+  /// No description provided for @addSourceFileInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} · {pages}'**
+  String addSourceFileInfo(String size, String pages);
+
+  /// No description provided for @addSourceMegabytes.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} MB'**
+  String addSourceMegabytes(String value);
+
+  /// No description provided for @addSourceKilobytes.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} KB'**
+  String addSourceKilobytes(String value);
+
+  /// No description provided for @addSourceFoundBookmarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Found {count, plural, =1{1 chapter} other{{count} chapters}} in the bookmarks'**
+  String addSourceFoundBookmarks(int count);
+
+  /// No description provided for @addSourceUseBookmarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Use these'**
+  String get addSourceUseBookmarks;
+
+  /// No description provided for @addSourceNoBookmarks.
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF has no bookmarks we can read.'**
+  String get addSourceNoBookmarks;
+
+  /// No description provided for @addSourceDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Already added as {title}'**
+  String addSourceDuplicate(String title);
+
+  /// No description provided for @addSourceOpenIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Open it'**
+  String get addSourceOpenIt;
+
+  /// No description provided for @addSourcePaste.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a chapter list'**
+  String get addSourcePaste;
+
+  /// No description provided for @addSourcePasteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest and motion 40\nForce 63'**
+  String get addSourcePasteHint;
+
+  /// No description provided for @addSourcePasteHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'One chapter per line, ending in its first page.'**
+  String get addSourcePasteHelp;
+
+  /// No description provided for @addSourcePasteErrors.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Line {lines} has no page number.} other{Lines {lines} have no page number.}}'**
+  String addSourcePasteErrors(int count, String lines);
+
+  /// No description provided for @addSourceSplitEvery.
+  ///
+  /// In en, this message translates to:
+  /// **'Split every {size}'**
+  String addSourceSplitEvery(String size);
+
+  /// No description provided for @addSourceKeepOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep as one'**
+  String get addSourceKeepOne;
+
+  /// No description provided for @addSourceFewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer'**
+  String get addSourceFewer;
+
+  /// No description provided for @addSourceMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get addSourceMore;
+
+  /// No description provided for @addSourceRangePages.
+  ///
+  /// In en, this message translates to:
+  /// **'pp. {start}–{end}'**
+  String addSourceRangePages(int start, int end);
+
+  /// No description provided for @addSourceRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{start}–{end}'**
+  String addSourceRange(int start, int end);
+
+  /// No description provided for @addSourceChunkPages.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages {start}–{end}'**
+  String addSourceChunkPages(int start, int end);
+
+  /// No description provided for @addSourceChunkMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes {start}–{end}'**
+  String addSourceChunkMinutes(int start, int end);
+
+  /// No description provided for @addSourceChunkQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions {start}–{end}'**
+  String addSourceChunkQuestions(int start, int end);
+
+  /// No description provided for @addSourceShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short — merge with next?'**
+  String get addSourceShort;
+
+  /// No description provided for @addSourceLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Long — will be read over {count} sessions'**
+  String addSourceLong(int count);
+
+  /// No description provided for @addSourceSaveSurvey.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and survey'**
+  String get addSourceSaveSurvey;
+
+  /// No description provided for @addSourceSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save. Try again.'**
+  String get addSourceSaveFailed;
+
+  /// No description provided for @addSourcePdfMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a PDF'**
+  String get addSourcePdfMissing;
+
+  /// No description provided for @addSourceTitleMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a title'**
+  String get addSourceTitleMissing;
+
+  /// No description provided for @addSourceUnitsMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be more than 0'**
+  String get addSourceUnitsMissing;
+
+  /// No description provided for @addSourceLinkMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a link'**
+  String get addSourceLinkMissing;
 }
 
 class _AppLocalizationsDelegate

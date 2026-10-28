@@ -169,4 +169,97 @@ void main() {
       );
     },
   );
+
+  test('summaries count top-level chapters and surveyed ones, unfinished '
+      'first', () async {
+    final book = await addBook();
+    tick();
+    final done = await sources.createWithChunks(
+      type: SourceType.book,
+      title: 'A short book',
+      unitType: UnitType.page,
+      totalUnits: 10,
+      chapters: chaptersBySize(10, 10, label: (s, e) => 'Pages $s–$e'),
+    );
+    tick();
+    await survey.answerRemaining(done.id, difficulty: 2, familiarity: 0);
+    tick();
+    await survey.answer(
+      (await survey.items(book.id)).first.chunk.id,
+      difficulty: 1,
+      familiarity: 1,
+    );
+
+    final list = await sources.watchSummaries().first;
+    expect(list.map((s) => (s.source.title, s.chapterCount, s.surveyedCount)), [
+      ('HC Verma Vol 1', 3, 1),
+      ('A short book', 1, 1),
+    ]);
+    expect(list.last.surveyed, isTrue);
+  });
+
+  test('finishing a survey creates one task per chapter with its exam '
+      'target, once, undoably', () async {
+    final exam = await exams.create(name: 'JEE Main', date: '2027-01-10');
+    final source = await addBook();
+    tick();
+    final items = await survey.items(source.id, examId: exam.id);
+    await survey.answer(
+      items.first.chunk.id,
+      difficulty: 3,
+      familiarity: 0,
+      examId: exam.id,
+      importance: Importance.high,
+    );
+    tick();
+
+    expect(await survey.createTasks(source.id, examId: exam.id), 3);
+    final tasks = await db.select(db.tasks).get();
+    expect(tasks.map((t) => t.title), [
+      'Ch 1 Introduction',
+      'Ch 2 Vectors',
+      'Ch 3 Rest and motion',
+    ]);
+    expect(await db.select(db.taskStates).get(), hasLength(3));
+    final links = await db.select(db.taskChunks).get();
+    expect(links.map((l) => (l.startUnit, l.endUnit)), [
+      (1, 11),
+      (12, 39),
+      (40, 62),
+    ]);
+    final targets = {
+      for (final e in await db.select(db.examTasks).get())
+        e.taskId: (e.importance, e.targetLevel),
+    };
+    expect(targets[tasks.first.id], (Importance.high, 7));
+    expect(targets[tasks[1].id], (Importance.medium, 5), reason: 'default');
+
+    tick();
+    expect(await survey.createTasks(source.id, examId: exam.id), 0);
+    expect(await db.select(db.tasks).get(), hasLength(3), reason: 'once');
+
+    // A later survey change follows through to the exam target.
+    tick();
+    await survey.answer(
+      items[1].chunk.id,
+      examId: exam.id,
+      importance: Importance.low,
+    );
+    tick();
+    await survey.createTasks(source.id, examId: exam.id);
+    final updated = await (db.select(
+      db.examTasks,
+    )..where((e) => e.taskId.equals(tasks[1].id))).getSingle();
+    expect((updated.importance, updated.targetLevel), (Importance.low, 4));
+
+    tick();
+    await sources.undo(source.id);
+    tick();
+    await sources.undo(source.id);
+    expect(
+      (await db.select(db.tasks).get()).where((t) => t.deletedAt == null),
+      isEmpty,
+      reason: 'undoing the task creation removes the tasks',
+    );
+  });
 }

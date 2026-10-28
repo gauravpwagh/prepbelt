@@ -130,4 +130,8 @@ class SurveyActions extends _$SurveyActions {
         examId: examId,
         importance: examId == null ? null : Importance.medium,
       );
+
+  /// Creates the tasks for a finished survey (one per chapter).
+  Future<int> finish(String sourceId, {String? examId}) =>
+      ref.read(surveyRepositoryProvider).createTasks(sourceId, examId: examId);
 }

@@ -5,29 +5,16 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../core/ui/nav_bar.dart';
 import '../core/ui/placeholder_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
+import '../features/sources/ui/add_source_screen.dart';
+import '../features/sources/ui/sources_screen.dart';
 import '../features/survey/ui/survey_screen.dart';
 import '../features/today/ui/today_screen.dart';
 import '../l10n/gen/app_localizations.dart';
+import 'routes.dart';
+
+export 'routes.dart';
 
 part 'router.g.dart';
-
-/// Route paths from docs/05-architecture.md, plus `/exams` and `/progress`
-/// for the Exams and Progress tabs, which the route list leaves out.
-abstract final class Routes {
-  static const today = '/today';
-  static const exams = '/exams';
-  static const progress = '/progress';
-  static const sources = '/sources';
-  static const newSource = '/sources/new';
-  static const settings = '/settings';
-  static const onboarding = '/onboarding';
-
-  static String session(String taskId) => '/session/$taskId';
-  static String survey(String sourceId) => '/sources/$sourceId/survey';
-  static String exam(String id) => '/exams/$id';
-  static String task(String id) => '/tasks/$id';
-  static String redefine(String id) => '/tasks/$id/redefine';
-}
 
 @Riverpod(keepAlive: true)
 GoRouter router(Ref ref) => buildRouter();
@@ -75,16 +62,7 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
             ],
           ),
           StatefulShellBranch(
-            routes: [
-              tab(
-                Routes.sources,
-                Builder(
-                  builder: (context) => PlaceholderScreen(
-                    title: AppLocalizations.of(context).screenSources,
-                  ),
-                ),
-              ),
-            ],
+            routes: [tab(Routes.sources, const SourcesScreen())],
           ),
           StatefulShellBranch(
             routes: [
@@ -100,10 +78,7 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
           ),
         ],
       ),
-      GoRoute(
-        path: '/sources/new',
-        builder: (_, _) => placeholder((l) => l.screenAddSource),
-      ),
+      GoRoute(path: '/sources/new', builder: (_, _) => const AddSourceScreen()),
       GoRoute(
         path: '/sources/:id/survey',
         builder: (_, state) =>

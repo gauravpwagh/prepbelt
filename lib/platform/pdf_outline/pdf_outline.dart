@@ -32,7 +32,7 @@ final class PdfReadError implements Exception {
 
 /// Reads page count and bookmarks offline with pdfrx (verified at the start
 /// of milestone 3; docs/05-architecture.md, "PDF outline").
-final class PdfOutlineReader {
+class PdfOutlineReader {
   const PdfOutlineReader();
 
   Future<PdfInfo> read(String path) async {

@@ -290,4 +290,290 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tryAgain => 'Try again';
+
+  @override
+  String sourcesSummary(int count, int surveyed) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sources',
+      one: '1 source',
+    );
+    return '$_temp0 · $surveyed surveyed';
+  }
+
+  @override
+  String get sourcesEmptyTitle => 'No sources yet';
+
+  @override
+  String get sourcesEmptyBody =>
+      'Add a PDF, book, video or link you\'ll study from.';
+
+  @override
+  String get sourcesAdd => 'Add a source';
+
+  @override
+  String get sourcesLoadError => 'Couldn\'t load your sources.';
+
+  @override
+  String get sourceTypePdf => 'PDF';
+
+  @override
+  String get sourceTypeBook => 'Book';
+
+  @override
+  String get sourceTypeVideo => 'Video';
+
+  @override
+  String get sourceTypeLink => 'Link';
+
+  @override
+  String get sourceTypeNotes => 'Notes';
+
+  @override
+  String get sourceTypeQbank => 'Question bank';
+
+  @override
+  String sourceUnits(String unit, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pages',
+      one: '1 page',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions',
+      one: '1 question',
+    );
+    String _temp2 = intl.Intl.selectLogic(unit, {
+      'page': '$_temp0',
+      'minute': '$count min',
+      'question': '$_temp1',
+      'other': '$count items',
+    });
+    return '$_temp2';
+  }
+
+  @override
+  String sourceChapters(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count chapters',
+      one: '1 chapter',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sourceSurveyedOf(int done, int total) {
+    return 'Surveyed $done of $total';
+  }
+
+  @override
+  String get sourceSurvey => 'Survey';
+
+  @override
+  String get sourceSurveyed => 'Surveyed';
+
+  @override
+  String sourceCardSemantics(
+    String title,
+    String type,
+    String size,
+    int done,
+    int total,
+  ) {
+    return '$title, $type, $size, surveyed $done of $total chapters.';
+  }
+
+  @override
+  String get sourceCardHintSurvey => 'Continue the survey';
+
+  @override
+  String get sourceCardHintReview => 'Review the survey';
+
+  @override
+  String get sourceRename => 'Rename';
+
+  @override
+  String get sourceRemove => 'Remove';
+
+  @override
+  String sourceRemoved(String title) {
+    return 'Removed $title';
+  }
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get addSourceWhat => 'What is it?';
+
+  @override
+  String get addSourceDetails => 'Details';
+
+  @override
+  String get addSourceChapters => 'Chapters';
+
+  @override
+  String get addSourceChoosePdf => 'Choose PDF';
+
+  @override
+  String get addSourceChooseOther => 'Choose another';
+
+  @override
+  String get addSourceTitle => 'Title';
+
+  @override
+  String get addSourcePages => 'Total pages';
+
+  @override
+  String get addSourceLink => 'Link';
+
+  @override
+  String get addSourceLinkOptional => 'Link (optional)';
+
+  @override
+  String get addSourceMinutes => 'Length in minutes';
+
+  @override
+  String get addSourceQuestions => 'Number of questions';
+
+  @override
+  String get addSourceReading => 'Reading bookmarks…';
+
+  @override
+  String addSourceFileInfo(String size, String pages) {
+    return '$size · $pages';
+  }
+
+  @override
+  String addSourceMegabytes(String value) {
+    return '$value MB';
+  }
+
+  @override
+  String addSourceKilobytes(String value) {
+    return '$value KB';
+  }
+
+  @override
+  String addSourceFoundBookmarks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count chapters',
+      one: '1 chapter',
+    );
+    return 'Found $_temp0 in the bookmarks';
+  }
+
+  @override
+  String get addSourceUseBookmarks => 'Use these';
+
+  @override
+  String get addSourceNoBookmarks => 'This PDF has no bookmarks we can read.';
+
+  @override
+  String addSourceDuplicate(String title) {
+    return 'Already added as $title';
+  }
+
+  @override
+  String get addSourceOpenIt => 'Open it';
+
+  @override
+  String get addSourcePaste => 'Paste a chapter list';
+
+  @override
+  String get addSourcePasteHint => 'Rest and motion 40\nForce 63';
+
+  @override
+  String get addSourcePasteHelp =>
+      'One chapter per line, ending in its first page.';
+
+  @override
+  String addSourcePasteErrors(int count, String lines) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Lines $lines have no page number.',
+      one: 'Line $lines has no page number.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String addSourceSplitEvery(String size) {
+    return 'Split every $size';
+  }
+
+  @override
+  String get addSourceKeepOne => 'Keep as one';
+
+  @override
+  String get addSourceFewer => 'Fewer';
+
+  @override
+  String get addSourceMore => 'More';
+
+  @override
+  String addSourceRangePages(int start, int end) {
+    return 'pp. $start–$end';
+  }
+
+  @override
+  String addSourceRange(int start, int end) {
+    return '$start–$end';
+  }
+
+  @override
+  String addSourceChunkPages(int start, int end) {
+    return 'Pages $start–$end';
+  }
+
+  @override
+  String addSourceChunkMinutes(int start, int end) {
+    return 'Minutes $start–$end';
+  }
+
+  @override
+  String addSourceChunkQuestions(int start, int end) {
+    return 'Questions $start–$end';
+  }
+
+  @override
+  String get addSourceShort => 'Short — merge with next?';
+
+  @override
+  String addSourceLong(int count) {
+    return 'Long — will be read over $count sessions';
+  }
+
+  @override
+  String get addSourceSaveSurvey => 'Save and survey';
+
+  @override
+  String get addSourceSaveFailed => 'Couldn\'t save. Try again.';
+
+  @override
+  String get addSourcePdfMissing => 'Choose a PDF';
+
+  @override
+  String get addSourceTitleMissing => 'Add a title';
+
+  @override
+  String get addSourceUnitsMissing => 'Must be more than 0';
+
+  @override
+  String get addSourceLinkMissing => 'Add a link';
 }

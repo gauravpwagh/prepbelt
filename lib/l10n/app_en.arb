@@ -221,5 +221,246 @@
   "surveyFinish": "Finish survey",
   "surveyEmpty": "This source has no chapters yet.",
   "loadError": "Couldn't load this. Try again.",
-  "tryAgain": "Try again"
+  "tryAgain": "Try again",
+  "sourcesSummary": "{count, plural, =1{1 source} other{{count} sources}} · {surveyed} surveyed",
+  "@sourcesSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "surveyed": {
+        "type": "int"
+      }
+    }
+  },
+  "sourcesEmptyTitle": "No sources yet",
+  "sourcesEmptyBody": "Add a PDF, book, video or link you'll study from.",
+  "sourcesAdd": "Add a source",
+  "sourcesLoadError": "Couldn't load your sources.",
+  "sourceTypePdf": "PDF",
+  "sourceTypeBook": "Book",
+  "sourceTypeVideo": "Video",
+  "sourceTypeLink": "Link",
+  "sourceTypeNotes": "Notes",
+  "sourceTypeQbank": "Question bank",
+  "sourceUnits": "{unit, select, page{{count, plural, =1{1 page} other{{count} pages}}} minute{{count} min} question{{count, plural, =1{1 question} other{{count} questions}}} other{{count} items}}",
+  "@sourceUnits": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sourceChapters": "{count, plural, =1{1 chapter} other{{count} chapters}}",
+  "@sourceChapters": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sourceSurveyedOf": "Surveyed {done} of {total}",
+  "@sourceSurveyedOf": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "sourceSurvey": "Survey",
+  "sourceSurveyed": "Surveyed",
+  "sourceCardSemantics": "{title}, {type}, {size}, surveyed {done} of {total} chapters.",
+  "@sourceCardSemantics": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "type": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      },
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "sourceCardHintSurvey": "Continue the survey",
+  "sourceCardHintReview": "Review the survey",
+  "sourceRename": "Rename",
+  "sourceRemove": "Remove",
+  "sourceRemoved": "Removed {title}",
+  "@sourceRemoved": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "undo": "Undo",
+  "cancel": "Cancel",
+  "save": "Save",
+  "addSourceWhat": "What is it?",
+  "addSourceDetails": "Details",
+  "addSourceChapters": "Chapters",
+  "addSourceChoosePdf": "Choose PDF",
+  "addSourceChooseOther": "Choose another",
+  "addSourceTitle": "Title",
+  "addSourcePages": "Total pages",
+  "addSourceLink": "Link",
+  "addSourceLinkOptional": "Link (optional)",
+  "addSourceMinutes": "Length in minutes",
+  "addSourceQuestions": "Number of questions",
+  "addSourceReading": "Reading bookmarks…",
+  "addSourceFileInfo": "{size} · {pages}",
+  "@addSourceFileInfo": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "pages": {
+        "type": "String"
+      }
+    }
+  },
+  "addSourceMegabytes": "{value} MB",
+  "@addSourceMegabytes": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "addSourceKilobytes": "{value} KB",
+  "@addSourceKilobytes": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "addSourceFoundBookmarks": "Found {count, plural, =1{1 chapter} other{{count} chapters}} in the bookmarks",
+  "@addSourceFoundBookmarks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addSourceUseBookmarks": "Use these",
+  "addSourceNoBookmarks": "This PDF has no bookmarks we can read.",
+  "addSourceDuplicate": "Already added as {title}",
+  "@addSourceDuplicate": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "addSourceOpenIt": "Open it",
+  "addSourcePaste": "Paste a chapter list",
+  "addSourcePasteHint": "Rest and motion 40\nForce 63",
+  "addSourcePasteHelp": "One chapter per line, ending in its first page.",
+  "addSourcePasteErrors": "{count, plural, =1{Line {lines} has no page number.} other{Lines {lines} have no page number.}}",
+  "@addSourcePasteErrors": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "lines": {
+        "type": "String"
+      }
+    }
+  },
+  "addSourceSplitEvery": "Split every {size}",
+  "@addSourceSplitEvery": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "addSourceKeepOne": "Keep as one",
+  "addSourceFewer": "Fewer",
+  "addSourceMore": "More",
+  "addSourceRangePages": "pp. {start}–{end}",
+  "@addSourceRangePages": {
+    "placeholders": {
+      "start": {
+        "type": "int"
+      },
+      "end": {
+        "type": "int"
+      }
+    }
+  },
+  "addSourceRange": "{start}–{end}",
+  "@addSourceRange": {
+    "placeholders": {
+      "start": {
+        "type": "int"
+      },
+      "end": {
+        "type": "int"
+      }
+    }
+  },
+  "addSourceChunkPages": "Pages {start}–{end}",
+  "@addSourceChunkPages": {
+    "placeholders": {
+      "start": {
+        "type": "int"
+      },
+      "end": {
+        "type": "int"
+      }
+    }
+  },
+  "addSourceChunkMinutes": "Minutes {start}–{end}",
+  "@addSourceChunkMinutes": {
+    "placeholders": {
+      "start": {
+        "type": "int"
+      },
+      "end": {
+        "type": "int"
+      }
+    }
+  },
+  "addSourceChunkQuestions": "Questions {start}–{end}",
+  "@addSourceChunkQuestions": {
+    "placeholders": {
+      "start": {
+        "type": "int"
+      },
+      "end": {
+        "type": "int"
+      }
+    }
+  },
+  "addSourceShort": "Short — merge with next?",
+  "addSourceLong": "Long — will be read over {count} sessions",
+  "@addSourceLong": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addSourceSaveSurvey": "Save and survey",
+  "addSourceSaveFailed": "Couldn't save. Try again.",
+  "addSourcePdfMissing": "Choose a PDF",
+  "addSourceTitleMissing": "Add a title",
+  "addSourceUnitsMissing": "Must be more than 0",
+  "addSourceLinkMissing": "Add a link"
 }

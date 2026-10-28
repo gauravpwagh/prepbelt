@@ -120,16 +120,24 @@ class _SurveyBodyState extends ConsumerState<SurveyBody> {
     if (_index + 1 < _chapters.length) {
       setState(() => _show(_index + 1, carry: true));
     } else {
-      widget.onDone();
+      await _finish();
     }
   });
+
+  /// Creates the chapters' tasks, then leaves the survey.
+  Future<void> _finish() async {
+    await ref
+        .read(surveyActionsProvider.notifier)
+        .finish(widget.view.sourceId, examId: widget.view.examId);
+    widget.onDone();
+  }
 
   Future<void> _markRest() => _run(() async {
     await _save();
     await ref
         .read(surveyActionsProvider.notifier)
         .markRestMedium(widget.view.sourceId, examId: widget.view.examId);
-    widget.onDone();
+    await _finish();
   });
 
   @override

@@ -124,6 +124,9 @@ abstract final class Defaults {
   /// Chunks under this many pages get a merge suggestion.
   static const int mergeSuggestionPages = 5;
 
+  /// Add source: "Split every N pages" starts at this N.
+  static const int splitSizePages = 20;
+
   /// Split: children's due dates are staggered by up to this many days.
   static const int splitDueStaggerDays = 2;
 

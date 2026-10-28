@@ -161,3 +161,237 @@ final class SourceFamily extends $Family
   @override
   String toString() => r'sourceProvider';
 }
+
+/// Sources with survey progress, in Sources-list order.
+
+@ProviderFor(sourceSummaries)
+final sourceSummariesProvider = SourceSummariesProvider._();
+
+/// Sources with survey progress, in Sources-list order.
+
+final class SourceSummariesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<SourceSummary>>,
+          List<SourceSummary>,
+          Stream<List<SourceSummary>>
+        >
+    with
+        $FutureModifier<List<SourceSummary>>,
+        $StreamProvider<List<SourceSummary>> {
+  /// Sources with survey progress, in Sources-list order.
+  SourceSummariesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'sourceSummariesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$sourceSummariesHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<List<SourceSummary>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<SourceSummary>> create(Ref ref) {
+    return sourceSummaries(ref);
+  }
+}
+
+String _$sourceSummariesHash() => r'a69e79c49c47912e28483fe9208d9d70ca1a327e';
+
+/// Where imported files are copied. Tests override it with a temp folder.
+
+@ProviderFor(fileStore)
+final fileStoreProvider = FileStoreProvider._();
+
+/// Where imported files are copied. Tests override it with a temp folder.
+
+final class FileStoreProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<FileStore>,
+          FileStore,
+          FutureOr<FileStore>
+        >
+    with $FutureModifier<FileStore>, $FutureProvider<FileStore> {
+  /// Where imported files are copied. Tests override it with a temp folder.
+  FileStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'fileStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$fileStoreHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<FileStore> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<FileStore> create(Ref ref) {
+    return fileStore(ref);
+  }
+}
+
+String _$fileStoreHash() => r'b8fb743f97aa6fc84c494e9436ac1e921fbb8557';
+
+@ProviderFor(pdfPicker)
+final pdfPickerProvider = PdfPickerProvider._();
+
+final class PdfPickerProvider
+    extends $FunctionalProvider<PdfPicker, PdfPicker, PdfPicker>
+    with $Provider<PdfPicker> {
+  PdfPickerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pdfPickerProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$pdfPickerHash();
+
+  @$internal
+  @override
+  $ProviderElement<PdfPicker> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  PdfPicker create(Ref ref) {
+    return pdfPicker(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(PdfPicker value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<PdfPicker>(value),
+    );
+  }
+}
+
+String _$pdfPickerHash() => r'cf6c1042a4de958e703782a793651db1a15ffba5';
+
+@ProviderFor(pdfOutlineReader)
+final pdfOutlineReaderProvider = PdfOutlineReaderProvider._();
+
+final class PdfOutlineReaderProvider
+    extends
+        $FunctionalProvider<
+          PdfOutlineReader,
+          PdfOutlineReader,
+          PdfOutlineReader
+        >
+    with $Provider<PdfOutlineReader> {
+  PdfOutlineReaderProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pdfOutlineReaderProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$pdfOutlineReaderHash();
+
+  @$internal
+  @override
+  $ProviderElement<PdfOutlineReader> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  PdfOutlineReader create(Ref ref) {
+    return pdfOutlineReader(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(PdfOutlineReader value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<PdfOutlineReader>(value),
+    );
+  }
+}
+
+String _$pdfOutlineReaderHash() => r'ee6eb56ffa0cc28f6408642f8fa81a44da4775f6';
+
+/// Rename, remove and undo from the Sources list.
+
+@ProviderFor(SourceActions)
+final sourceActionsProvider = SourceActionsProvider._();
+
+/// Rename, remove and undo from the Sources list.
+final class SourceActionsProvider
+    extends $NotifierProvider<SourceActions, void> {
+  /// Rename, remove and undo from the Sources list.
+  SourceActionsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'sourceActionsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$sourceActionsHash();
+
+  @$internal
+  @override
+  SourceActions create() => SourceActions();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(void value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<void>(value),
+    );
+  }
+}
+
+String _$sourceActionsHash() => r'299fb08727cb057d62a5d150e205aadae7b0ed4a';
+
+/// Rename, remove and undo from the Sources list.
+
+abstract class _$SourceActions extends $Notifier<void> {
+  void build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<void, void>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<void, void>,
+              void,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
