@@ -78,7 +78,7 @@ test/  integration_test/
 
 **Review engine** (`engines/review`)
 
-- No spaced-repetition algorithm: a fixed schedule of 5 reviews with growing gaps, fitted before the exam (`02-data-model.md`). Every number comes from configuration.
+- No spaced-repetition algorithm: a schedule of up to 5 reviews (set by the task's belt target) with growing gaps, fitted before the exam (`02-data-model.md`). Every number comes from configuration.
 - `applyReview(state, rating, at, deadline) → (newState, levelBefore, levelAfter, stepAfter, dueAfter)`.
 - `dueFor(state, deadline)`, `display(state, now)` (level, dim, stripes, fading) and `displayedLevel(state, now)`, which is always the stored level.
 - `pause`, `resume` and `rebuild(reviews, pauses, deadline) → TaskState`.

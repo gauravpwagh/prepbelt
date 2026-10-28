@@ -6,17 +6,27 @@ import 'review_types.dart';
 /// Belt and review-schedule rules of docs/02-data-model.md. Pure: every
 /// time comes in as a parameter, every number from [config].
 ///
-/// A task is first read (White), then reviewed [ReviewConfig.scheduledReviews]
-/// times with growing gaps that all fit before the exam. Each Good review
-/// earns the next belt; one that is not Good keeps the belt, dims it and
-/// repeats the step. [deadline] is the latest time a review may be due
-/// (the end of the day before the exam), or null when there is no exam.
+/// A task is first read (White), then reviewed a planned number of times
+/// (see [plannedReviewsFor]) with growing gaps that all fit before the
+/// exam. Each Good review earns the next belt; one that is not Good keeps
+/// the belt, dims it and repeats the step. [deadline] is the latest time a
+/// review may be due (the end of the day before the exam), or null when
+/// there is no exam. `planned` is the task's planned review count; it
+/// defaults to [ReviewConfig.scheduledReviews].
 final class ReviewEngine {
   ReviewEngine(this.config);
 
   final ReviewConfig config;
 
   static const _maxLevel = 7;
+
+  /// Reviews to plan for a task whose belt target is [targetLevel]: one per
+  /// belt above White, at most [ReviewConfig.scheduledReviews] and at least
+  /// one. With no target, the full schedule. A Black target therefore plans
+  /// the full schedule (Brown); Black itself takes a review by choice.
+  int plannedReviewsFor(int? targetLevel) => targetLevel == null
+      ? config.scheduledReviews
+      : (targetLevel - 1).clamp(1, config.scheduledReviews);
 
   /// Applies one review at [at]. Reviewing before the due date is allowed
   /// and counts as the next step; the remaining gaps re-fit.
@@ -25,6 +35,7 @@ final class ReviewEngine {
     Rating rating,
     DateTime at, {
     DateTime? deadline,
+    int? planned,
   }) {
     if (state.paused) {
       throw StateError('Resume a paused task before reviewing it');
@@ -47,7 +58,7 @@ final class ReviewEngine {
     }
     final reviewed = next.copyWith(reps: state.reps + 1, lastReviewAt: at);
     final scheduled = reviewed.copyWith(
-      dueAt: dueFor(reviewed, deadline: deadline),
+      dueAt: dueFor(reviewed, deadline: deadline, planned: planned),
     );
     return ReviewOutcome(
       state: scheduled,
@@ -62,7 +73,8 @@ final class ReviewEngine {
   /// if the last review was not Good, otherwise the next scheduled step,
   /// with the remaining gaps fitted before [deadline] in the proportions of
   /// [ReviewConfig.gapWeights]. Null when nothing is left to schedule.
-  DateTime? dueFor(ReviewState state, {DateTime? deadline}) {
+  DateTime? dueFor(ReviewState state, {DateTime? deadline, int? planned}) {
+    final reviews = planned ?? config.scheduledReviews;
     final last = state.lastReviewAt;
     if (last == null) return null;
 
@@ -76,7 +88,7 @@ final class ReviewEngine {
     if (state.dim > 0) {
       return capped(last.add(Duration(days: config.retryGapDays)));
     }
-    final remaining = config.scheduledReviews - state.step;
+    final remaining = reviews - state.step;
     if (remaining <= 0) return null;
 
     if (deadline == null) {
@@ -87,7 +99,7 @@ final class ReviewEngine {
     final daysLeft = deadline.difference(last).inDays;
     if (daysLeft < 1) return deadline.isAfter(last) ? deadline : null;
     final weights = [
-      for (var i = state.step; i < config.scheduledReviews; i++)
+      for (var i = state.step; i < reviews; i++)
         config.gapWeights[min(i, config.gapWeights.length - 1)],
     ];
     final total = weights.reduce((a, b) => a + b);
@@ -144,14 +156,21 @@ final class ReviewEngine {
   /// Ends a pause at [at]. The last review time moves later by the paused
   /// duration and the schedule re-fits from there (decision D6): without
   /// an exam the due date moves by exactly the paused time.
-  ReviewState resume(ReviewState state, DateTime at, {DateTime? deadline}) {
+  ReviewState resume(
+    ReviewState state,
+    DateTime at, {
+    DateTime? deadline,
+    int? planned,
+  }) {
     final pausedAt = state.pausedAt;
     if (pausedAt == null) return state;
     final shifted = state.copyWith(
       pausedAt: null,
       lastReviewAt: state.lastReviewAt?.add(at.difference(pausedAt)),
     );
-    return shifted.copyWith(dueAt: dueFor(shifted, deadline: deadline));
+    return shifted.copyWith(
+      dueAt: dueFor(shifted, deadline: deadline, planned: planned),
+    );
   }
 
   /// Recomputes a task's state from its review log and pause history
@@ -161,6 +180,7 @@ final class ReviewEngine {
     List<ReviewRecord> reviews, {
     List<PauseInterval> pauses = const [],
     DateTime? deadline,
+    int? planned,
   }) {
     final events = <_Event>[
       for (final r in reviews) _Event(r.at, r.order, 1, review: r),
@@ -178,9 +198,10 @@ final class ReviewEngine {
           r.rating,
           r.at,
           deadline: deadline,
+          planned: planned,
         ).state,
         _Event(pause: true) => pause(state, e.at),
-        _ => resume(state, e.at, deadline: deadline),
+        _ => resume(state, e.at, deadline: deadline, planned: planned),
       };
     }
     return state;

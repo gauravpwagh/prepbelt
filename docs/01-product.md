@@ -17,7 +17,7 @@ A general-purpose study planner for students preparing for any exam. It should f
 4. The planner builds a day-by-day schedule.
 5. Each day the **Today** screen lists sessions. Tapping Start opens the source in its own app (external PDF viewer, YouTube, browser).
 6. Back in PrepBelt, the student says where they stopped and rates recall: **Forgot / Hard / Good / Easy**.
-7. Each task gets 5 reviews with growing gaps, all fitted before the exam. A Good review promotes the task to the next belt; a weaker one keeps the belt but dims it, and that review is repeated the next day. Students can also review any task early.
+7. Each task gets up to 5 reviews (more for higher belt targets) with growing gaps, all fitted before the exam. A Good review promotes the task to the next belt; a weaker one keeps the belt but dims it, and that review is repeated the next day. Students can also review any task early.
 
 ## Levels and belts
 

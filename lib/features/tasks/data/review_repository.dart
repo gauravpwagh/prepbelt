@@ -29,21 +29,41 @@ final class ReviewRepository extends EventSourcedRepository {
   /// `lastReviewDaysBeforeExam - 1` days before the upcoming exam (with the
   /// default of 1, midnight at the start of exam day). Null without an exam.
   Future<DateTime?> deadline() async {
-    final exam =
-        await (db.select(db.exams)
-              ..where(
-                (e) =>
-                    e.deletedAt.isNull() &
-                    e.status.equalsValue(ExamStatus.upcoming),
-              )
-              ..orderBy([(e) => OrderingTerm.asc(e.date)])
-              ..limit(1))
-            .getSingleOrNull();
+    final exam = await _upcomingExam();
     if (exam == null) return null;
     final days = (await config()).lastReviewDaysBeforeExam;
     final day = DateTime.parse(exam.date);
     return DateTime(day.year, day.month, day.day - (days - 1)).toUtc();
   }
+
+  /// How many reviews to plan for [taskId]: set by its belt target in the
+  /// upcoming exam (High → Black plans 5, Medium → Blue 4, Low → Green 3);
+  /// the full schedule when it has no target.
+  Future<int> plannedReviews(String taskId) async {
+    final engine = await _engine();
+    final exam = await _upcomingExam();
+    final link = exam == null
+        ? null
+        : await (db.select(db.examTasks)..where(
+                (l) =>
+                    l.examId.equals(exam.id) &
+                    l.taskId.equals(taskId) &
+                    l.deletedAt.isNull(),
+              ))
+              .getSingleOrNull();
+    return engine.plannedReviewsFor(link?.targetLevel);
+  }
+
+  Future<Exam?> _upcomingExam() =>
+      (db.select(db.exams)
+            ..where(
+              (e) =>
+                  e.deletedAt.isNull() &
+                  e.status.equalsValue(ExamStatus.upcoming),
+            )
+            ..orderBy([(e) => OrderingTerm.asc(e.date)])
+            ..limit(1))
+          .getSingleOrNull();
 
   /// Records one review at the current time: appends the Review row,
   /// updates TaskState through the engine and logs an Event, in one
@@ -58,6 +78,7 @@ final class ReviewRepository extends EventSourcedRepository {
   }) async {
     final engine = await _engine();
     final deadline = await this.deadline();
+    final planned = await plannedReviews(taskId);
     return mutate(
       entity: entity,
       entityId: taskId,
@@ -70,7 +91,13 @@ final class ReviewRepository extends EventSourcedRepository {
           throw const InvalidOperationError('Resume the task to review it');
         }
         final at = fromUtcMs(rec.now);
-        final out = engine.applyReview(state, rating, at, deadline: deadline);
+        final out = engine.applyReview(
+          state,
+          rating,
+          at,
+          deadline: deadline,
+          planned: planned,
+        );
         final review = await rec.insert(
           db.reviews,
           ReviewsCompanion(
@@ -126,6 +153,7 @@ final class ReviewRepository extends EventSourcedRepository {
   Future<void> resume(String taskId) async {
     final engine = await _engine();
     final deadline = await this.deadline();
+    final planned = await plannedReviews(taskId);
     await mutate<void>(
       entity: entity,
       entityId: taskId,
@@ -146,7 +174,12 @@ final class ReviewRepository extends EventSourcedRepository {
           db.taskStates,
           row.id,
           toCompanion(
-            engine.resume(state, fromUtcMs(rec.now), deadline: deadline),
+            engine.resume(
+              state,
+              fromUtcMs(rec.now),
+              deadline: deadline,
+              planned: planned,
+            ),
           ),
         );
       },
@@ -195,6 +228,7 @@ final class ReviewRepository extends EventSourcedRepository {
       reviews,
       pauses: await pausesFor(taskId),
       deadline: await deadline(),
+      planned: await plannedReviews(taskId),
     );
   }
 

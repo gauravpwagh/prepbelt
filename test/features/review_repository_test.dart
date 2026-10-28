@@ -219,4 +219,34 @@ void main() {
     expect((await stateOf(task.id)).dueAt, isNull);
     expect((await stateOf(task.id)).level, 3);
   });
+
+  test('an exam target sets how many reviews a task gets', () async {
+    final exam = await ExamRepository(
+      ctx,
+    ).create(name: 'JEE Main', date: '2027-01-10');
+    final task = await tasks.create(title: 'Optics');
+    // Low importance, target Green. ExamTask writes arrive with the
+    // survey in milestone 3; the test inserts the row directly.
+    await db
+        .into(db.examTasks)
+        .insert(
+          ExamTasksCompanion.insert(
+            id: 'link-1',
+            createdAt: 0,
+            updatedAt: 0,
+            hlc: '0',
+            deviceId: 'test-device',
+            examId: exam.id,
+            taskId: task.id,
+            importance: Importance.low,
+            targetLevel: 4,
+          ),
+        );
+    expect(await reviews.plannedReviews(task.id), 3);
+    await goodUntilDue(task.id, 4); // first read + 3 reviews
+    final state = await stateOf(task.id);
+    expect(state.level, 4, reason: 'Green');
+    expect(state.dueAt, isNull, reason: 'plan complete');
+    expect(await reviews.rebuildState(task.id), state);
+  });
 }

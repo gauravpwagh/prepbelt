@@ -78,6 +78,51 @@ void main() {
     });
   });
 
+  group('targets set the number of reviews', () {
+    test('one review per belt above White, capped at the full schedule', () {
+      expect(engine.plannedReviewsFor(7), 5, reason: 'High → Black');
+      expect(engine.plannedReviewsFor(5), 4, reason: 'Medium → Blue');
+      expect(engine.plannedReviewsFor(4), 3, reason: 'Low → Green');
+      expect(engine.plannedReviewsFor(2), 1);
+      expect(engine.plannedReviewsFor(1), 1, reason: 'at least one');
+      expect(engine.plannedReviewsFor(null), 5);
+    });
+
+    test('a Blue target plans 4 reviews with growing gaps before the exam; '
+        'more reviews by choice still earn belts', () {
+      var state = const ReviewState();
+      final times = <DateTime>[];
+      final levels = <int>[];
+      while (true) {
+        final out = engine.applyReview(
+          state,
+          Rating.good,
+          clock.now(),
+          deadline: exam,
+          planned: 4,
+        );
+        times.add(clock.now());
+        levels.add(out.levelAfter);
+        state = out.state;
+        if (state.dueAt == null) break;
+        clock.set(state.dueAt!);
+      }
+      expect(levels, [1, 2, 3, 4, 5]);
+      final gaps = [
+        for (var i = 1; i < times.length; i++)
+          times[i].difference(times[i - 1]).inDays,
+      ];
+      for (var i = 1; i < gaps.length; i++) {
+        expect(gaps[i], greaterThan(gaps[i - 1]), reason: 'gaps $gaps');
+      }
+      expect(exam.difference(times.last).inDays, lessThan(10));
+
+      clock.advance(const Duration(hours: 2));
+      final extra = engine.applyReview(state, Rating.good, clock.now());
+      expect(extra.levelAfter, 6);
+    });
+  });
+
   group('schedule', () {
     test('5 reviews with growing gaps, all before the exam', () {
       final outs = goodHistory(5, deadline: exam);

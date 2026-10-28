@@ -104,8 +104,8 @@ Computed from TaskState, Review and ExamTask; nothing here is stored except as a
 **Level (1–7) and the review schedule.** Every task follows the same simple schedule (no spaced-repetition algorithm):
 
 - The **first read** earns level 1 (White), whatever its rating.
-- Then come **5 scheduled reviews** with growing gaps, all fitted before the exam: the gaps keep the proportions 1 : 2 : 3 : 5 : 8 and are re-fitted to the days left after every review, so the last review lands by the day before the exam. A close exam crams them closer, at least a day apart; with no exam the gaps are 1, 3, 7, 14 and 30 days.
-- A **Good or Easy** review earns the next belt and moves to the next step. Five Good reviews reach Brown (level 6). **Black** (level 7) takes one more review that the student chooses to do after the schedule.
+- Then come **scheduled reviews** with growing gaps, all fitted before the exam. Their number is set by the task's belt target in the exam: one review per belt above White, at most 5 (High → Black plans 5, Medium → Blue 4, Low → Green 3; no target plans 5). The gaps keep the proportions 1 : 2 : 3 : 5 : 8 and are re-fitted to the days left after every review, so the last review lands by the day before the exam. A close exam crams them closer, at least a day apart; with no exam the gaps are 1, 3, 7, 14 and 30 days.
+- A **Good or Easy** review earns the next belt and moves to the next step, so a task that passes all its planned reviews reaches its target (Brown for a Black target). Reviews the student chooses to do after the plan keep earning belts; **Black** (level 7) always takes one such review.
 - A **Forgot or Hard** review keeps the belt, dims it one step, and repeats the same step 1 day later.
 - The student may review **any task early**; it counts as that task's next step, and the remaining gaps re-fit.
 
@@ -119,7 +119,7 @@ Computed from TaskState, Review and ExamTask; nothing here is stored except as a
 | 6 | 5th Good review | Brown | Ruby |
 | 7 | an extra Good review after the schedule | Black | Diamond |
 
-The number of reviews, the gap weights, the gaps without an exam and the retry gap are configuration, not code.
+The maximum number of reviews, the gap weights, the gaps without an exam and the retry gap are configuration, not code.
 
 **Brightness (stripes) instead of decay.** The stored level never drops. A belt dims instead, in steps: one step per review that was not Good, one step once a review is overdue, and one more every 2 days it stays overdue. Steps show as 2 stripes (full), 1 stripe, no stripes, then faded (about 45% opacity, captioned "fading"). Any Good review restores full brightness. Paused tasks do not dim.
 

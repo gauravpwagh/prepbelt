@@ -14,7 +14,7 @@ The planner is a pure function: same inputs and date, same plan. It reads only s
 | Level, review step, due date, resume page | TaskState, Review | What is due and how much is left to read |
 | Daily minutes per weekday, overrides, locked days | Availability, AvailabilityOverride | Capacity per day |
 | Student's pace per subject | Derived from Review durations | Calibrating estimates |
-| Review schedule | Setting (5 reviews, gap weights 1 : 2 : 3 : 5 : 8) | When reviews come due |
+| Review schedule | Setting (at most 5 reviews, gap weights 1 : 2 : 3 : 5 : 8) and the ExamTask target | When reviews come due, and how many |
 | Today's date | Injected clock | Start of the plan |
 
 **Output:** PlanItem rows from today to exam day, each with date, task, kind (firstRead, review, finalReview), estimated minutes and an order within the day. Every run writes a new `generation`; older generations are discarded.
@@ -40,13 +40,13 @@ firstRead = remainingUnits × pace[subject] × d[difficulty] × f[familiarity]
 
 ## Reachable targets
 
-Every task gets the same schedule (see `02-data-model.md`): a first read (White), then 5 reviews with growing gaps, all fitted before the exam. Each Good review earns the next belt, so a task can reach **Brown** by exam day if its first read is done at least 5 days before the deadline. **Black** takes one extra review the student chooses to do; the planner never schedules it.
+Every task follows the same rule (see `02-data-model.md`): a first read (White), then one review per belt above White up to its target, at most 5, with growing gaps all fitted before the exam. High → Black plans 5 reviews, Medium → Blue 4, Low → Green 3. Each Good review earns the next belt, so a task reaches its target by exam day if its first read leaves at least a day per planned review. **Black** takes one extra review the student chooses to do; the planner never schedules it.
 
 **Effective target** = min(exam target level, Brown). Readiness, exam tier and triage use effective targets. A target of Black shows as "Brown by exam day · Black with one extra review". After the exam the original target returns.
 
 ## Scheduling reviews
 
-1. **Due dates:** after each review the engine fits the task's remaining reviews between that review and the deadline (the day before the exam), in the gap proportions 1 : 2 : 3 : 5 : 8, at least a day apart. The next one is the task's due date. The fifth review is the final review and lands in the last days before the exam.
+1. **Due dates:** after each review the engine fits the task's remaining reviews between that review and the deadline (the day before the exam), in the gap proportions 1 : 2 : 3 : 5 : 8, at least a day apart. The next one is the task's due date. The last planned review is the final review and lands in the last days before the exam.
 2. **Not Good:** a Forgot or Hard review repeats the same step the next day; the remaining gaps re-fit after it.
 3. **Early reviews:** a student may review any task before it is due; it counts as the next step and the rest re-fit. Unplanned reviews are never added to the plan silently.
 4. **Smoothing:** a review may move up to 2 days earlier than due, or 1 day later, to even out load, never past the deadline. Never later than that, except through triage.
@@ -86,7 +86,7 @@ for day in today..examDay-1:
     t = next first read by placement order
     session = min(t.nextSession, left)       // a reading session, ≤ 45 min
     place session; left -= session
-  schedule the 5 reviews of tasks started today, fitted before the exam
+  schedule the planned reviews of tasks started today, fitted before the exam
 ```
 
 - **15-minute floor:** a new first-read session never starts with less than 15 minutes left. Continuing a started reading may use less.
@@ -114,7 +114,7 @@ The planner cuts the least valuable work first, shows exactly what it cut, and l
 
 | Step | Cut |
 | --- | --- |
-| 1 | Drop the fifth (final) review of Low tasks |
+| 1 | Drop the final review of Low tasks (their target falls one belt) |
 | 2 | Lower Low targets to Yellow |
 | 3 | Mark Low and Easy first reads as "skim": 40% of the estimate, one review |
 | 4 | Lower Medium targets by one level |
@@ -155,7 +155,7 @@ The golden test should assert the structure (sessions, 5 reviews with growing ga
 
 | Step | Cut | Plan size after |
 | --- | --- | --- |
-| 1 | Fifth (final) reviews of 10 Low tasks | about 77 h |
+| 1 | Final reviews of 10 Low tasks | about 77 h |
 | 2 | Low targets to Yellow | about 70 h |
 | 3 | 4 Low and Easy first reads become skims | about 66 h |
 | 4 | Medium targets down one level | about 58 h |
@@ -167,7 +167,7 @@ Step 5 message: "About 18 more minutes a day keeps this reduced plan. About 36 m
 
 | Setting | Default | Student can change |
 | --- | --- | --- |
-| Reviews per task | 5, gaps 1 : 2 : 3 : 5 : 8, retry after 1 day | No |
+| Reviews per task | One per belt above White up to the target, at most 5; gaps 1 : 2 : 3 : 5 : 8; retry after 1 day | No |
 | Daily minutes per weekday | Set at first launch | Yes |
 | Max reading session | 45 min | No |
 | New-session floor | 15 min | No |
