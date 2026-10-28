@@ -50,6 +50,52 @@ final class TaskRepositoryProvider
 
 String _$taskRepositoryHash() => r'36b460136828fa342c8dbaf20a9134bebf3e7784';
 
+@ProviderFor(reviewRepository)
+final reviewRepositoryProvider = ReviewRepositoryProvider._();
+
+final class ReviewRepositoryProvider
+    extends
+        $FunctionalProvider<
+          ReviewRepository,
+          ReviewRepository,
+          ReviewRepository
+        >
+    with $Provider<ReviewRepository> {
+  ReviewRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'reviewRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$reviewRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<ReviewRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ReviewRepository create(Ref ref) {
+    return reviewRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ReviewRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ReviewRepository>(value),
+    );
+  }
+}
+
+String _$reviewRepositoryHash() => r'be2ca335c6de1e1fd7a532919d9480a9ff35694f';
+
 @ProviderFor(task)
 final taskProvider = TaskFamily._();
 
@@ -190,4 +236,62 @@ final class TaskStateFamily extends $Family
 
   @override
   String toString() => r'taskStateProvider';
+}
+
+/// The rebuild command, as an action for the debug menu. State is the
+/// number of tasks checked by the last run. Kept alive so a run started
+/// from a button finishes even if nothing is listening.
+
+@ProviderFor(MasteryRebuild)
+final masteryRebuildProvider = MasteryRebuildProvider._();
+
+/// The rebuild command, as an action for the debug menu. State is the
+/// number of tasks checked by the last run. Kept alive so a run started
+/// from a button finishes even if nothing is listening.
+final class MasteryRebuildProvider
+    extends $AsyncNotifierProvider<MasteryRebuild, int?> {
+  /// The rebuild command, as an action for the debug menu. State is the
+  /// number of tasks checked by the last run. Kept alive so a run started
+  /// from a button finishes even if nothing is listening.
+  MasteryRebuildProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'masteryRebuildProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$masteryRebuildHash();
+
+  @$internal
+  @override
+  MasteryRebuild create() => MasteryRebuild();
+}
+
+String _$masteryRebuildHash() => r'6664010370e8bf1aa40572d2abde7b9fc6963dd8';
+
+/// The rebuild command, as an action for the debug menu. State is the
+/// number of tasks checked by the last run. Kept alive so a run started
+/// from a button finishes even if nothing is listening.
+
+abstract class _$MasteryRebuild extends $AsyncNotifier<int?> {
+  FutureOr<int?> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<int?>, int?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<int?>, int?>,
+              AsyncValue<int?>,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
 }

@@ -115,14 +115,20 @@ final class ChangeRecorder {
   ) async {
     final columns = row.toColumns(true);
     final id = _idOf(columns);
-    final filled = RawValuesInsertable<R>({
+    final values = _sqlValues({
       ...columns,
       'created_at': Variable<int>(now),
       'updated_at': Variable<int>(now),
       'hlc': Variable<String>(hlc),
       'device_id': Variable<String>(_ctx.deviceId),
     });
-    await _db.into(table).insert(filled);
+    await _db.customInsert(
+      'INSERT INTO "${table.actualTableName}" '
+      '(${values.keys.map((c) => '"$c"').join(', ')}) '
+      'VALUES (${List.filled(values.length, '?').join(', ')})',
+      variables: [for (final v in values.values) Variable<Object>(v)],
+      updates: {table},
+    );
     final after = await _read(table, id);
     _changes.add(
       RowChange(
@@ -147,8 +153,16 @@ final class ChangeRecorder {
       'updated_at': Variable<int>(now),
       'hlc': Variable<String>(hlc),
     };
-    await (_db.update(table)..where((_) => _idColumn(table).equals(id))).write(
-      RawValuesInsertable<R>(columns),
+    final values = _sqlValues(columns);
+    await _db.customUpdate(
+      'UPDATE "${table.actualTableName}" SET '
+      '${values.keys.map((c) => '"$c" = ?').join(', ')} WHERE "id" = ?',
+      variables: [
+        for (final v in values.values) Variable<Object>(v),
+        Variable<String>(id),
+      ],
+      updates: {table},
+      updateKind: UpdateKind.update,
     );
     final after = await _read(table, id);
     _changes.add(
@@ -220,6 +234,19 @@ final class ChangeRecorder {
       ),
     );
   }
+
+  /// Raw SQL values of companion columns.
+  ///
+  /// Writes go through plain SQL rather than drift's typed statements:
+  /// drift checks rows against the table's row type at runtime, and
+  /// generic code here cannot always name it (Dart may infer it as `void`
+  /// from the caller's context).
+  Map<String, Object?> _sqlValues(Map<String, Expression<Object>> columns) => {
+    for (final e in columns.entries)
+      e.key: _db.typeMapping.mapToSqlVariable(
+        (e.value as Variable<Object>).value,
+      ),
+  };
 
   TableInfo<Table, Object?> _tableNamed(String name) =>
       _db.allTables.firstWhere((t) => t.actualTableName == name);
@@ -316,9 +343,9 @@ abstract base class EventSourcedRepository {
             ..orderBy([(e) => OrderingTerm.desc(e.hlc)]))
           .get();
 
-  /// The newest event for the entity that is not an undo and has not been
-  /// undone, or null.
-  Future<Event?> latestUndoable(String entity, String entityId) async {
+  /// The entity's events that still stand: not undone and not undos
+  /// themselves. Newest first.
+  Future<List<Event>> effectiveEvents(String entity, String entityId) async {
     final events = await eventsFor(entity, entityId);
     final undone = <String>{};
     for (final e in events) {
@@ -329,10 +356,17 @@ abstract base class EventSourcedRepository {
           ..add(e.id);
       }
     }
-    for (final e in events) {
-      if (!undone.contains(e.id)) return e;
-    }
-    return null;
+    return [
+      for (final e in events)
+        if (!undone.contains(e.id)) e,
+    ];
+  }
+
+  /// The newest event for the entity that is not an undo and has not been
+  /// undone, or null.
+  Future<Event?> latestUndoable(String entity, String entityId) async {
+    final events = await effectiveEvents(entity, entityId);
+    return events.isEmpty ? null : events.first;
   }
 
   /// Reverses the latest not-yet-undone event of an entity, in a new
