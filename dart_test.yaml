@@ -1,0 +1,3 @@
+tags:
+  golden:
+    description: Pixel comparisons. Rendering differs by OS, so CI runs these on Windows, where the reference images are made.

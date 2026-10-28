@@ -1,0 +1,112 @@
+{
+  "@@locale": "en",
+  "appTitle": "PrepBelt",
+  "navToday": "Today",
+  "navExams": "Exams",
+  "navSources": "Sources",
+  "navProgress": "Progress",
+  "navQuickAdd": "Quick add",
+  "beltWhite": "White",
+  "beltYellow": "Yellow",
+  "beltOrange": "Orange",
+  "beltGreen": "Green",
+  "beltBlue": "Blue",
+  "beltBrown": "Brown",
+  "beltBlack": "Black",
+  "beltName": "{color} belt",
+  "@beltName": {
+    "placeholders": {
+      "color": {
+        "type": "String"
+      }
+    }
+  },
+  "beltNotStarted": "Not started",
+  "beltSemantics": "{belt}, level {level}, {stripes, plural, =0{no stripes} =1{1 stripe} other{{stripes} stripes}}",
+  "@beltSemantics": {
+    "placeholders": {
+      "belt": {
+        "type": "String"
+      },
+      "level": {
+        "type": "int"
+      },
+      "stripes": {
+        "type": "int"
+      }
+    }
+  },
+  "beltSemanticsFading": "{belt}, level {level}, fading",
+  "@beltSemanticsFading": {
+    "placeholders": {
+      "belt": {
+        "type": "String"
+      },
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "beltFading": "fading",
+  "beltNew": "new",
+  "levelActionPromote": "Promote",
+  "sessionKindReview": "Review",
+  "sessionKindFirstRead": "First read",
+  "sessionKindFinalReview": "Final review",
+  "sessionOverdueDays": "Overdue {days, plural, =1{1 day} other{{days} days}}",
+  "@sessionOverdueDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionMinutes": "{minutes} min",
+  "@sessionMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionStart": "Start {title} {kind}",
+  "@sessionStart": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "placeholderComingSoon": "{screen} arrives in a later milestone.",
+  "@placeholderComingSoon": {
+    "placeholders": {
+      "screen": {
+        "type": "String"
+      }
+    }
+  },
+  "screenToday": "Today's training",
+  "screenExams": "Exams",
+  "screenSources": "Sources",
+  "screenProgress": "Progress",
+  "screenSession": "Review session",
+  "screenAddSource": "Add source",
+  "screenSurvey": "Survey",
+  "screenExam": "Exam",
+  "screenTask": "Task",
+  "screenRedefine": "Redefine task",
+  "screenSettings": "Settings",
+  "screenOnboarding": "Welcome",
+  "debugRebuild": "Rebuild mastery from reviews",
+  "debugRebuildDone": "Rebuilt {count, plural, =1{1 task} other{{count} tasks}}",
+  "@debugRebuildDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}
