@@ -6,6 +6,9 @@ library;
 import 'dart:math';
 
 import '../../../core/config/defaults.dart';
+import '../../../platform/pdf_outline/pdf_outline.dart';
+
+export '../../../platform/pdf_outline/pdf_outline.dart' show OutlineEntry;
 
 /// A chapter about to be saved as a Chunk. Ranges are inclusive and
 /// 1-based; [children] become chunks with this one as parent.
@@ -46,16 +49,6 @@ final class ChunkDraft {
 
   @override
   int get hashCode => Object.hash(title, startUnit, endUnit, children.length);
-}
-
-/// A PDF bookmark: its title, the 1-based page it points to (null if it
-/// has no destination) and nested bookmarks.
-final class OutlineEntry {
-  const OutlineEntry(this.title, this.page, [this.children = const []]);
-
-  final String title;
-  final int? page;
-  final List<OutlineEntry> children;
 }
 
 /// Chapters from PDF bookmarks. Each runs to the page before the next

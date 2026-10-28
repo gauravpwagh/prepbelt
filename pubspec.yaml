@@ -7,6 +7,7 @@ environment:
   sdk: ^3.11.4
 
 dependencies:
+  crypto: 3.0.8
   drift: 2.31.0
   drift_flutter: 0.2.0
   flutter:
@@ -37,6 +38,8 @@ dev_dependencies:
   sqlite3: 2.9.4
   flutter_launcher_icons: 0.14.4
   flutter_native_splash: 2.4.7
+  integration_test:
+    sdk: flutter
 
 flutter:
   uses-material-design: true

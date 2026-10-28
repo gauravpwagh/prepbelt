@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../../core/db/event_log.dart';
+import '../../../platform/files/file_store.dart';
 import 'chapter_split.dart';
 
 /// Writes and reads [Source] rows. Every write logs an Event.
@@ -171,18 +172,4 @@ final class SourceRepository extends EventSourcedRepository {
   Stream<Source?> watch(String id) => (db.select(
     db.sources,
   )..where((s) => s.id.equals(id) & s.deletedAt.isNull())).watchSingleOrNull();
-}
-
-/// A file already copied into app storage (see `FileStore`).
-final class StoredFile {
-  const StoredFile({
-    required this.relativePath,
-    required this.bytes,
-    required this.sha256,
-  });
-
-  /// Relative to the app documents directory, e.g. `sources/<uuid>.pdf`.
-  final String relativePath;
-  final int bytes;
-  final String sha256;
 }
