@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import '../../core/config/review_config.dart';
 import 'fsrs_scheduler.dart';
 import 'review_types.dart';
@@ -57,23 +59,20 @@ final class ReviewEngine {
   int displayedLevel(ReviewState state, DateTime now) =>
       display(state, now).level;
 
-  /// Applies one review. The first review sets level 1; later ones move
-  /// towards [levelFor] the new stability, up by at most
-  /// `maxPromotionPerReview` (decision D2), down as far as it says.
+  /// Applies one review. The first review sets level 1; later ones take
+  /// [levelFor] the new stability (decision D2), up or down. An optional
+  /// `maxPromotionPerReview` limits the levels gained in one review.
   ReviewOutcome applyReview(ReviewState state, Rating rating, DateTime at) {
     if (state.paused) {
       throw StateError('Resume a paused task before reviewing it');
     }
     final result = srs.schedule(_memory(state), rating, at);
     final before = state.level;
-    final after = state.started
-        ? _clampLevel(
-            [
-              before + config.maxPromotionPerReview,
-              levelFor(result.stability),
-            ].reduce((a, b) => a < b ? a : b),
-          )
-        : 1;
+    final earned = levelFor(result.stability);
+    final cap = config.maxPromotionPerReview;
+    final after = !state.started
+        ? 1
+        : _clampLevel(cap == null ? earned : min(earned, before + cap));
     final next = state.copyWith(
       level: after,
       stability: result.stability,

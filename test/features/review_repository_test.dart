@@ -193,23 +193,23 @@ void main() {
 
   test('level thresholds from the Setting table change levels', () async {
     await settings.set(SettingKeys.levelStabilityThresholds, [
-      0.5,
-      1,
-      2,
-      4,
-      8,
-      16,
+      20,
+      40,
+      80,
+      160,
+      320,
+      640,
     ]);
-    final task = await tasks.create(title: 'Optics');
-    await goodUntilDue(task.id, 3);
-    final fast = (await stateOf(task.id)).level;
+    final strict = await tasks.create(title: 'Optics');
+    await goodUntilDue(strict.id, 3);
 
     await settings.remove(SettingKeys.levelStabilityThresholds);
-    final other = await tasks.create(title: 'Optics 2');
-    await goodUntilDue(other.id, 2);
-    // With default thresholds the second review's stability (about 11
-    // days) earns only level 2; with the low ones the cap is the limit.
-    expect(fast, 3);
-    expect((await stateOf(other.id)).level, 2);
+    final normal = await tasks.create(title: 'Optics 2');
+    await goodUntilDue(normal.id, 3);
+
+    // Three Good reviews reach a stability of about 37 days: level 2 with
+    // the strict thresholds, level 5 (Blue) with the defaults.
+    expect((await stateOf(strict.id)).level, 2);
+    expect((await stateOf(normal.id)).level, 5);
   });
 }

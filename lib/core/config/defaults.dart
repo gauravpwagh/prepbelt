@@ -23,8 +23,9 @@ abstract final class Defaults {
   /// Highest level a task can reach.
   static const int maxLevel = 7;
 
-  /// A review promotes by at most this many levels (decision D2).
-  static const int maxPromotionPerReview = 1;
+  /// Optional limit on levels gained in one review. Null means the level
+  /// follows stability directly (decision D2).
+  static const int? maxPromotionPerReview = null;
 
   /// Retrievability at or above each value earns one stripe. Index 0 is
   /// the 2-stripe cut-off, index 1 the 1-stripe cut-off (decision D3).

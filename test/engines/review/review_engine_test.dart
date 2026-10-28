@@ -24,12 +24,12 @@ void main() {
       engine.applyReview(s, rating, clock.now());
 
   group('levels', () {
-    test('Good reviews on their due dates promote one belt at a time, '
-        'starting with level 1 at the first read', () {
+    test('Good reviews on their due dates promote through the levels in '
+        'order, starting with level 1 at the first read', () {
       var state = const ReviewState();
       final levels = <int>[];
       final stabilities = <double>[];
-      for (var i = 0; i < 12; i++) {
+      for (var i = 0; i < 8; i++) {
         final out = review(state, Rating.good);
         expect(out.levelBefore, state.level);
         levels.add(out.levelAfter);
@@ -39,13 +39,29 @@ void main() {
       }
       expect(levels.first, 1, reason: 'first read sets level 1');
       for (var i = 1; i < levels.length; i++) {
-        expect(levels[i] - levels[i - 1], inInclusiveRange(0, 1));
-      }
-      expect(levels.last, 7);
-      expect(levels.toSet(), {1, 2, 3, 4, 5, 6, 7}, reason: 'none skipped');
-      for (var i = 1; i < stabilities.length; i++) {
+        expect(levels[i], greaterThanOrEqualTo(levels[i - 1]));
+        expect(levels[i], engine.levelFor(stabilities[i]));
         expect(stabilities[i], greaterThan(stabilities[i - 1]));
       }
+      expect(levels.last, 7);
+    });
+
+    test('an optional cap limits the levels gained in one review', () {
+      final capped = ReviewEngine(
+        ReviewConfig.fromSettings({SettingKeys.maxPromotionPerReview: 1}),
+      );
+      var state = const ReviewState();
+      final levels = <int>[];
+      for (var i = 0; i < 10; i++) {
+        final out = capped.applyReview(state, Rating.good, clock.now());
+        levels.add(out.levelAfter);
+        state = out.state;
+        clock.set(state.dueAt!);
+      }
+      for (var i = 1; i < levels.length; i++) {
+        expect(levels[i] - levels[i - 1], inInclusiveRange(0, 1));
+      }
+      expect(levels.toSet(), {1, 2, 3, 4, 5, 6, 7});
     });
 
     test('even an Easy first read sets level 1', () {

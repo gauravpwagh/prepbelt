@@ -37,9 +37,11 @@ final class ReviewConfig {
       levelStabilityThresholds:
           list(SettingKeys.levelStabilityThresholds) ??
           Defaults.levelStabilityThresholds,
-      maxPromotionPerReview:
-          i(SettingKeys.maxPromotionPerReview) ??
-          Defaults.maxPromotionPerReview,
+      maxPromotionPerReview: settings.containsKey(
+            SettingKeys.maxPromotionPerReview,
+          )
+          ? i(SettingKeys.maxPromotionPerReview)
+          : Defaults.maxPromotionPerReview,
       stripeThresholds:
           list(SettingKeys.stripeThresholds) ?? Defaults.stripeThresholds,
       fadingRetrievability:
@@ -54,7 +56,7 @@ final class ReviewConfig {
 
   final double retentionTarget;
   final List<double> levelStabilityThresholds;
-  final int maxPromotionPerReview;
+  final int? maxPromotionPerReview;
   final List<double> stripeThresholds;
   final double fadingRetrievability;
   final List<double>? fsrsParameters;
