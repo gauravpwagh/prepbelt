@@ -12,6 +12,7 @@ analyzer:
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
+    - "**/*.drift.dart"
     - "lib/l10n/gen/**"
     - "test/drift/generated/**"
 

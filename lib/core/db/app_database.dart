@@ -6,7 +6,7 @@ import 'tables.dart';
 
 export 'enums.dart';
 
-part 'app_database.g.dart';
+part 'app_database.drift.dart';
 
 @DriftDatabase(
   tables: [
