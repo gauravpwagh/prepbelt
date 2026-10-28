@@ -130,6 +130,39 @@ def concept_gradient(gap):
     )
 
 
+def concept_ring(gap):
+    """4 · Belt ring: the seven Dojo belts, white to black, as rounded arc
+    segments of a progress ring around a tied belt."""
+    belts = ["#F1EFE8", "#FAC775", "#EF9F27", "#639922", "#378ADD", "#854F0B", "#2C2C2A"]
+    cx = cy = 512
+    r, w = 300, 62
+    step = 360 / 7
+    sweep = step - 22
+    arcs = []
+    for i, color in enumerate(belts):
+        a0 = math.radians(-90 - sweep / 2 + i * step)
+        a1 = a0 + math.radians(sweep)
+        x0, y0 = cx + r * math.cos(a0), cy + r * math.sin(a0)
+        x1, y1 = cx + r * math.cos(a1), cy + r * math.sin(a1)
+        d = f"M {x0:.1f} {y0:.1f} A {r} {r} 0 0 1 {x1:.1f} {y1:.1f}"
+        if color == "#2C2C2A":
+            # The black belt needs an edge to show on the dark ground.
+            arcs.append(
+                f'<path d="{d}" fill="none" stroke="#5A6178" stroke-width="{w + 8}" '
+                'stroke-linecap="round"/>'
+            )
+        arcs.append(
+            f'<path d="{d}" fill="none" stroke="{color}" stroke-width="{w}" '
+            'stroke-linecap="round"/>'
+        )
+    band = f'<rect x="318" y="478" width="388" height="64" rx="18" fill="{WHITE_BELT}"/>'
+    centre = (
+        f'<g transform="translate(512 512) scale(0.62) translate(-512 -512)">'
+        f'{tails(512, 552, 1.0, WHITE_BELT, gap)}{knot(512, 504, 1.0, WHITE_BELT, gap)}</g>'
+    )
+    return "".join(arcs) + band + centre
+
+
 CONCEPTS = {
     "1-wrapped": {
         "name": "Wrapped",
@@ -145,6 +178,11 @@ CONCEPTS = {
         "name": "Gradient",
         "draw": concept_gradient,
         "bg": ("flat", GROUND),
+    },
+    "4-ring": {
+        "name": "Belt ring",
+        "draw": concept_ring,
+        "bg": ("flat", INK),
     },
 }
 

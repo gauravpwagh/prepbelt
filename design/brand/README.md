@@ -23,6 +23,12 @@ A softly curved band that swells toward the knot, like a belt seen tied around a
 
 The Ribbon form, with the cloth shading from yellow belt to black belt along its length. Progress is the belt itself, the app's whole idea in one shape, and the warm-gold-to-black blend gives it the most elegant finish. It uses the Dojo belt colours rather than the UI accent, so it reads as "belts" before "app". Colours: ground `#F3F4F8`, yellow belt `#FAC775` → black belt `#2C2C2A`.
 
+## 4 · Belt ring (from the owner's reference)
+
+An original take on a segmented progress-ring style the owner shared, not a copy of it. Seven rounded arcs in the Dojo belt colours run clockwise from White at the top to Black, around a tied cream belt where the reference had a checkmark. The ring says "progress through the belts" and the centre says "martial-arts belt", which suits the product better than a generic checkmark. The Black arc has a muted edge so it shows on the dark ground. `4-ring/small-sizes.png` shows it at 192, 96 and 48 px.
+
+It breaks the CLAUDE.md rule of at most 2–3 colours (it uses seven belt colours plus ink), so choosing it means waiving that rule.
+
 ## After approval
 
 Generate Android adaptive icons (foreground, background and a monochrome layer for Android 13+) and iOS icons with `flutter_launcher_icons`, plus a splash screen with `flutter_native_splash`, from PNG exports placed in `assets/brand/`. Until then the app keeps Flutter's default icon as a temporary icon.
