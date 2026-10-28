@@ -64,11 +64,8 @@ There is no separate designer for 1.0. You own the UI:
 - **Six screens are not designed** (First launch, Add exam, Sources list, Add source, Task detail, Settings). When their milestone comes, design them yourself in the same visual language: same tokens, components and patterns. Before building each one, describe its layout and states (empty, loading, filled, error) in a short note in `design/notes/` and ask for approval.
 - **Build a component library first** (buttons, chips, session card, belt badge, stat tile, bottom sheet, nav bar) and compose screens from it.
 - **Reward moments** (belt promotion, stripe lost and restored, streak) are built in code with `flutter_animate`: short (under about 1.5 s), skippable, with haptics. Keep timings in one place so they can be tuned.
-- **Logo and app icon are yours too.** There is no external designer or freelancer. Design them as hand-written SVG:
-  - Concept: a martial-arts belt — calm, disciplined, earned progress. A belt knot, or a belt that also reads as upward progress, fits best. It must clearly read as a martial-arts belt, never a trouser belt with a buckle. Avoid aggressive fighting imagery (fists, kicks).
-  - Propose 3 distinct concepts, each as an icon mark plus a "PrepBelt" wordmark, shown at 1024, 192 and 48 px, on light and dark backgrounds. Put them in `design/brand/` with a one-paragraph rationale each, and wait for approval.
-  - The icon must read clearly at 48 px, use at most 2–3 colours from the tokens, and have no text inside the mark.
-  - After approval, generate Android adaptive icons (foreground and background layers, monochrome for Android 13+) and iOS icons with `flutter_launcher_icons`, plus a splash screen with `flutter_native_splash`.
+- **Logo and app icon: approved (28 Oct 2026).** The icon is the "ring" concept in `design/brand/4-ring/`: a white checkmark inside five vivid rounded arcs (yellow, orange, green, blue, violet) on a navy-to-ink gradient. The owner chose it over belt-based marks, so it intentionally has no belt and uses colours outside the tokens. Belts remain the in-app progress system, and the in-app rule still applies: always a martial-arts belt, never a trouser belt.
+  - Source geometry: `design/brand/src/build_brand.py` (`CHOSEN`). It writes the app assets to `assets/brand/`; render them to PNG, then run `dart run flutter_launcher_icons` and `dart run flutter_native_splash:create` (steps in `design/brand/README.md`).
   - Keep all brand assets in `assets/brand/` so they can be refined later without code changes.
 - **Verify the look** with golden tests of each screen in light and dark mode, at 360 and 390 widths, and at 1.3× text size.
 
@@ -87,3 +84,4 @@ There is no separate designer for 1.0. You own the UI:
 - Shared template files use the `.belt` extension.
 - Internal testers pilot 1.0 through Play Console internal testing and TestFlight.
 - Default theme is Dojo (belts). Gems theme arrives in 1.2. The progress grid uses the "Night to sun" palette.
+- App icon: the checkmark ring (`design/brand/4-ring/`), chosen by the owner on 28 Oct 2026.

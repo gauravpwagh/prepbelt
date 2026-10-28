@@ -1,0 +1,13 @@
+# App icons, generated from assets/brand/ (see design/brand/README.md).
+# Regenerate with: dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/brand/icon.png
+  remove_alpha_ios: true
+  min_sdk_android: 21
+  adaptive_icon_background: assets/brand/icon-background.png
+  adaptive_icon_foreground: assets/brand/icon-foreground.png
+  adaptive_icon_monochrome: assets/brand/icon-monochrome.png
+  # The foreground PNG already keeps the mark inside the safe zone.
+  adaptive_icon_foreground_inset: 0

@@ -1,4 +1,8 @@
-# PrepBelt logo and app icon concepts (round 2)
+# PrepBelt logo and app icon
+
+**Chosen: 4 · Belt ring** (owner, 28 Oct 2026). The other concepts are kept for reference.
+
+## Concepts (round 2)
 
 Round 1 (Knot, Rank tip, Dawn) was declined as not modern or elegant enough. Round 2 drops its flat slabs and hard polygon gaps in favour of curves, tapered tails, softer corners and more negative space.
 
@@ -29,6 +33,21 @@ Revised to the owner's direction, after their reference image: a bold white chec
 
 Choosing it overrides two CLAUDE.md brand rules: the mark is no longer a martial-arts belt, and it uses vivid colours outside the tokens (five plus the gradient). The belts stay the in-app progress system.
 
-## After approval
+## App assets
 
-Generate Android adaptive icons (foreground, background and a monochrome layer for Android 13+) and iOS icons with `flutter_launcher_icons`, plus a splash screen with `flutter_native_splash`, from PNG exports placed in `assets/brand/`. Until then the app keeps Flutter's default icon as a temporary icon.
+`python design/brand/src/build_brand.py` writes the chosen icon's SVGs to `assets/brand/`:
+
+| File | Use |
+| --- | --- |
+| `icon` | iOS and legacy Android icon, full bleed, no transparency |
+| `icon-foreground`, `icon-background` | Android adaptive layers; the mark is scaled to 0.8 so it clears round masks |
+| `icon-monochrome` | Android 13+ themed icon |
+| `splash`, `splash-android12` | Splash mark on ink `#151A2D`; Android 12+ uses the smaller one |
+
+Render each SVG to a 1024 px PNG of the same name, with a transparent background for every file except `icon` and `icon-background`. For example, with Chrome:
+
+```
+chrome --headless=new --hide-scrollbars --default-background-color=00000000 --window-size=1024,1024 --screenshot=assets/brand/icon-foreground.png file:///.../assets/brand/icon-foreground.svg
+```
+
+Then run `dart run flutter_launcher_icons` and `dart run flutter_native_splash:create`. Configuration lives in `flutter_launcher_icons.yaml` and `flutter_native_splash.yaml`.

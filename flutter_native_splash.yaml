@@ -1,0 +1,12 @@
+# Splash screen, generated from assets/brand/ (see design/brand/README.md).
+# Regenerate with: dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#151A2D"
+  image: assets/brand/splash.png
+  android_12:
+    color: "#151A2D"
+    image: assets/brand/splash-android12.png
+  android: true
+  ios: true
+  web: false
+  fullscreen: false

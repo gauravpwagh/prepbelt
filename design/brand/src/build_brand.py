@@ -279,6 +279,47 @@ def preview():
     (OUT / "preview.html").write_text(html, encoding="utf-8")
 
 
+def export_app_assets():
+    """Writes the chosen icon's app assets to assets/brand/ as SVG.
+
+    Render each to a 1024 px PNG of the same name (transparent background
+    for the foreground, monochrome and splash files), then run
+    `dart run flutter_launcher_icons` and
+    `dart run flutter_native_splash:create`. See design/brand/README.md.
+    """
+    import re
+
+    out_dir = ROOT / "assets" / "brand"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    c = CONCEPTS[CHOSEN]
+    mark = c["draw"](INK)
+    bg, _ = background("bg", c)
+
+    def scaled(body, s):
+        return f'<g transform="translate(512 512) scale({s}) translate(-512 -512)">{body}</g>'
+
+    white = re.sub(r'stroke="#[0-9A-Fa-f]{6}"', 'stroke="#FFFFFF"', mark)
+    files = {
+        # iOS and legacy Android: full bleed, no transparency.
+        "icon.svg": bg + mark,
+        # Android adaptive layers: the mark at 0.8 keeps a clear margin
+        # inside the launcher's circular mask.
+        "icon-foreground.svg": scaled(mark, 0.8),
+        "icon-background.svg": bg,
+        "icon-monochrome.svg": scaled(white, 0.8),
+        # Splash marks on the ink splash colour.
+        "splash.svg": mark,
+        "splash-android12.svg": scaled(mark, 0.62),
+    }
+    for name, body in files.items():
+        (out_dir / name).write_text(svg(1024, 1024, body), encoding="utf-8")
+
+
+# The concept approved by the owner on 28 Oct 2026.
+CHOSEN = "4-ring"
+
+
 if __name__ == "__main__":
     build()
     preview()
+    export_app_assets()
