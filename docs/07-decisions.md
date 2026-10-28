@@ -1,0 +1,16 @@
+# PrepBelt — Implementation Decisions
+
+Decisions taken while building, where the specs were silent, ambiguous or in conflict. Each one names who decided. Specs `01`–`06` remain the source of truth; this file only fills gaps.
+
+| # | Topic | Decision | Decided by |
+| --- | --- | --- | --- |
+| D1 | Toolchain | Stay on the installed Flutter 3.41.6 / Dart 3.11. Packages are pinned to the newest stable releases that support it: Riverpod 3.2.1 (riverpod_generator 4.0.3), drift 2.31.0 (spec table: 2.32.0), drift_flutter 0.2.0, go_router 17.5.0 (spec: 17.1.0), freezed 3.2.5, json_serializable 6.13.0. These are the only releases whose code generators share an analyzer version (9.x). Upgrade together when moving to Flutter 3.44+. | Owner, 28 Oct 2026 |
+| D2 | Promotion | A review raises the stored level by at most one: `levelAfter = min(levelBefore + 1, levelFor(S))`. It can still fall by more than one when stability drops (Forgot). The first review of a task always sets level 1. The step size is `review.maxPromotionPerReview` in configuration. | Owner, 28 Oct 2026 |
+| D3 | Stripes | Shine R maps to stripes: R ≥ 0.90 → 2 stripes, 0.80 ≤ R < 0.90 → 1 stripe, below 0.80 → no stripes. R < 0.70 and overdue → displayed level drops one and the belt is drawn faded. Cut-offs are in configuration. | Owner, 28 Oct 2026 |
+| D4 | Pauses in rebuild | `rebuild(reviews, pauses)` takes pause intervals as well as reviews. The intervals come from the task's pause and resume Events, skipping undone events, so a rebuilt TaskState equals the incremental one. | Owner, 28 Oct 2026 |
+| D5 | Engine imports | `CLAUDE.md` says engines depend only on Dart and `core/time`; `05-architecture.md` also allows `core/config`. Engines import `core/time` and `core/config` (both pure Dart) and nothing else from the app. The CI check enforces that list. | Claude, following the more specific spec |
+| D6 | Pause and decay | While paused, R is computed at `pausedAt`. On resume, both `dueAt` and `lastReviewAt` shift by the paused duration: `lastReviewAt` in TaskState is the FSRS decay anchor, so shifting it is what makes "no decay while paused" hold for the next review too. The Review rows keep their real times. | Claude |
+| D7 | FSRS setup | `FsrsScheduler` uses no learning or relearning steps (study sessions are at most daily) and no interval fuzzing (rebuild must be deterministic). Forgot therefore schedules the next review from the new, lower stability, at least 1 day out ("back tomorrow"). | Claude |
+| D8 | Event payload | One Event per operation. Its payload lists every row the operation changed: `{"changes": [{"table", "id", "before", "after"}]}`. `entity`/`entityId` name the aggregate (task, source, exam, setting). Undo applies the `before` values of the latest not-yet-undone event for that entity, in a new transaction that logs its own Event with `undoOf`. Repeated undo walks further back. | Claude |
+| D9 | Undoing reviews | Reviews are append-only, so a review Event cannot be undone. Undo on an entity whose latest event is a review fails with a clear error. | Claude |
+| D10 | Fonts | Bricolage Grotesque and Manrope are bundled as assets (OFL), not fetched by `google_fonts` at runtime, because phase 1 makes no network calls. | Claude |
