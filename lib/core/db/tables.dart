@@ -3,6 +3,8 @@
 /// Calendar dates (exam day, plan day, override day) are stored as
 /// `YYYY-MM-DD` text in the student's local calendar; instants are UTC
 /// milliseconds. See docs/07-decisions.md (D11, D12).
+// Drift check constraints refer to their own column getter.
+// ignore_for_file: recursive_getters
 library;
 
 import 'package:drift/drift.dart';
