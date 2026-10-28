@@ -23,11 +23,11 @@ A softly curved band that swells toward the knot, like a belt seen tied around a
 
 The Ribbon form, with the cloth shading from yellow belt to black belt along its length. Progress is the belt itself, the app's whole idea in one shape, and the warm-gold-to-black blend gives it the most elegant finish. It uses the Dojo belt colours rather than the UI accent, so it reads as "belts" before "app". Colours: ground `#F3F4F8`, yellow belt `#FAC775` → black belt `#2C2C2A`.
 
-## 4 · Belt ring (from the owner's reference)
+## 4 · Belt ring (owner's direction)
 
-An original take on a segmented progress-ring style the owner shared, not a copy of it. Seven rounded arcs in the Dojo belt colours run clockwise from White at the top to Black, around a tied cream belt where the reference had a checkmark. The ring says "progress through the belts" and the centre says "martial-arts belt", which suits the product better than a generic checkmark. The Black arc has a muted edge so it shows on the dark ground. `4-ring/small-sizes.png` shows it at 192, 96 and 48 px.
+Revised to the owner's direction, after their reference image: a bold white checkmark inside a ring of five vivid, rounded arcs (yellow, orange, green, blue, violet, clockwise from the top) on a navy-to-ink gradient. It is an original design in that style, not a copy: its own colours, order, segment count and proportions. The checkmark says "done, ready"; the ring of colours says progress. `4-ring/small-sizes.png` shows it at 192, 96 and 48 px, where it stays crisp.
 
-It breaks the CLAUDE.md rule of at most 2–3 colours (it uses seven belt colours plus ink), so choosing it means waiving that rule.
+Choosing it overrides two CLAUDE.md brand rules: the mark is no longer a martial-arts belt, and it uses vivid colours outside the tokens (five plus the gradient). The belts stay the in-app progress system.
 
 ## After approval
 
