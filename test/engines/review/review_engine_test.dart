@@ -142,7 +142,7 @@ void main() {
     });
 
     test('a fading level-1 task still shows level 1', () {
-      var state = review(const ReviewState(), Rating.hard).state;
+      final state = review(const ReviewState(), Rating.hard).state;
       clock.advance(const Duration(days: 60));
       final shown = engine.display(state, clock.now());
       expect(shown.fading, isTrue);
