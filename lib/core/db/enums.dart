@@ -20,7 +20,9 @@ enum ExamStatus { upcoming, done, archived }
 
 enum Importance { high, medium, low }
 
-enum PlanItemKind { firstRead, review, finalReview }
+enum PlanItemKind { firstRead, review, finalReview, explore }
+
+enum ReadingStatus { open, saved, discarded }
 
 enum PlanItemStatus { planned, done, skipped, moved }
 

@@ -27,9 +27,9 @@ void main() {
     expect(GeneratedHelper.versions.first, 1);
   });
 
-  test('the schema has the 26 tables of the data model', () {
+  test('the schema has the 27 tables of the data model', () {
     final db = openTestDatabase();
     addTearDown(db.close);
-    expect(db.allTables.length, 26);
+    expect(db.allTables.length, 27);
   });
 }

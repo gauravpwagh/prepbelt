@@ -768,6 +768,175 @@
     {
       "id": 5,
       "references": [
+        1
+      ],
+      "type": "table",
+      "data": {
+        "name": "reading_sessions",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "created_at",
+            "getter_name": "createdAt",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "updated_at",
+            "getter_name": "updatedAt",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "deleted_at",
+            "getter_name": "deletedAt",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "hlc",
+            "getter_name": "hlc",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "device_id",
+            "getter_name": "deviceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "source_id",
+            "getter_name": "sourceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES sources (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES sources (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "sources",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "started_at",
+            "getter_name": "startedAt",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "start_unit",
+            "getter_name": "startUnit",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "ended_at",
+            "getter_name": "endedAt",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "end_unit",
+            "getter_name": "endUnit",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "minutes",
+            "getter_name": "minutes",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "status",
+            "getter_name": "status",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [],
+            "type_converter": {
+              "dart_expr": "const EnumNameConverter<ReadingStatus>(ReadingStatus.values)",
+              "dart_type_name": "ReadingStatus"
+            }
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 6,
+      "references": [
         0
       ],
       "type": "table",
@@ -923,9 +1092,9 @@
       }
     },
     {
-      "id": 6,
+      "id": 7,
       "references": [
-        5,
+        6,
         3
       ],
       "type": "table",
@@ -1085,9 +1254,9 @@
       }
     },
     {
-      "id": 7,
+      "id": 8,
       "references": [
-        5
+        6
       ],
       "type": "table",
       "data": {
@@ -1290,9 +1459,9 @@
       }
     },
     {
-      "id": 8,
+      "id": 9,
       "references": [
-        5
+        6
       ],
       "type": "table",
       "data": {
@@ -1508,9 +1677,9 @@
       }
     },
     {
-      "id": 9,
+      "id": 10,
       "references": [
-        5
+        6
       ],
       "type": "table",
       "data": {
@@ -1663,9 +1832,9 @@
       }
     },
     {
-      "id": 10,
+      "id": 11,
       "references": [
-        5
+        6
       ],
       "type": "table",
       "data": {
@@ -1822,10 +1991,10 @@
       }
     },
     {
-      "id": 11,
+      "id": 12,
       "references": [
-        10,
-        8
+        11,
+        9
       ],
       "type": "table",
       "data": {
@@ -1978,7 +2147,7 @@
       }
     },
     {
-      "id": 12,
+      "id": 13,
       "references": [],
       "type": "table",
       "data": {
@@ -2128,9 +2297,9 @@
       }
     },
     {
-      "id": 13,
+      "id": 14,
       "references": [
-        12,
+        13,
         3
       ],
       "type": "table",
@@ -2274,10 +2443,10 @@
       }
     },
     {
-      "id": 14,
+      "id": 15,
       "references": [
-        12,
-        5
+        13,
+        6
       ],
       "type": "table",
       "data": {
@@ -2469,9 +2638,9 @@
       }
     },
     {
-      "id": 15,
+      "id": 16,
       "references": [
-        12
+        13
       ],
       "type": "table",
       "data": {
@@ -2613,9 +2782,9 @@
       }
     },
     {
-      "id": 16,
+      "id": 17,
       "references": [
-        12
+        13
       ],
       "type": "table",
       "data": {
@@ -2738,10 +2907,11 @@
       }
     },
     {
-      "id": 17,
+      "id": 18,
       "references": [
-        5,
-        12
+        6,
+        1,
+        13
       ],
       "type": "table",
       "data": {
@@ -2822,7 +2992,7 @@
             "name": "task_id",
             "getter_name": "taskId",
             "moor_type": "string",
-            "nullable": false,
+            "nullable": true,
             "customConstraints": null,
             "defaultConstraints": "REFERENCES tasks (id)",
             "dialectAwareDefaultConstraints": {
@@ -2835,6 +3005,32 @@
                 "foreign_key": {
                   "to": {
                     "table": "tasks",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "source_id",
+            "getter_name": "sourceId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES sources (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES sources (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "sources",
                     "column": "id"
                   },
                   "initially_deferred": false,
@@ -2938,7 +3134,7 @@
       }
     },
     {
-      "id": 18,
+      "id": 19,
       "references": [],
       "type": "table",
       "data": {
@@ -3065,7 +3261,7 @@
       }
     },
     {
-      "id": 19,
+      "id": 20,
       "references": [],
       "type": "table",
       "data": {
@@ -3168,7 +3364,7 @@
       }
     },
     {
-      "id": 20,
+      "id": 21,
       "references": [],
       "type": "table",
       "data": {
@@ -3265,7 +3461,7 @@
       }
     },
     {
-      "id": 21,
+      "id": 22,
       "references": [],
       "type": "table",
       "data": {
@@ -3420,9 +3616,9 @@
       }
     },
     {
-      "id": 22,
+      "id": 23,
       "references": [
-        21
+        22
       ],
       "type": "table",
       "data": {
@@ -3555,7 +3751,7 @@
       }
     },
     {
-      "id": 23,
+      "id": 24,
       "references": [],
       "type": "table",
       "data": {
@@ -3658,7 +3854,7 @@
       }
     },
     {
-      "id": 24,
+      "id": 25,
       "references": [],
       "type": "table",
       "data": {
@@ -3779,9 +3975,9 @@
       }
     },
     {
-      "id": 25,
+      "id": 26,
       "references": [
-        5
+        6
       ],
       "type": "table",
       "data": {
@@ -3874,13 +4070,32 @@
       }
     },
     {
-      "id": 26,
+      "id": 27,
       "references": [
-        6
+        5
       ],
       "type": "index",
       "data": {
-        "on": 6,
+        "on": 5,
+        "name": "reading_sessions_source",
+        "sql": null,
+        "unique": false,
+        "columns": [
+          {
+            "column": "source_id",
+            "order_by": null
+          }
+        ]
+      }
+    },
+    {
+      "id": 28,
+      "references": [
+        7
+      ],
+      "type": "index",
+      "data": {
+        "on": 7,
         "name": "task_chunks_task",
         "sql": null,
         "unique": false,
@@ -3893,13 +4108,13 @@
       }
     },
     {
-      "id": 27,
+      "id": 29,
       "references": [
-        8
+        9
       ],
       "type": "index",
       "data": {
-        "on": 8,
+        "on": 9,
         "name": "reviews_task_at",
         "sql": null,
         "unique": false,
@@ -3916,13 +4131,13 @@
       }
     },
     {
-      "id": 28,
+      "id": 30,
       "references": [
-        14
+        15
       ],
       "type": "index",
       "data": {
-        "on": 14,
+        "on": 15,
         "name": "exam_tasks_exam",
         "sql": null,
         "unique": false,
@@ -3935,13 +4150,13 @@
       }
     },
     {
-      "id": 29,
+      "id": 31,
       "references": [
-        17
+        18
       ],
       "type": "index",
       "data": {
-        "on": 17,
+        "on": 18,
         "name": "plan_items_date",
         "sql": null,
         "unique": false,
@@ -3954,13 +4169,13 @@
       }
     },
     {
-      "id": 30,
+      "id": 32,
       "references": [
-        24
+        25
       ],
       "type": "index",
       "data": {
-        "on": 24,
+        "on": 25,
         "name": "events_entity",
         "sql": null,
         "unique": false,
@@ -4020,6 +4235,15 @@
         {
           "dialect": "sqlite",
           "sql": "CREATE TABLE IF NOT EXISTS \"chunk_surveys\" (\"id\" TEXT NOT NULL, \"created_at\" INTEGER NOT NULL, \"updated_at\" INTEGER NOT NULL, \"deleted_at\" INTEGER NULL, \"hlc\" TEXT NOT NULL, \"device_id\" TEXT NOT NULL, \"chunk_id\" TEXT NOT NULL UNIQUE REFERENCES chunks (id), \"difficulty\" INTEGER NOT NULL CHECK(\"difficulty\" BETWEEN 1 AND 3), \"familiarity\" INTEGER NOT NULL CHECK(\"familiarity\" BETWEEN 0 AND 2), \"surveyed_at\" INTEGER NOT NULL, PRIMARY KEY (\"id\"));"
+        }
+      ]
+    },
+    {
+      "name": "reading_sessions",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"reading_sessions\" (\"id\" TEXT NOT NULL, \"created_at\" INTEGER NOT NULL, \"updated_at\" INTEGER NOT NULL, \"deleted_at\" INTEGER NULL, \"hlc\" TEXT NOT NULL, \"device_id\" TEXT NOT NULL, \"source_id\" TEXT NOT NULL REFERENCES sources (id), \"started_at\" INTEGER NOT NULL, \"start_unit\" INTEGER NOT NULL, \"ended_at\" INTEGER NULL, \"end_unit\" INTEGER NULL, \"minutes\" INTEGER NULL, \"status\" TEXT NOT NULL, PRIMARY KEY (\"id\"));"
         }
       ]
     },
@@ -4136,7 +4360,7 @@
       "sql": [
         {
           "dialect": "sqlite",
-          "sql": "CREATE TABLE IF NOT EXISTS \"plan_items\" (\"id\" TEXT NOT NULL, \"created_at\" INTEGER NOT NULL, \"updated_at\" INTEGER NOT NULL, \"deleted_at\" INTEGER NULL, \"hlc\" TEXT NOT NULL, \"device_id\" TEXT NOT NULL, \"date\" TEXT NOT NULL, \"task_id\" TEXT NOT NULL REFERENCES tasks (id), \"exam_id\" TEXT NULL REFERENCES exams (id), \"kind\" TEXT NOT NULL, \"est_minutes\" INTEGER NOT NULL, \"status\" TEXT NOT NULL, \"generation\" INTEGER NOT NULL, \"sort_order\" INTEGER NOT NULL, PRIMARY KEY (\"id\"));"
+          "sql": "CREATE TABLE IF NOT EXISTS \"plan_items\" (\"id\" TEXT NOT NULL, \"created_at\" INTEGER NOT NULL, \"updated_at\" INTEGER NOT NULL, \"deleted_at\" INTEGER NULL, \"hlc\" TEXT NOT NULL, \"device_id\" TEXT NOT NULL, \"date\" TEXT NOT NULL, \"task_id\" TEXT NULL REFERENCES tasks (id), \"source_id\" TEXT NULL REFERENCES sources (id), \"exam_id\" TEXT NULL REFERENCES exams (id), \"kind\" TEXT NOT NULL, \"est_minutes\" INTEGER NOT NULL, \"status\" TEXT NOT NULL, \"generation\" INTEGER NOT NULL, \"sort_order\" INTEGER NOT NULL, PRIMARY KEY (\"id\"));"
         }
       ]
     },
@@ -4209,6 +4433,15 @@
         {
           "dialect": "sqlite",
           "sql": "CREATE TABLE IF NOT EXISTS \"active_sessions\" (\"id\" TEXT NOT NULL, \"task_id\" TEXT NOT NULL REFERENCES tasks (id), \"started_at\" INTEGER NOT NULL, \"resume_unit\" INTEGER NULL, \"created_at\" INTEGER NOT NULL, \"updated_at\" INTEGER NOT NULL, PRIMARY KEY (\"id\"));"
+        }
+      ]
+    },
+    {
+      "name": "reading_sessions_source",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX reading_sessions_source ON reading_sessions (source_id)"
         }
       ]
     },

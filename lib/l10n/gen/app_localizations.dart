@@ -634,17 +634,11 @@ abstract class AppLocalizations {
     int total,
   );
 
-  /// No description provided for @sourceCardHintSurvey.
+  /// No description provided for @sourceCardHintOpen.
   ///
   /// In en, this message translates to:
-  /// **'Continue the survey'**
-  String get sourceCardHintSurvey;
-
-  /// No description provided for @sourceCardHintReview.
-  ///
-  /// In en, this message translates to:
-  /// **'Review the survey'**
-  String get sourceCardHintReview;
+  /// **'Open its chapters'**
+  String get sourceCardHintOpen;
 
   /// No description provided for @sourceRename.
   ///
@@ -927,6 +921,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add a link'**
   String get addSourceLinkMissing;
+
+  /// No description provided for @unitAtPage.
+  ///
+  /// In en, this message translates to:
+  /// **'p. {unit}'**
+  String unitAtPage(int unit);
+
+  /// No description provided for @unitAtMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit} min'**
+  String unitAtMinute(int unit);
+
+  /// No description provided for @unitAtQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Q{unit}'**
+  String unitAtQuestion(int unit);
+
+  /// No description provided for @chaptersSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{chapters, plural, =1{1 chapter} other{{chapters} chapters}} · {tasks, plural, =1{1 task} other{{tasks} tasks}} · surveyed {surveyed} of {chapters}'**
+  String chaptersSummary(int chapters, int tasks, int surveyed);
+
+  /// No description provided for @chaptersEditSurvey.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit survey'**
+  String get chaptersEditSurvey;
+
+  /// No description provided for @chaptersCreateTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Create {count, plural, =1{1 task} other{{count} tasks}}'**
+  String chaptersCreateTasks(int count);
+
+  /// No description provided for @chaptersCaptionSurvey.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses your survey answers. Unsurveyed chapters count as Medium.'**
+  String get chaptersCaptionSurvey;
+
+  /// No description provided for @chaptersCaptionNoSurvey.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters count as Medium. A survey makes this sharper.'**
+  String get chaptersCaptionNoSurvey;
+
+  /// No description provided for @chaptersCaptionAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Every chapter has a task.'**
+  String get chaptersCaptionAll;
+
+  /// No description provided for @chaptersAddTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Add task'**
+  String get chaptersAddTask;
+
+  /// No description provided for @chaptersLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this source.'**
+  String get chaptersLoadError;
+
+  /// No description provided for @chaptersTasksCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 task created} other{{count} tasks created}}'**
+  String chaptersTasksCreated(int count);
+
+  /// No description provided for @chapterRowSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter {number}, {title}, {range}.'**
+  String chapterRowSemantics(int number, String title, String range);
+
+  /// No description provided for @chapterRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get chapterRead;
+
+  /// No description provided for @chapterReadPart.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} read'**
+  String chapterReadPart(int done, int total);
+
+  /// No description provided for @chapterOpenTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Open task {title}'**
+  String chapterOpenTask(String title);
+
+  /// No description provided for @readingExplored.
+  ///
+  /// In en, this message translates to:
+  /// **'Explored {done} of {size}'**
+  String readingExplored(int done, String size);
+
+  /// No description provided for @readingTimeLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'about {time} left'**
+  String readingTimeLeft(String time);
+
+  /// No description provided for @readingStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start reading'**
+  String get readingStart;
+
+  /// No description provided for @readingFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Read from {position}'**
+  String readingFrom(String position);
+
+  /// No description provided for @readingWatchFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch from {position}'**
+  String readingWatchFrom(String position);
+
+  /// No description provided for @readingPartly.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} · {done} of {total} read'**
+  String readingPartly(String title, int done, int total);
+
+  /// No description provided for @readingSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading since {time}'**
+  String readingSince(String time);
+
+  /// No description provided for @readingFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get readingFinish;
+
+  /// No description provided for @readingAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read to the end · {time}'**
+  String readingAllRead(String time);
+
+  /// No description provided for @readingNotOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading started. Read it anywhere, then tap Finish.'**
+  String get readingNotOpened;
+
+  /// No description provided for @readingOpenFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish your open reading first.'**
+  String get readingOpenFirst;
+
+  /// No description provided for @readingSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How far did you get?'**
+  String get readingSheetTitle;
+
+  /// No description provided for @readingOverline.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} · from {position}'**
+  String readingOverline(String title, String position);
+
+  /// No description provided for @readingAway.
+  ///
+  /// In en, this message translates to:
+  /// **'You were away {time}'**
+  String readingAway(String time);
+
+  /// No description provided for @readingTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time reading'**
+  String get readingTimeLabel;
+
+  /// No description provided for @readingUpTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to'**
+  String get readingUpTo;
+
+  /// No description provided for @readingChapterEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End of {title} · {position}'**
+  String readingChapterEnd(String title, String position);
+
+  /// No description provided for @readingPreviewTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Creates task {title} ({range}).'**
+  String readingPreviewTask(String title, String range);
+
+  /// No description provided for @readingPreviewFirstRead.
+  ///
+  /// In en, this message translates to:
+  /// **'First read for {title}.'**
+  String readingPreviewFirstRead(String title);
+
+  /// No description provided for @readingPreviewPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}: {done} of {total} read.'**
+  String readingPreviewPartial(String title, int done, int total);
+
+  /// No description provided for @readingPreviewNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Saves your place.'**
+  String get readingPreviewNothing;
+
+  /// No description provided for @readingMakeTaskNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Make {title} a task now'**
+  String readingMakeTaskNow(String title);
+
+  /// No description provided for @readingDidntRead.
+  ///
+  /// In en, this message translates to:
+  /// **'I didn\'t read'**
+  String get readingDidntRead;
+
+  /// No description provided for @readingSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Reading saved} =1{Reading saved · 1 task created} other{Reading saved · {count} tasks created}}'**
+  String readingSaved(int count);
+
+  /// No description provided for @readingLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Less'**
+  String get readingLess;
+
+  /// No description provided for @readingMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get readingMore;
+
+  /// No description provided for @addTaskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add task'**
+  String get addTaskTitle;
+
+  /// No description provided for @addTaskChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters'**
+  String get addTaskChapters;
+
+  /// No description provided for @addTaskNextChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'+ next chapter'**
+  String get addTaskNextChapter;
+
+  /// No description provided for @addTaskName.
+  ///
+  /// In en, this message translates to:
+  /// **'Task name'**
+  String get addTaskName;
+
+  /// No description provided for @addTaskAlreadyRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Already read it?'**
+  String get addTaskAlreadyRead;
+
+  /// No description provided for @addTaskNotYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet'**
+  String get addTaskNotYet;
+
+  /// No description provided for @addTaskYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get addTaskYes;
+
+  /// No description provided for @addTaskYesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts at White with its first review scheduled.'**
+  String get addTaskYesHint;
+
+  /// No description provided for @addTaskCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get addTaskCreate;
+
+  /// No description provided for @addTaskAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Task added'**
+  String get addTaskAdded;
 }
 
 class _AppLocalizationsDelegate

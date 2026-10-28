@@ -15,6 +15,7 @@ part 'app_database.drift.dart';
     SourceFiles,
     Chunks,
     ChunkSurveys,
+    ReadingSessions,
     Tasks,
     TaskChunks,
     TaskStates,

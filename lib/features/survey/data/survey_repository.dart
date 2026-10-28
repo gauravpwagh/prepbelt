@@ -1,9 +1,9 @@
 import 'package:drift/drift.dart';
 
-import '../../../core/config/defaults.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/db/event_log.dart';
 import '../../sources/data/source_repository.dart';
+import '../../sources/data/task_writer.dart';
 
 /// One chapter as the survey shows it: the chunk, the student's answers
 /// (null until surveyed) and its importance for the exam (null without an
@@ -85,8 +85,8 @@ final class SurveyRepository extends EventSourcedRepository {
     return pending.length;
   }
 
-  /// Turns a finished survey into tasks (design/notes/add-source.md): one
-  /// learn task per chapter that has none yet, with its level-0 state and
+  /// Turns a finished survey, or "Create N tasks", into tasks (D27): one
+  /// learn task per chapter that has none yet, surveyed or not, with its level-0 state and
   /// chunk link, and, with an exam, an ExamTask prefilled from the
   /// chapter's importance. Existing ExamTasks follow a changed importance
   /// unless the student overrode it. One undoable operation under the
@@ -133,48 +133,15 @@ final class SurveyRepository extends EventSourcedRepository {
       data: {'action': 'createTasks', 'count': toCreate.length},
       body: (rec) async {
         for (final c in toCreate) {
-          final taskId = rec.newId();
-          await rec.insert(
-            db.tasks,
-            TasksCompanion(
-              id: Value(taskId),
-              title: Value(c.chunk.title),
-              kind: const Value(TaskKind.learn),
-              status: const Value(TaskStatus.active),
+          await TaskWriter(db).insert(
+            rec,
+            TaskDraft(
+              title: c.chunk.title,
+              chapters: [c.chunk],
+              importance: c.importance,
             ),
+            examId: examId,
           );
-          await rec.insert(
-            db.taskStates,
-            TaskStatesCompanion(
-              id: Value(rec.newId()),
-              taskId: Value(taskId),
-              level: const Value(0),
-            ),
-          );
-          await rec.insert(
-            db.taskChunks,
-            TaskChunksCompanion(
-              id: Value(rec.newId()),
-              taskId: Value(taskId),
-              chunkId: Value(c.chunk.id),
-              startUnit: Value(c.chunk.startUnit),
-              endUnit: Value(c.chunk.endUnit),
-              order: const Value(0),
-            ),
-          );
-          if (examId != null) {
-            final importance = c.importance ?? Importance.medium;
-            await rec.insert(
-              db.examTasks,
-              ExamTasksCompanion(
-                id: Value(rec.newId()),
-                examId: Value(examId),
-                taskId: Value(taskId),
-                importance: Value(importance),
-                targetLevel: Value(targetLevelFor(importance)),
-              ),
-            );
-          }
         }
         for (final (e, importance) in toUpdate) {
           await rec.update(
@@ -191,13 +158,9 @@ final class SurveyRepository extends EventSourcedRepository {
     return toCreate.length;
   }
 
-  /// The belt target an importance sets (docs/01-product.md, "Source
-  /// survey"). The planner caps it by the time left before the exam.
-  static int targetLevelFor(Importance importance) => switch (importance) {
-    Importance.high => Defaults.targetLevelHigh,
-    Importance.medium => Defaults.targetLevelMedium,
-    Importance.low => Defaults.targetLevelLow,
-  };
+  /// The belt target an importance sets; see [TaskWriter.targetLevelFor].
+  static int targetLevelFor(Importance importance) =>
+      TaskWriter.targetLevelFor(importance);
 
   /// Undoes the latest survey change to one chapter.
   Future<void> undo(String chunkId) => undoLatest(entity, chunkId);

@@ -1,4 +1,4 @@
-/// The 26 tables of docs/02-data-model.md.
+/// The 27 tables of docs/02-data-model.md.
 ///
 /// Calendar dates (exam day, plan day, override day) are stored as
 /// `YYYY-MM-DD` text in the student's local calendar; instants are UTC
@@ -74,6 +74,20 @@ class ChunkSurveys extends Table with SyncColumns {
   IntColumn get familiarity =>
       integer().check(familiarity.isBetweenValues(0, 2))();
   IntColumn get surveyedAt => integer()();
+}
+
+/// One sitting of reading a source as you go (D27). At most one is open.
+@TableIndex(name: 'reading_sessions_source', columns: {#sourceId})
+class ReadingSessions extends Table with SyncColumns {
+  TextColumn get sourceId => text().references(Sources, #id)();
+  IntColumn get startedAt => integer()();
+  IntColumn get startUnit => integer()();
+  IntColumn get endedAt => integer().nullable()();
+
+  /// Last unit read, inclusive.
+  IntColumn get endUnit => integer().nullable()();
+  IntColumn get minutes => integer().nullable()();
+  TextColumn get status => textEnum<ReadingStatus>()();
 }
 
 // ------------------------------------------------------ Tasks and mastery
@@ -218,7 +232,10 @@ class AvailabilityOverrides extends Table with SyncColumns {
 class PlanItems extends Table with SyncColumns {
   /// `YYYY-MM-DD`.
   TextColumn get date => text()();
-  TextColumn get taskId => text().references(Tasks, #id)();
+
+  /// Null for an explore item, which names a source instead (D27).
+  TextColumn get taskId => text().nullable().references(Tasks, #id)();
+  TextColumn get sourceId => text().nullable().references(Sources, #id)();
   TextColumn get examId => text().nullable().references(Exams, #id)();
   TextColumn get kind => textEnum<PlanItemKind>()();
   IntColumn get estMinutes => integer()();

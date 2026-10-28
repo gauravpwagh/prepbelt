@@ -3279,6 +3279,773 @@ class ChunkSurveysCompanion extends UpdateCompanion<ChunkSurvey> {
   }
 }
 
+class $ReadingSessionsTable extends ReadingSessions
+    with TableInfo<$ReadingSessionsTable, ReadingSession> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReadingSessionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<int> deletedAt = GeneratedColumn<int>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hlcMeta = const VerificationMeta('hlc');
+  @override
+  late final GeneratedColumn<String> hlc = GeneratedColumn<String>(
+    'hlc',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceIdMeta = const VerificationMeta(
+    'sourceId',
+  );
+  @override
+  late final GeneratedColumn<String> sourceId = GeneratedColumn<String>(
+    'source_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES sources (id)',
+    ),
+  );
+  static const VerificationMeta _startedAtMeta = const VerificationMeta(
+    'startedAt',
+  );
+  @override
+  late final GeneratedColumn<int> startedAt = GeneratedColumn<int>(
+    'started_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startUnitMeta = const VerificationMeta(
+    'startUnit',
+  );
+  @override
+  late final GeneratedColumn<int> startUnit = GeneratedColumn<int>(
+    'start_unit',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endedAtMeta = const VerificationMeta(
+    'endedAt',
+  );
+  @override
+  late final GeneratedColumn<int> endedAt = GeneratedColumn<int>(
+    'ended_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _endUnitMeta = const VerificationMeta(
+    'endUnit',
+  );
+  @override
+  late final GeneratedColumn<int> endUnit = GeneratedColumn<int>(
+    'end_unit',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _minutesMeta = const VerificationMeta(
+    'minutes',
+  );
+  @override
+  late final GeneratedColumn<int> minutes = GeneratedColumn<int>(
+    'minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<ReadingStatus, String> status =
+      GeneratedColumn<String>(
+        'status',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<ReadingStatus>($ReadingSessionsTable.$converterstatus);
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    hlc,
+    deviceId,
+    sourceId,
+    startedAt,
+    startUnit,
+    endedAt,
+    endUnit,
+    minutes,
+    status,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'reading_sessions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ReadingSession> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('hlc')) {
+      context.handle(
+        _hlcMeta,
+        hlc.isAcceptableOrUnknown(data['hlc']!, _hlcMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_hlcMeta);
+    }
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('source_id')) {
+      context.handle(
+        _sourceIdMeta,
+        sourceId.isAcceptableOrUnknown(data['source_id']!, _sourceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceIdMeta);
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(
+        _startedAtMeta,
+        startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startedAtMeta);
+    }
+    if (data.containsKey('start_unit')) {
+      context.handle(
+        _startUnitMeta,
+        startUnit.isAcceptableOrUnknown(data['start_unit']!, _startUnitMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startUnitMeta);
+    }
+    if (data.containsKey('ended_at')) {
+      context.handle(
+        _endedAtMeta,
+        endedAt.isAcceptableOrUnknown(data['ended_at']!, _endedAtMeta),
+      );
+    }
+    if (data.containsKey('end_unit')) {
+      context.handle(
+        _endUnitMeta,
+        endUnit.isAcceptableOrUnknown(data['end_unit']!, _endUnitMeta),
+      );
+    }
+    if (data.containsKey('minutes')) {
+      context.handle(
+        _minutesMeta,
+        minutes.isAcceptableOrUnknown(data['minutes']!, _minutesMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ReadingSession map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReadingSession(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      hlc: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}hlc'],
+      )!,
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      sourceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_id'],
+      )!,
+      startedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}started_at'],
+      )!,
+      startUnit: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}start_unit'],
+      )!,
+      endedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ended_at'],
+      ),
+      endUnit: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}end_unit'],
+      ),
+      minutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}minutes'],
+      ),
+      status: $ReadingSessionsTable.$converterstatus.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}status'],
+        )!,
+      ),
+    );
+  }
+
+  @override
+  $ReadingSessionsTable createAlias(String alias) {
+    return $ReadingSessionsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<ReadingStatus, String, String> $converterstatus =
+      const EnumNameConverter<ReadingStatus>(ReadingStatus.values);
+}
+
+class ReadingSession extends DataClass implements Insertable<ReadingSession> {
+  /// UUIDv7.
+  final String id;
+  final int createdAt;
+  final int updatedAt;
+
+  /// Soft delete; rows are never physically removed in phase 1.
+  final int? deletedAt;
+  final String hlc;
+  final String deviceId;
+  final String sourceId;
+  final int startedAt;
+  final int startUnit;
+  final int? endedAt;
+
+  /// Last unit read, inclusive.
+  final int? endUnit;
+  final int? minutes;
+  final ReadingStatus status;
+  const ReadingSession({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.hlc,
+    required this.deviceId,
+    required this.sourceId,
+    required this.startedAt,
+    required this.startUnit,
+    this.endedAt,
+    this.endUnit,
+    this.minutes,
+    required this.status,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    map['hlc'] = Variable<String>(hlc);
+    map['device_id'] = Variable<String>(deviceId);
+    map['source_id'] = Variable<String>(sourceId);
+    map['started_at'] = Variable<int>(startedAt);
+    map['start_unit'] = Variable<int>(startUnit);
+    if (!nullToAbsent || endedAt != null) {
+      map['ended_at'] = Variable<int>(endedAt);
+    }
+    if (!nullToAbsent || endUnit != null) {
+      map['end_unit'] = Variable<int>(endUnit);
+    }
+    if (!nullToAbsent || minutes != null) {
+      map['minutes'] = Variable<int>(minutes);
+    }
+    {
+      map['status'] = Variable<String>(
+        $ReadingSessionsTable.$converterstatus.toSql(status),
+      );
+    }
+    return map;
+  }
+
+  ReadingSessionsCompanion toCompanion(bool nullToAbsent) {
+    return ReadingSessionsCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      hlc: Value(hlc),
+      deviceId: Value(deviceId),
+      sourceId: Value(sourceId),
+      startedAt: Value(startedAt),
+      startUnit: Value(startUnit),
+      endedAt: endedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endedAt),
+      endUnit: endUnit == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endUnit),
+      minutes: minutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(minutes),
+      status: Value(status),
+    );
+  }
+
+  factory ReadingSession.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReadingSession(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+      hlc: serializer.fromJson<String>(json['hlc']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      sourceId: serializer.fromJson<String>(json['sourceId']),
+      startedAt: serializer.fromJson<int>(json['startedAt']),
+      startUnit: serializer.fromJson<int>(json['startUnit']),
+      endedAt: serializer.fromJson<int?>(json['endedAt']),
+      endUnit: serializer.fromJson<int?>(json['endUnit']),
+      minutes: serializer.fromJson<int?>(json['minutes']),
+      status: $ReadingSessionsTable.$converterstatus.fromJson(
+        serializer.fromJson<String>(json['status']),
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+      'hlc': serializer.toJson<String>(hlc),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'sourceId': serializer.toJson<String>(sourceId),
+      'startedAt': serializer.toJson<int>(startedAt),
+      'startUnit': serializer.toJson<int>(startUnit),
+      'endedAt': serializer.toJson<int?>(endedAt),
+      'endUnit': serializer.toJson<int?>(endUnit),
+      'minutes': serializer.toJson<int?>(minutes),
+      'status': serializer.toJson<String>(
+        $ReadingSessionsTable.$converterstatus.toJson(status),
+      ),
+    };
+  }
+
+  ReadingSession copyWith({
+    String? id,
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+    String? hlc,
+    String? deviceId,
+    String? sourceId,
+    int? startedAt,
+    int? startUnit,
+    Value<int?> endedAt = const Value.absent(),
+    Value<int?> endUnit = const Value.absent(),
+    Value<int?> minutes = const Value.absent(),
+    ReadingStatus? status,
+  }) => ReadingSession(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    hlc: hlc ?? this.hlc,
+    deviceId: deviceId ?? this.deviceId,
+    sourceId: sourceId ?? this.sourceId,
+    startedAt: startedAt ?? this.startedAt,
+    startUnit: startUnit ?? this.startUnit,
+    endedAt: endedAt.present ? endedAt.value : this.endedAt,
+    endUnit: endUnit.present ? endUnit.value : this.endUnit,
+    minutes: minutes.present ? minutes.value : this.minutes,
+    status: status ?? this.status,
+  );
+  ReadingSession copyWithCompanion(ReadingSessionsCompanion data) {
+    return ReadingSession(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      hlc: data.hlc.present ? data.hlc.value : this.hlc,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      sourceId: data.sourceId.present ? data.sourceId.value : this.sourceId,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      startUnit: data.startUnit.present ? data.startUnit.value : this.startUnit,
+      endedAt: data.endedAt.present ? data.endedAt.value : this.endedAt,
+      endUnit: data.endUnit.present ? data.endUnit.value : this.endUnit,
+      minutes: data.minutes.present ? data.minutes.value : this.minutes,
+      status: data.status.present ? data.status.value : this.status,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReadingSession(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('hlc: $hlc, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('startUnit: $startUnit, ')
+          ..write('endedAt: $endedAt, ')
+          ..write('endUnit: $endUnit, ')
+          ..write('minutes: $minutes, ')
+          ..write('status: $status')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    hlc,
+    deviceId,
+    sourceId,
+    startedAt,
+    startUnit,
+    endedAt,
+    endUnit,
+    minutes,
+    status,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReadingSession &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.hlc == this.hlc &&
+          other.deviceId == this.deviceId &&
+          other.sourceId == this.sourceId &&
+          other.startedAt == this.startedAt &&
+          other.startUnit == this.startUnit &&
+          other.endedAt == this.endedAt &&
+          other.endUnit == this.endUnit &&
+          other.minutes == this.minutes &&
+          other.status == this.status);
+}
+
+class ReadingSessionsCompanion extends UpdateCompanion<ReadingSession> {
+  final Value<String> id;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<String> hlc;
+  final Value<String> deviceId;
+  final Value<String> sourceId;
+  final Value<int> startedAt;
+  final Value<int> startUnit;
+  final Value<int?> endedAt;
+  final Value<int?> endUnit;
+  final Value<int?> minutes;
+  final Value<ReadingStatus> status;
+  final Value<int> rowid;
+  const ReadingSessionsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.hlc = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.sourceId = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.startUnit = const Value.absent(),
+    this.endedAt = const Value.absent(),
+    this.endUnit = const Value.absent(),
+    this.minutes = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ReadingSessionsCompanion.insert({
+    required String id,
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String hlc,
+    required String deviceId,
+    required String sourceId,
+    required int startedAt,
+    required int startUnit,
+    this.endedAt = const Value.absent(),
+    this.endUnit = const Value.absent(),
+    this.minutes = const Value.absent(),
+    required ReadingStatus status,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       hlc = Value(hlc),
+       deviceId = Value(deviceId),
+       sourceId = Value(sourceId),
+       startedAt = Value(startedAt),
+       startUnit = Value(startUnit),
+       status = Value(status);
+  static Insertable<ReadingSession> custom({
+    Expression<String>? id,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<String>? hlc,
+    Expression<String>? deviceId,
+    Expression<String>? sourceId,
+    Expression<int>? startedAt,
+    Expression<int>? startUnit,
+    Expression<int>? endedAt,
+    Expression<int>? endUnit,
+    Expression<int>? minutes,
+    Expression<String>? status,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (hlc != null) 'hlc': hlc,
+      if (deviceId != null) 'device_id': deviceId,
+      if (sourceId != null) 'source_id': sourceId,
+      if (startedAt != null) 'started_at': startedAt,
+      if (startUnit != null) 'start_unit': startUnit,
+      if (endedAt != null) 'ended_at': endedAt,
+      if (endUnit != null) 'end_unit': endUnit,
+      if (minutes != null) 'minutes': minutes,
+      if (status != null) 'status': status,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ReadingSessionsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<String>? hlc,
+    Value<String>? deviceId,
+    Value<String>? sourceId,
+    Value<int>? startedAt,
+    Value<int>? startUnit,
+    Value<int?>? endedAt,
+    Value<int?>? endUnit,
+    Value<int?>? minutes,
+    Value<ReadingStatus>? status,
+    Value<int>? rowid,
+  }) {
+    return ReadingSessionsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      hlc: hlc ?? this.hlc,
+      deviceId: deviceId ?? this.deviceId,
+      sourceId: sourceId ?? this.sourceId,
+      startedAt: startedAt ?? this.startedAt,
+      startUnit: startUnit ?? this.startUnit,
+      endedAt: endedAt ?? this.endedAt,
+      endUnit: endUnit ?? this.endUnit,
+      minutes: minutes ?? this.minutes,
+      status: status ?? this.status,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (hlc.present) {
+      map['hlc'] = Variable<String>(hlc.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (sourceId.present) {
+      map['source_id'] = Variable<String>(sourceId.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<int>(startedAt.value);
+    }
+    if (startUnit.present) {
+      map['start_unit'] = Variable<int>(startUnit.value);
+    }
+    if (endedAt.present) {
+      map['ended_at'] = Variable<int>(endedAt.value);
+    }
+    if (endUnit.present) {
+      map['end_unit'] = Variable<int>(endUnit.value);
+    }
+    if (minutes.present) {
+      map['minutes'] = Variable<int>(minutes.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(
+        $ReadingSessionsTable.$converterstatus.toSql(status.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReadingSessionsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('hlc: $hlc, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('startUnit: $startUnit, ')
+          ..write('endedAt: $endedAt, ')
+          ..write('endUnit: $endUnit, ')
+          ..write('minutes: $minutes, ')
+          ..write('status: $status, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -11474,11 +12241,25 @@ class $PlanItemsTable extends PlanItems
   late final GeneratedColumn<String> taskId = GeneratedColumn<String>(
     'task_id',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.string,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'REFERENCES tasks (id)',
+    ),
+  );
+  static const VerificationMeta _sourceIdMeta = const VerificationMeta(
+    'sourceId',
+  );
+  @override
+  late final GeneratedColumn<String> sourceId = GeneratedColumn<String>(
+    'source_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES sources (id)',
     ),
   );
   static const VerificationMeta _examIdMeta = const VerificationMeta('examId');
@@ -11552,6 +12333,7 @@ class $PlanItemsTable extends PlanItems
     deviceId,
     date,
     taskId,
+    sourceId,
     examId,
     kind,
     estMinutes,
@@ -11627,8 +12409,12 @@ class $PlanItemsTable extends PlanItems
         _taskIdMeta,
         taskId.isAcceptableOrUnknown(data['task_id']!, _taskIdMeta),
       );
-    } else if (isInserting) {
-      context.missing(_taskIdMeta);
+    }
+    if (data.containsKey('source_id')) {
+      context.handle(
+        _sourceIdMeta,
+        sourceId.isAcceptableOrUnknown(data['source_id']!, _sourceIdMeta),
+      );
     }
     if (data.containsKey('exam_id')) {
       context.handle(
@@ -11700,7 +12486,11 @@ class $PlanItemsTable extends PlanItems
       taskId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}task_id'],
-      )!,
+      ),
+      sourceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_id'],
+      ),
       examId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}exam_id'],
@@ -11756,7 +12546,10 @@ class PlanItem extends DataClass implements Insertable<PlanItem> {
 
   /// `YYYY-MM-DD`.
   final String date;
-  final String taskId;
+
+  /// Null for an explore item, which names a source instead (D27).
+  final String? taskId;
+  final String? sourceId;
   final String? examId;
   final PlanItemKind kind;
   final int estMinutes;
@@ -11773,7 +12566,8 @@ class PlanItem extends DataClass implements Insertable<PlanItem> {
     required this.hlc,
     required this.deviceId,
     required this.date,
-    required this.taskId,
+    this.taskId,
+    this.sourceId,
     this.examId,
     required this.kind,
     required this.estMinutes,
@@ -11793,7 +12587,12 @@ class PlanItem extends DataClass implements Insertable<PlanItem> {
     map['hlc'] = Variable<String>(hlc);
     map['device_id'] = Variable<String>(deviceId);
     map['date'] = Variable<String>(date);
-    map['task_id'] = Variable<String>(taskId);
+    if (!nullToAbsent || taskId != null) {
+      map['task_id'] = Variable<String>(taskId);
+    }
+    if (!nullToAbsent || sourceId != null) {
+      map['source_id'] = Variable<String>(sourceId);
+    }
     if (!nullToAbsent || examId != null) {
       map['exam_id'] = Variable<String>(examId);
     }
@@ -11824,7 +12623,12 @@ class PlanItem extends DataClass implements Insertable<PlanItem> {
       hlc: Value(hlc),
       deviceId: Value(deviceId),
       date: Value(date),
-      taskId: Value(taskId),
+      taskId: taskId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(taskId),
+      sourceId: sourceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceId),
       examId: examId == null && nullToAbsent
           ? const Value.absent()
           : Value(examId),
@@ -11849,7 +12653,8 @@ class PlanItem extends DataClass implements Insertable<PlanItem> {
       hlc: serializer.fromJson<String>(json['hlc']),
       deviceId: serializer.fromJson<String>(json['deviceId']),
       date: serializer.fromJson<String>(json['date']),
-      taskId: serializer.fromJson<String>(json['taskId']),
+      taskId: serializer.fromJson<String?>(json['taskId']),
+      sourceId: serializer.fromJson<String?>(json['sourceId']),
       examId: serializer.fromJson<String?>(json['examId']),
       kind: $PlanItemsTable.$converterkind.fromJson(
         serializer.fromJson<String>(json['kind']),
@@ -11873,7 +12678,8 @@ class PlanItem extends DataClass implements Insertable<PlanItem> {
       'hlc': serializer.toJson<String>(hlc),
       'deviceId': serializer.toJson<String>(deviceId),
       'date': serializer.toJson<String>(date),
-      'taskId': serializer.toJson<String>(taskId),
+      'taskId': serializer.toJson<String?>(taskId),
+      'sourceId': serializer.toJson<String?>(sourceId),
       'examId': serializer.toJson<String?>(examId),
       'kind': serializer.toJson<String>(
         $PlanItemsTable.$converterkind.toJson(kind),
@@ -11895,7 +12701,8 @@ class PlanItem extends DataClass implements Insertable<PlanItem> {
     String? hlc,
     String? deviceId,
     String? date,
-    String? taskId,
+    Value<String?> taskId = const Value.absent(),
+    Value<String?> sourceId = const Value.absent(),
     Value<String?> examId = const Value.absent(),
     PlanItemKind? kind,
     int? estMinutes,
@@ -11910,7 +12717,8 @@ class PlanItem extends DataClass implements Insertable<PlanItem> {
     hlc: hlc ?? this.hlc,
     deviceId: deviceId ?? this.deviceId,
     date: date ?? this.date,
-    taskId: taskId ?? this.taskId,
+    taskId: taskId.present ? taskId.value : this.taskId,
+    sourceId: sourceId.present ? sourceId.value : this.sourceId,
     examId: examId.present ? examId.value : this.examId,
     kind: kind ?? this.kind,
     estMinutes: estMinutes ?? this.estMinutes,
@@ -11928,6 +12736,7 @@ class PlanItem extends DataClass implements Insertable<PlanItem> {
       deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
       date: data.date.present ? data.date.value : this.date,
       taskId: data.taskId.present ? data.taskId.value : this.taskId,
+      sourceId: data.sourceId.present ? data.sourceId.value : this.sourceId,
       examId: data.examId.present ? data.examId.value : this.examId,
       kind: data.kind.present ? data.kind.value : this.kind,
       estMinutes: data.estMinutes.present
@@ -11952,6 +12761,7 @@ class PlanItem extends DataClass implements Insertable<PlanItem> {
           ..write('deviceId: $deviceId, ')
           ..write('date: $date, ')
           ..write('taskId: $taskId, ')
+          ..write('sourceId: $sourceId, ')
           ..write('examId: $examId, ')
           ..write('kind: $kind, ')
           ..write('estMinutes: $estMinutes, ')
@@ -11972,6 +12782,7 @@ class PlanItem extends DataClass implements Insertable<PlanItem> {
     deviceId,
     date,
     taskId,
+    sourceId,
     examId,
     kind,
     estMinutes,
@@ -11991,6 +12802,7 @@ class PlanItem extends DataClass implements Insertable<PlanItem> {
           other.deviceId == this.deviceId &&
           other.date == this.date &&
           other.taskId == this.taskId &&
+          other.sourceId == this.sourceId &&
           other.examId == this.examId &&
           other.kind == this.kind &&
           other.estMinutes == this.estMinutes &&
@@ -12007,7 +12819,8 @@ class PlanItemsCompanion extends UpdateCompanion<PlanItem> {
   final Value<String> hlc;
   final Value<String> deviceId;
   final Value<String> date;
-  final Value<String> taskId;
+  final Value<String?> taskId;
+  final Value<String?> sourceId;
   final Value<String?> examId;
   final Value<PlanItemKind> kind;
   final Value<int> estMinutes;
@@ -12024,6 +12837,7 @@ class PlanItemsCompanion extends UpdateCompanion<PlanItem> {
     this.deviceId = const Value.absent(),
     this.date = const Value.absent(),
     this.taskId = const Value.absent(),
+    this.sourceId = const Value.absent(),
     this.examId = const Value.absent(),
     this.kind = const Value.absent(),
     this.estMinutes = const Value.absent(),
@@ -12040,7 +12854,8 @@ class PlanItemsCompanion extends UpdateCompanion<PlanItem> {
     required String hlc,
     required String deviceId,
     required String date,
-    required String taskId,
+    this.taskId = const Value.absent(),
+    this.sourceId = const Value.absent(),
     this.examId = const Value.absent(),
     required PlanItemKind kind,
     required int estMinutes,
@@ -12054,7 +12869,6 @@ class PlanItemsCompanion extends UpdateCompanion<PlanItem> {
        hlc = Value(hlc),
        deviceId = Value(deviceId),
        date = Value(date),
-       taskId = Value(taskId),
        kind = Value(kind),
        estMinutes = Value(estMinutes),
        status = Value(status),
@@ -12069,6 +12883,7 @@ class PlanItemsCompanion extends UpdateCompanion<PlanItem> {
     Expression<String>? deviceId,
     Expression<String>? date,
     Expression<String>? taskId,
+    Expression<String>? sourceId,
     Expression<String>? examId,
     Expression<String>? kind,
     Expression<int>? estMinutes,
@@ -12086,6 +12901,7 @@ class PlanItemsCompanion extends UpdateCompanion<PlanItem> {
       if (deviceId != null) 'device_id': deviceId,
       if (date != null) 'date': date,
       if (taskId != null) 'task_id': taskId,
+      if (sourceId != null) 'source_id': sourceId,
       if (examId != null) 'exam_id': examId,
       if (kind != null) 'kind': kind,
       if (estMinutes != null) 'est_minutes': estMinutes,
@@ -12104,7 +12920,8 @@ class PlanItemsCompanion extends UpdateCompanion<PlanItem> {
     Value<String>? hlc,
     Value<String>? deviceId,
     Value<String>? date,
-    Value<String>? taskId,
+    Value<String?>? taskId,
+    Value<String?>? sourceId,
     Value<String?>? examId,
     Value<PlanItemKind>? kind,
     Value<int>? estMinutes,
@@ -12122,6 +12939,7 @@ class PlanItemsCompanion extends UpdateCompanion<PlanItem> {
       deviceId: deviceId ?? this.deviceId,
       date: date ?? this.date,
       taskId: taskId ?? this.taskId,
+      sourceId: sourceId ?? this.sourceId,
       examId: examId ?? this.examId,
       kind: kind ?? this.kind,
       estMinutes: estMinutes ?? this.estMinutes,
@@ -12158,6 +12976,9 @@ class PlanItemsCompanion extends UpdateCompanion<PlanItem> {
     }
     if (taskId.present) {
       map['task_id'] = Variable<String>(taskId.value);
+    }
+    if (sourceId.present) {
+      map['source_id'] = Variable<String>(sourceId.value);
     }
     if (examId.present) {
       map['exam_id'] = Variable<String>(examId.value);
@@ -12198,6 +13019,7 @@ class PlanItemsCompanion extends UpdateCompanion<PlanItem> {
           ..write('deviceId: $deviceId, ')
           ..write('date: $date, ')
           ..write('taskId: $taskId, ')
+          ..write('sourceId: $sourceId, ')
           ..write('examId: $examId, ')
           ..write('kind: $kind, ')
           ..write('estMinutes: $estMinutes, ')
@@ -16825,6 +17647,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SourceFilesTable sourceFiles = $SourceFilesTable(this);
   late final $ChunksTable chunks = $ChunksTable(this);
   late final $ChunkSurveysTable chunkSurveys = $ChunkSurveysTable(this);
+  late final $ReadingSessionsTable readingSessions = $ReadingSessionsTable(
+    this,
+  );
   late final $TasksTable tasks = $TasksTable(this);
   late final $TaskChunksTable taskChunks = $TaskChunksTable(this);
   late final $TaskStatesTable taskStates = $TaskStatesTable(this);
@@ -16847,6 +17672,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SettingsTable settings = $SettingsTable(this);
   late final $EventsTable events = $EventsTable(this);
   late final $ActiveSessionsTable activeSessions = $ActiveSessionsTable(this);
+  late final Index readingSessionsSource = Index(
+    'reading_sessions_source',
+    'CREATE INDEX reading_sessions_source ON reading_sessions (source_id)',
+  );
   late final Index taskChunksTask = Index(
     'task_chunks_task',
     'CREATE INDEX task_chunks_task ON task_chunks (task_id)',
@@ -16877,6 +17706,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     sourceFiles,
     chunks,
     chunkSurveys,
+    readingSessions,
     tasks,
     taskChunks,
     taskStates,
@@ -16898,6 +17728,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     settings,
     events,
     activeSessions,
+    readingSessionsSource,
     taskChunksTask,
     reviewsTaskAt,
     examTasksExam,
@@ -17470,6 +18301,44 @@ final class $$SourcesTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$ReadingSessionsTable, List<ReadingSession>>
+  _readingSessionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.readingSessions,
+    aliasName: $_aliasNameGenerator(db.sources.id, db.readingSessions.sourceId),
+  );
+
+  $$ReadingSessionsTableProcessedTableManager get readingSessionsRefs {
+    final manager = $$ReadingSessionsTableTableManager(
+      $_db,
+      $_db.readingSessions,
+    ).filter((f) => f.sourceId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _readingSessionsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$PlanItemsTable, List<PlanItem>>
+  _planItemsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.planItems,
+    aliasName: $_aliasNameGenerator(db.sources.id, db.planItems.sourceId),
+  );
+
+  $$PlanItemsTableProcessedTableManager get planItemsRefs {
+    final manager = $$PlanItemsTableTableManager(
+      $_db,
+      $_db.planItems,
+    ).filter((f) => f.sourceId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_planItemsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$SourcesTableFilterComposer
@@ -17579,6 +18448,56 @@ class $$SourcesTableFilterComposer
           }) => $$ChunksTableFilterComposer(
             $db: $db,
             $table: $db.chunks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> readingSessionsRefs(
+    Expression<bool> Function($$ReadingSessionsTableFilterComposer f) f,
+  ) {
+    final $$ReadingSessionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.readingSessions,
+      getReferencedColumn: (t) => t.sourceId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReadingSessionsTableFilterComposer(
+            $db: $db,
+            $table: $db.readingSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> planItemsRefs(
+    Expression<bool> Function($$PlanItemsTableFilterComposer f) f,
+  ) {
+    final $$PlanItemsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.planItems,
+      getReferencedColumn: (t) => t.sourceId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlanItemsTableFilterComposer(
+            $db: $db,
+            $table: $db.planItems,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -17747,6 +18666,56 @@ class $$SourcesTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> readingSessionsRefs<T extends Object>(
+    Expression<T> Function($$ReadingSessionsTableAnnotationComposer a) f,
+  ) {
+    final $$ReadingSessionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.readingSessions,
+      getReferencedColumn: (t) => t.sourceId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReadingSessionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.readingSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> planItemsRefs<T extends Object>(
+    Expression<T> Function($$PlanItemsTableAnnotationComposer a) f,
+  ) {
+    final $$PlanItemsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.planItems,
+      getReferencedColumn: (t) => t.sourceId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlanItemsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.planItems,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$SourcesTableTableManager
@@ -17762,7 +18731,12 @@ class $$SourcesTableTableManager
           $$SourcesTableUpdateCompanionBuilder,
           (Source, $$SourcesTableReferences),
           Source,
-          PrefetchHooks Function({bool sourceFilesRefs, bool chunksRefs})
+          PrefetchHooks Function({
+            bool sourceFilesRefs,
+            bool chunksRefs,
+            bool readingSessionsRefs,
+            bool planItemsRefs,
+          })
         > {
   $$SourcesTableTableManager(_$AppDatabase db, $SourcesTable table)
     : super(
@@ -17840,12 +18814,19 @@ class $$SourcesTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({sourceFilesRefs = false, chunksRefs = false}) {
+              ({
+                sourceFilesRefs = false,
+                chunksRefs = false,
+                readingSessionsRefs = false,
+                planItemsRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (sourceFilesRefs) db.sourceFiles,
                     if (chunksRefs) db.chunks,
+                    if (readingSessionsRefs) db.readingSessions,
+                    if (planItemsRefs) db.planItems,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -17888,6 +18869,48 @@ class $$SourcesTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (readingSessionsRefs)
+                        await $_getPrefetchedData<
+                          Source,
+                          $SourcesTable,
+                          ReadingSession
+                        >(
+                          currentTable: table,
+                          referencedTable: $$SourcesTableReferences
+                              ._readingSessionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$SourcesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).readingSessionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.sourceId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (planItemsRefs)
+                        await $_getPrefetchedData<
+                          Source,
+                          $SourcesTable,
+                          PlanItem
+                        >(
+                          currentTable: table,
+                          referencedTable: $$SourcesTableReferences
+                              ._planItemsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$SourcesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).planItemsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.sourceId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -17908,7 +18931,12 @@ typedef $$SourcesTableProcessedTableManager =
       $$SourcesTableUpdateCompanionBuilder,
       (Source, $$SourcesTableReferences),
       Source,
-      PrefetchHooks Function({bool sourceFilesRefs, bool chunksRefs})
+      PrefetchHooks Function({
+        bool sourceFilesRefs,
+        bool chunksRefs,
+        bool readingSessionsRefs,
+        bool planItemsRefs,
+      })
     >;
 typedef $$SourceFilesTableCreateCompanionBuilder =
     SourceFilesCompanion Function({
@@ -19586,6 +20614,487 @@ typedef $$ChunkSurveysTableProcessedTableManager =
       (ChunkSurvey, $$ChunkSurveysTableReferences),
       ChunkSurvey,
       PrefetchHooks Function({bool chunkId})
+    >;
+typedef $$ReadingSessionsTableCreateCompanionBuilder =
+    ReadingSessionsCompanion Function({
+      required String id,
+      required int createdAt,
+      required int updatedAt,
+      Value<int?> deletedAt,
+      required String hlc,
+      required String deviceId,
+      required String sourceId,
+      required int startedAt,
+      required int startUnit,
+      Value<int?> endedAt,
+      Value<int?> endUnit,
+      Value<int?> minutes,
+      required ReadingStatus status,
+      Value<int> rowid,
+    });
+typedef $$ReadingSessionsTableUpdateCompanionBuilder =
+    ReadingSessionsCompanion Function({
+      Value<String> id,
+      Value<int> createdAt,
+      Value<int> updatedAt,
+      Value<int?> deletedAt,
+      Value<String> hlc,
+      Value<String> deviceId,
+      Value<String> sourceId,
+      Value<int> startedAt,
+      Value<int> startUnit,
+      Value<int?> endedAt,
+      Value<int?> endUnit,
+      Value<int?> minutes,
+      Value<ReadingStatus> status,
+      Value<int> rowid,
+    });
+
+final class $$ReadingSessionsTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $ReadingSessionsTable, ReadingSession> {
+  $$ReadingSessionsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $SourcesTable _sourceIdTable(_$AppDatabase db) =>
+      db.sources.createAlias(
+        $_aliasNameGenerator(db.readingSessions.sourceId, db.sources.id),
+      );
+
+  $$SourcesTableProcessedTableManager get sourceId {
+    final $_column = $_itemColumn<String>('source_id')!;
+
+    final manager = $$SourcesTableTableManager(
+      $_db,
+      $_db.sources,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_sourceIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$ReadingSessionsTableFilterComposer
+    extends Composer<_$AppDatabase, $ReadingSessionsTable> {
+  $$ReadingSessionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get hlc => $composableBuilder(
+    column: $table.hlc,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get startUnit => $composableBuilder(
+    column: $table.startUnit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get endedAt => $composableBuilder(
+    column: $table.endedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get endUnit => $composableBuilder(
+    column: $table.endUnit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get minutes => $composableBuilder(
+    column: $table.minutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ReadingStatus, ReadingStatus, String>
+  get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  $$SourcesTableFilterComposer get sourceId {
+    final $$SourcesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sourceId,
+      referencedTable: $db.sources,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SourcesTableFilterComposer(
+            $db: $db,
+            $table: $db.sources,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ReadingSessionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ReadingSessionsTable> {
+  $$ReadingSessionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get hlc => $composableBuilder(
+    column: $table.hlc,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get startUnit => $composableBuilder(
+    column: $table.startUnit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get endedAt => $composableBuilder(
+    column: $table.endedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get endUnit => $composableBuilder(
+    column: $table.endUnit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get minutes => $composableBuilder(
+    column: $table.minutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$SourcesTableOrderingComposer get sourceId {
+    final $$SourcesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sourceId,
+      referencedTable: $db.sources,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SourcesTableOrderingComposer(
+            $db: $db,
+            $table: $db.sources,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ReadingSessionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ReadingSessionsTable> {
+  $$ReadingSessionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get hlc =>
+      $composableBuilder(column: $table.hlc, builder: (column) => column);
+
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumn<int> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get startUnit =>
+      $composableBuilder(column: $table.startUnit, builder: (column) => column);
+
+  GeneratedColumn<int> get endedAt =>
+      $composableBuilder(column: $table.endedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get endUnit =>
+      $composableBuilder(column: $table.endUnit, builder: (column) => column);
+
+  GeneratedColumn<int> get minutes =>
+      $composableBuilder(column: $table.minutes, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<ReadingStatus, String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  $$SourcesTableAnnotationComposer get sourceId {
+    final $$SourcesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sourceId,
+      referencedTable: $db.sources,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SourcesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.sources,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ReadingSessionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ReadingSessionsTable,
+          ReadingSession,
+          $$ReadingSessionsTableFilterComposer,
+          $$ReadingSessionsTableOrderingComposer,
+          $$ReadingSessionsTableAnnotationComposer,
+          $$ReadingSessionsTableCreateCompanionBuilder,
+          $$ReadingSessionsTableUpdateCompanionBuilder,
+          (ReadingSession, $$ReadingSessionsTableReferences),
+          ReadingSession,
+          PrefetchHooks Function({bool sourceId})
+        > {
+  $$ReadingSessionsTableTableManager(
+    _$AppDatabase db,
+    $ReadingSessionsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ReadingSessionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ReadingSessionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ReadingSessionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<int?> deletedAt = const Value.absent(),
+                Value<String> hlc = const Value.absent(),
+                Value<String> deviceId = const Value.absent(),
+                Value<String> sourceId = const Value.absent(),
+                Value<int> startedAt = const Value.absent(),
+                Value<int> startUnit = const Value.absent(),
+                Value<int?> endedAt = const Value.absent(),
+                Value<int?> endUnit = const Value.absent(),
+                Value<int?> minutes = const Value.absent(),
+                Value<ReadingStatus> status = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ReadingSessionsCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                hlc: hlc,
+                deviceId: deviceId,
+                sourceId: sourceId,
+                startedAt: startedAt,
+                startUnit: startUnit,
+                endedAt: endedAt,
+                endUnit: endUnit,
+                minutes: minutes,
+                status: status,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int createdAt,
+                required int updatedAt,
+                Value<int?> deletedAt = const Value.absent(),
+                required String hlc,
+                required String deviceId,
+                required String sourceId,
+                required int startedAt,
+                required int startUnit,
+                Value<int?> endedAt = const Value.absent(),
+                Value<int?> endUnit = const Value.absent(),
+                Value<int?> minutes = const Value.absent(),
+                required ReadingStatus status,
+                Value<int> rowid = const Value.absent(),
+              }) => ReadingSessionsCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                hlc: hlc,
+                deviceId: deviceId,
+                sourceId: sourceId,
+                startedAt: startedAt,
+                startUnit: startUnit,
+                endedAt: endedAt,
+                endUnit: endUnit,
+                minutes: minutes,
+                status: status,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ReadingSessionsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({sourceId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (sourceId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.sourceId,
+                                referencedTable:
+                                    $$ReadingSessionsTableReferences
+                                        ._sourceIdTable(db),
+                                referencedColumn:
+                                    $$ReadingSessionsTableReferences
+                                        ._sourceIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$ReadingSessionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ReadingSessionsTable,
+      ReadingSession,
+      $$ReadingSessionsTableFilterComposer,
+      $$ReadingSessionsTableOrderingComposer,
+      $$ReadingSessionsTableAnnotationComposer,
+      $$ReadingSessionsTableCreateCompanionBuilder,
+      $$ReadingSessionsTableUpdateCompanionBuilder,
+      (ReadingSession, $$ReadingSessionsTableReferences),
+      ReadingSession,
+      PrefetchHooks Function({bool sourceId})
     >;
 typedef $$TasksTableCreateCompanionBuilder =
     TasksCompanion Function({
@@ -26668,7 +28177,8 @@ typedef $$PlanItemsTableCreateCompanionBuilder =
       required String hlc,
       required String deviceId,
       required String date,
-      required String taskId,
+      Value<String?> taskId,
+      Value<String?> sourceId,
       Value<String?> examId,
       required PlanItemKind kind,
       required int estMinutes,
@@ -26686,7 +28196,8 @@ typedef $$PlanItemsTableUpdateCompanionBuilder =
       Value<String> hlc,
       Value<String> deviceId,
       Value<String> date,
-      Value<String> taskId,
+      Value<String?> taskId,
+      Value<String?> sourceId,
       Value<String?> examId,
       Value<PlanItemKind> kind,
       Value<int> estMinutes,
@@ -26704,14 +28215,31 @@ final class $$PlanItemsTableReferences
     $_aliasNameGenerator(db.planItems.taskId, db.tasks.id),
   );
 
-  $$TasksTableProcessedTableManager get taskId {
-    final $_column = $_itemColumn<String>('task_id')!;
-
+  $$TasksTableProcessedTableManager? get taskId {
+    final $_column = $_itemColumn<String>('task_id');
+    if ($_column == null) return null;
     final manager = $$TasksTableTableManager(
       $_db,
       $_db.tasks,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_taskIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $SourcesTable _sourceIdTable(_$AppDatabase db) => db.sources
+      .createAlias($_aliasNameGenerator(db.planItems.sourceId, db.sources.id));
+
+  $$SourcesTableProcessedTableManager? get sourceId {
+    final $_column = $_itemColumn<String>('source_id');
+    if ($_column == null) return null;
+    final manager = $$SourcesTableTableManager(
+      $_db,
+      $_db.sources,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_sourceIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -26822,6 +28350,29 @@ class $$PlanItemsTableFilterComposer
           }) => $$TasksTableFilterComposer(
             $db: $db,
             $table: $db.tasks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SourcesTableFilterComposer get sourceId {
+    final $$SourcesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sourceId,
+      referencedTable: $db.sources,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SourcesTableFilterComposer(
+            $db: $db,
+            $table: $db.sources,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -26947,6 +28498,29 @@ class $$PlanItemsTableOrderingComposer
     return composer;
   }
 
+  $$SourcesTableOrderingComposer get sourceId {
+    final $$SourcesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sourceId,
+      referencedTable: $db.sources,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SourcesTableOrderingComposer(
+            $db: $db,
+            $table: $db.sources,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   $$ExamsTableOrderingComposer get examId {
     final $$ExamsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -27043,6 +28617,29 @@ class $$PlanItemsTableAnnotationComposer
     return composer;
   }
 
+  $$SourcesTableAnnotationComposer get sourceId {
+    final $$SourcesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sourceId,
+      referencedTable: $db.sources,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SourcesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.sources,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   $$ExamsTableAnnotationComposer get examId {
     final $$ExamsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -27080,7 +28677,7 @@ class $$PlanItemsTableTableManager
           $$PlanItemsTableUpdateCompanionBuilder,
           (PlanItem, $$PlanItemsTableReferences),
           PlanItem,
-          PrefetchHooks Function({bool taskId, bool examId})
+          PrefetchHooks Function({bool taskId, bool sourceId, bool examId})
         > {
   $$PlanItemsTableTableManager(_$AppDatabase db, $PlanItemsTable table)
     : super(
@@ -27102,7 +28699,8 @@ class $$PlanItemsTableTableManager
                 Value<String> hlc = const Value.absent(),
                 Value<String> deviceId = const Value.absent(),
                 Value<String> date = const Value.absent(),
-                Value<String> taskId = const Value.absent(),
+                Value<String?> taskId = const Value.absent(),
+                Value<String?> sourceId = const Value.absent(),
                 Value<String?> examId = const Value.absent(),
                 Value<PlanItemKind> kind = const Value.absent(),
                 Value<int> estMinutes = const Value.absent(),
@@ -27119,6 +28717,7 @@ class $$PlanItemsTableTableManager
                 deviceId: deviceId,
                 date: date,
                 taskId: taskId,
+                sourceId: sourceId,
                 examId: examId,
                 kind: kind,
                 estMinutes: estMinutes,
@@ -27136,7 +28735,8 @@ class $$PlanItemsTableTableManager
                 required String hlc,
                 required String deviceId,
                 required String date,
-                required String taskId,
+                Value<String?> taskId = const Value.absent(),
+                Value<String?> sourceId = const Value.absent(),
                 Value<String?> examId = const Value.absent(),
                 required PlanItemKind kind,
                 required int estMinutes,
@@ -27153,6 +28753,7 @@ class $$PlanItemsTableTableManager
                 deviceId: deviceId,
                 date: date,
                 taskId: taskId,
+                sourceId: sourceId,
                 examId: examId,
                 kind: kind,
                 estMinutes: estMinutes,
@@ -27169,60 +28770,74 @@ class $$PlanItemsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({taskId = false, examId = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (taskId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.taskId,
-                                referencedTable: $$PlanItemsTableReferences
-                                    ._taskIdTable(db),
-                                referencedColumn: $$PlanItemsTableReferences
-                                    ._taskIdTable(db)
-                                    .id,
-                              )
-                              as T;
-                    }
-                    if (examId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.examId,
-                                referencedTable: $$PlanItemsTableReferences
-                                    ._examIdTable(db),
-                                referencedColumn: $$PlanItemsTableReferences
-                                    ._examIdTable(db)
-                                    .id,
-                              )
-                              as T;
-                    }
+          prefetchHooksCallback:
+              ({taskId = false, sourceId = false, examId = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (taskId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.taskId,
+                                    referencedTable: $$PlanItemsTableReferences
+                                        ._taskIdTable(db),
+                                    referencedColumn: $$PlanItemsTableReferences
+                                        ._taskIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+                        if (sourceId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.sourceId,
+                                    referencedTable: $$PlanItemsTableReferences
+                                        ._sourceIdTable(db),
+                                    referencedColumn: $$PlanItemsTableReferences
+                                        ._sourceIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+                        if (examId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.examId,
+                                    referencedTable: $$PlanItemsTableReferences
+                                        ._examIdTable(db),
+                                    referencedColumn: $$PlanItemsTableReferences
+                                        ._examIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
 
-                    return state;
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [];
                   },
-              getPrefetchedDataCallback: (items) async {
-                return [];
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -27239,7 +28854,7 @@ typedef $$PlanItemsTableProcessedTableManager =
       $$PlanItemsTableUpdateCompanionBuilder,
       (PlanItem, $$PlanItemsTableReferences),
       PlanItem,
-      PrefetchHooks Function({bool taskId, bool examId})
+      PrefetchHooks Function({bool taskId, bool sourceId, bool examId})
     >;
 typedef $$QuestsTableCreateCompanionBuilder =
     QuestsCompanion Function({
@@ -29840,6 +31455,8 @@ class $AppDatabaseManager {
       $$ChunksTableTableManager(_db, _db.chunks);
   $$ChunkSurveysTableTableManager get chunkSurveys =>
       $$ChunkSurveysTableTableManager(_db, _db.chunkSurveys);
+  $$ReadingSessionsTableTableManager get readingSessions =>
+      $$ReadingSessionsTableTableManager(_db, _db.readingSessions);
   $$TasksTableTableManager get tasks =>
       $$TasksTableTableManager(_db, _db.tasks);
   $$TaskChunksTableTableManager get taskChunks =>

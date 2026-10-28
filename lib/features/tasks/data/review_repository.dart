@@ -23,7 +23,8 @@ final class ReviewRepository extends EventSourcedRepository {
   static const _pause = 'pause';
   static const _resume = 'resume';
 
-  Future<ReviewEngine> _engine() async => ReviewEngine(await config());
+  /// The engine with the current configuration.
+  Future<ReviewEngine> loadEngine() async => ReviewEngine(await config());
 
   /// The latest time a review may be due: the start of the day that is
   /// `lastReviewDaysBeforeExam - 1` days before the upcoming exam (with the
@@ -40,7 +41,7 @@ final class ReviewRepository extends EventSourcedRepository {
   /// upcoming exam (High → Black plans 5, Medium → Blue 4, Low → Green 3);
   /// the full schedule when it has no target.
   Future<int> plannedReviews(String taskId) async {
-    final engine = await _engine();
+    final engine = await loadEngine();
     final exam = await _upcomingExam();
     final link = exam == null
         ? null
@@ -76,7 +77,7 @@ final class ReviewRepository extends EventSourcedRepository {
     int durationSec = 0,
     int? resumeUnit,
   }) async {
-    final engine = await _engine();
+    final engine = await loadEngine();
     final deadline = await this.deadline();
     final planned = await plannedReviews(taskId);
     return mutate(
@@ -84,45 +85,68 @@ final class ReviewRepository extends EventSourcedRepository {
       entityId: taskId,
       op: EventOp.review,
       data: {'rating': rating.value, 'kind': kind.name},
-      body: (rec) async {
-        final row = await _stateRow(taskId);
-        final state = toReviewState(row);
-        if (state.paused) {
-          throw const InvalidOperationError('Resume the task to review it');
-        }
-        final at = fromUtcMs(rec.now);
-        final out = engine.applyReview(
-          state,
-          rating,
-          at,
-          deadline: deadline,
-          planned: planned,
-        );
-        final review = await rec.insert(
-          db.reviews,
-          ReviewsCompanion(
-            id: Value(rec.newId()),
-            taskId: Value(taskId),
-            at: Value(rec.now),
-            kind: Value(kind),
-            rating: Value(rating.value),
-            durationSec: Value(durationSec),
-            resumeUnit: Value(resumeUnit),
-            levelBefore: Value(out.levelBefore),
-            levelAfter: Value(out.levelAfter),
-            stepAfter: Value(out.stepAfter),
-            dueAfter: Value(out.dueAfter?.millisecondsSinceEpoch),
-          ),
-        );
-        await rec.update(db.taskStates, row.id, toCompanion(out.state));
-        return review;
-      },
+      body: (rec) => recordIn(
+        rec,
+        taskId: taskId,
+        rating: rating,
+        kind: kind,
+        durationSec: durationSec,
+        resumeUnit: resumeUnit,
+        engine: engine,
+        deadline: deadline,
+        planned: planned,
+      ),
     );
+  }
+
+  /// The body of [record], for an operation that records a review as one
+  /// of its changes (a task created with its first read, D29).
+  Future<Review> recordIn(
+    ChangeRecorder rec, {
+    required String taskId,
+    required Rating rating,
+    required ReviewEngine engine,
+    required int planned,
+    ReviewKind kind = ReviewKind.review,
+    int durationSec = 0,
+    int? resumeUnit,
+    DateTime? deadline,
+  }) async {
+    final row = await _stateRow(taskId);
+    final state = toReviewState(row);
+    if (state.paused) {
+      throw const InvalidOperationError('Resume the task to review it');
+    }
+    final out = engine.applyReview(
+      state,
+      rating,
+      fromUtcMs(rec.now),
+      deadline: deadline,
+      planned: planned,
+    );
+    final review = await rec.insert(
+      db.reviews,
+      ReviewsCompanion(
+        id: Value(rec.newId()),
+        taskId: Value(taskId),
+        at: Value(rec.now),
+        kind: Value(kind),
+        rating: Value(rating.value),
+        durationSec: Value(durationSec),
+        resumeUnit: Value(resumeUnit),
+        levelBefore: Value(out.levelBefore),
+        levelAfter: Value(out.levelAfter),
+        stepAfter: Value(out.stepAfter),
+        dueAfter: Value(out.dueAfter?.millisecondsSinceEpoch),
+      ),
+    );
+    await rec.update(db.taskStates, row.id, toCompanion(out.state));
+    return review;
   }
 
   /// Pauses a task: no fading and nothing due until it resumes.
   Future<void> pause(String taskId) async {
-    final engine = await _engine();
+    final engine = await loadEngine();
     await mutate<void>(
       entity: entity,
       entityId: taskId,
@@ -151,7 +175,7 @@ final class ReviewRepository extends EventSourcedRepository {
   /// Resumes a paused task; its schedule moves later by the paused time
   /// and re-fits before the exam.
   Future<void> resume(String taskId) async {
-    final engine = await _engine();
+    final engine = await loadEngine();
     final deadline = await this.deadline();
     final planned = await plannedReviews(taskId);
     await mutate<void>(
@@ -215,7 +239,7 @@ final class ReviewRepository extends EventSourcedRepository {
 
   /// Recomputes one task's state from its Review rows and pauses.
   Future<ReviewState> rebuildState(String taskId) async {
-    final engine = await _engine();
+    final engine = await loadEngine();
     final reviews = [
       for (final r in await reviewsFor(taskId))
         ReviewRecord(

@@ -51,6 +51,7 @@ Widget sources(AsyncValue<List<SourceSummary>> value) => Scaffold(
   body: SourcesBody(
     summaries: value,
     onOpen: (_) {},
+    onSurvey: (_) {},
     onAdd: () {},
     onRetry: () {},
     onMore: (_) {},

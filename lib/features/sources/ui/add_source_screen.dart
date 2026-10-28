@@ -50,11 +50,9 @@ class _AddSourceScreenState extends ConsumerState<AddSourceScreen> {
   Future<void> _save({required bool survey}) async {
     final id = await _ctl.save();
     if (id == null || !mounted) return;
-    if (survey) {
-      context.pushReplacement(Routes.survey(id));
-    } else {
-      context.pop();
-    }
+    context.pushReplacement(
+      survey ? Routes.survey(id) : Routes.sourceChapters(id),
+    );
   }
 
   @override
@@ -77,7 +75,8 @@ class _AddSourceScreenState extends ConsumerState<AddSourceScreen> {
           controller: _ctl,
           onSave: () => _save(survey: false),
           onSaveAndSurvey: () => _save(survey: true),
-          onOpenDuplicate: (id) => context.pushReplacement(Routes.survey(id)),
+          onOpenDuplicate: (id) =>
+              context.pushReplacement(Routes.sourceChapters(id)),
         ),
       ),
     );
@@ -197,16 +196,15 @@ class AddSourceBody extends StatelessWidget {
             children: [
               Expanded(
                 child: SecondaryButton(
-                  label: l10n.save,
-                  onPressed: canSave ? onSave : null,
+                  label: l10n.addSourceSaveSurvey,
+                  onPressed: canSave ? onSaveAndSurvey : null,
                 ),
               ),
               const SizedBox(width: AppSpace.md),
               Expanded(
-                flex: 2,
                 child: PrimaryButton(
-                  label: l10n.addSourceSaveSurvey,
-                  onPressed: canSave ? onSaveAndSurvey : null,
+                  label: l10n.save,
+                  onPressed: canSave ? onSave : null,
                 ),
               ),
             ],

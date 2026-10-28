@@ -32,7 +32,7 @@ Conventions on every syncable table:
 
 ## Tables
 
-26 tables in seven groups. Convention columns are omitted below. FK = foreign key; `?` = nullable.
+27 tables in seven groups. Convention columns are omitted below. FK = foreign key; `?` = nullable.
 
 ### Syllabus and sources
 
@@ -43,6 +43,7 @@ Conventions on every syncable table:
 | SourceFile | sourceId FK, localPath, bytes, sha256 | Every file-based source is copied into app storage. Web (1.1) stores it in OPFS. |
 | Chunk | sourceId FK, parentChunkId?, title, order, startUnit?, endUnit?, sizeUnits? | Chapter or section. Nests for parts within chapters. |
 | ChunkSurvey | chunkId FK (unique), difficulty (1–3), familiarity (0–2), surveyedAt | Personal. One row per chunk. |
+| ReadingSession | sourceId FK, startedAt, startUnit, endedAt?, endUnit?, minutes?, status (open, saved, discarded) | One sitting of reading a source as you go (D27). At most one open row. Saved rows give the source's explored pages, its reading position and the time spent on partly read chapters. |
 
 ### Tasks and mastery
 
@@ -65,7 +66,7 @@ Conventions on every syncable table:
 | ExamTask | examId FK, taskId FK, importance, targetLevel (1–7), importanceOverridden | Drives the planner, exam tier and timeline. Unique per (exam, task). |
 | Availability | weekday (0–6), minutes, lockedExamId? | Weekly study budget, e.g. Sunday locked to one exam (1.1). |
 | AvailabilityOverride | date, minutes, lockedExamId? | Holidays, mock-test days, sick days, planned breaks. |
-| PlanItem | date, taskId FK, examId?, kind (firstRead, review, finalReview), estMinutes, status (planned, done, skipped, moved), generation | Generated schedule for the Today screen. Regenerated, never hand-edited. |
+| PlanItem | date, taskId? FK, sourceId? FK, examId?, kind (firstRead, review, finalReview, explore), estMinutes, status (planned, done, skipped, moved), generation | Generated schedule for the Today screen. Regenerated, never hand-edited. |
 
 ### Gamification
 

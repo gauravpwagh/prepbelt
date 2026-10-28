@@ -14,7 +14,7 @@ import '../state/source_providers.dart';
 import 'source_labels.dart';
 
 /// Sources list (design/notes/sources-list.md): every source with its
-/// survey progress and a one-tap route into the survey.
+/// survey progress. A tap opens its chapters; "Survey" opens the survey.
 class SourcesScreen extends ConsumerWidget {
   const SourcesScreen({super.key});
 
@@ -42,7 +42,8 @@ class SourcesScreen extends ConsumerWidget {
 
     return SourcesBody(
       summaries: summaries,
-      onOpen: (s) => context.push(Routes.survey(s.source.id)),
+      onOpen: (s) => context.push(Routes.sourceChapters(s.source.id)),
+      onSurvey: (s) => context.push(Routes.survey(s.source.id)),
       onAdd: () => context.push(Routes.newSource),
       onRetry: () => ref.invalidate(sourceSummariesProvider),
       onMore: (s) => showActionSheet(
@@ -102,6 +103,7 @@ class SourcesBody extends StatelessWidget {
   const SourcesBody({
     required this.summaries,
     required this.onOpen,
+    required this.onSurvey,
     required this.onAdd,
     required this.onRetry,
     required this.onMore,
@@ -110,6 +112,7 @@ class SourcesBody extends StatelessWidget {
 
   final AsyncValue<List<SourceSummary>> summaries;
   final ValueChanged<SourceSummary> onOpen;
+  final ValueChanged<SourceSummary> onSurvey;
   final VoidCallback onAdd;
   final VoidCallback onRetry;
   final ValueChanged<SourceSummary> onMore;
@@ -155,6 +158,7 @@ class SourcesBody extends StatelessWidget {
             : _SourceCard(
                 summary: items[i - 1],
                 onOpen: () => onOpen(items[i - 1]),
+                onSurvey: () => onSurvey(items[i - 1]),
                 onMore: () => onMore(items[i - 1]),
               ),
       ),
@@ -201,11 +205,13 @@ class _SourceCard extends StatelessWidget {
   const _SourceCard({
     required this.summary,
     required this.onOpen,
+    required this.onSurvey,
     required this.onMore,
   });
 
   final SourceSummary summary;
   final VoidCallback onOpen;
+  final VoidCallback onSurvey;
   final VoidCallback onMore;
 
   @override
@@ -231,9 +237,7 @@ class _SourceCard extends StatelessWidget {
         summary.surveyedCount,
         summary.chapterCount,
       ),
-      hint: summary.surveyed
-          ? l10n.sourceCardHintReview
-          : l10n.sourceCardHintSurvey,
+      hint: l10n.sourceCardHintOpen,
       excludeSemantics: true,
       onTap: onOpen,
       onLongPress: onMore,
@@ -306,7 +310,10 @@ class _SourceCard extends StatelessWidget {
                         ),
                       )
                     else
-                      SmallButton(label: l10n.sourceSurvey, onPressed: onOpen),
+                      SmallButton(
+                        label: l10n.sourceSurvey,
+                        onPressed: onSurvey,
+                      ),
                   ],
                 ),
                 const SizedBox(height: AppSpace.md),

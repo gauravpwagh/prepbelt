@@ -50,7 +50,7 @@ An unsurveyed chapter uses the planner's defaults: Medium importance, Medium dif
    - **Chapters:** "Ch 3" with a "+ next chapter" chip, so one task can cover a run of chapters that have no task yet.
    - **Task name:** the chapter title, or "Ch 3–4: Rest and motion, The forces"; editable.
    - **Importance for {exam}:** High / Medium / Low chips. Pre-filled from the survey (the highest across the chapters), else Medium. Hidden without an exam.
-   - **"Already read it?"** with the options "Not yet" and "Yes". "Yes" records the first read now, so the task starts at White with its first review scheduled. It moves the reading position past these chapters if it was behind them.
+   - **"Already read it?"** with the options "Not yet" and "Yes". "Yes" records the first read now, so the task starts at White with its first review scheduled, and counts these chapters as explored.
    - **Create** (primary). It saves as one undoable operation, then shows a snackbar "Task added" with "Undo".
 
 ## Reading as you go
@@ -84,8 +84,8 @@ All of it is one transaction and one undoable event:
    - a firstRead Review with `durationSec` set to the minutes given, so it starts at White and its first review is scheduled.
 
    If a chapter already has a task, it is skipped here; its task gets a firstRead Review instead, if it has none yet.
-2. **A partly read chapter** does not become a task yet. Its pages read so far, and the minutes spent on them, are kept with the reading position. When a later sitting finishes it, that sitting's task includes it and its firstRead duration is the total from all sittings. The sheet offers **"Make Ch 7 a task now"** for students who want it anyway; that task covers the pages read so far.
-3. **The reading position** moves to the page after the last page read.
+2. **A partly read chapter** does not become a task yet. Its pages read so far, and the minutes spent on them, are kept with the reading position. When a later sitting finishes it, that sitting's task includes it and its firstRead duration is the total from all sittings. The sheet offers **"Make Ch 7 a task now"** for students who want it anyway; that creates a not-started task for the whole chapter, whose first read is recorded when a later sitting finishes it (D29).
+3. **The reading position** moves to the first page not yet read (D28).
 4. **Pace:** the minutes and pages count towards the student's pace, as the planner spec already describes (calibrated after 3 sessions, blended until 10).
 
 ### Topics
@@ -112,7 +112,7 @@ This is a change to `docs/04-planner-spec.md` and will be recorded as a decision
 ## Data effects
 
 - **New table `ReadingSession`** (syncable columns as usual): sourceId, startedAt, startUnit, endedAt?, endUnit?, minutes?, status (open, saved, discarded). It is the record of each sitting, including partial chapters, and makes the open session survive restarts.
-- **Reading position** of a source = the highest endUnit of its saved sessions, and of chapters marked read through "Already read it?". It is derived, not stored.
+- **Reading position** of a source = the first unit not covered by its saved sessions or by chapters whose task has a first read (including "Already read it?"). It is derived, not stored (D28).
 - **Task over several chapters:** a Task with one TaskChunk per chapter, `order` 0, 1, 2…. TaskChunk already has start and end units, so "Make it a task now" uses a partial range.
 - **Add task, Save and Create N tasks** all go through the survey repository's task creation (`createTasks`, extended to take a chapter range, the first-read flag and minutes), so the three routes cannot drift apart.
 - **First read:** a firstRead Review with `durationSec` and `resumeUnit`, as in `docs/02-data-model.md`; no Review fields change.

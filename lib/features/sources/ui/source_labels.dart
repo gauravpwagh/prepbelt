@@ -42,4 +42,21 @@ extension UnitTypeLabels on UnitType {
         UnitType.question => l10n.addSourceChunkQuestions(start, end),
         UnitType.item => l10n.addSourceRange(start, end),
       };
+
+  /// One position in a source: "p. 121", "32 min", "Q12".
+  String at(AppLocalizations l10n, int unit) => switch (this) {
+    UnitType.page => l10n.unitAtPage(unit),
+    UnitType.minute => l10n.unitAtMinute(unit),
+    UnitType.question => l10n.unitAtQuestion(unit),
+    UnitType.item => '$unit',
+  };
+}
+
+/// "45 min", "2 h", "1 h 20 min".
+String formatMinutes(AppLocalizations l10n, int minutes) {
+  final h = minutes ~/ 60;
+  final m = minutes % 60;
+  if (h == 0) return l10n.durationMinutes(m);
+  if (m == 0) return l10n.durationHours(h);
+  return l10n.durationHoursMinutes(h, m);
 }

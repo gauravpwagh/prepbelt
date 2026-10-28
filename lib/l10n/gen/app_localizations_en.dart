@@ -390,10 +390,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get sourceCardHintSurvey => 'Continue the survey';
-
-  @override
-  String get sourceCardHintReview => 'Review the survey';
+  String get sourceCardHintOpen => 'Open its chapters';
 
   @override
   String get sourceRename => 'Rename';
@@ -576,4 +573,243 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addSourceLinkMissing => 'Add a link';
+
+  @override
+  String unitAtPage(int unit) {
+    return 'p. $unit';
+  }
+
+  @override
+  String unitAtMinute(int unit) {
+    return '$unit min';
+  }
+
+  @override
+  String unitAtQuestion(int unit) {
+    return 'Q$unit';
+  }
+
+  @override
+  String chaptersSummary(int chapters, int tasks, int surveyed) {
+    String _temp0 = intl.Intl.pluralLogic(
+      chapters,
+      locale: localeName,
+      other: '$chapters chapters',
+      one: '1 chapter',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      tasks,
+      locale: localeName,
+      other: '$tasks tasks',
+      one: '1 task',
+    );
+    return '$_temp0 · $_temp1 · surveyed $surveyed of $chapters';
+  }
+
+  @override
+  String get chaptersEditSurvey => 'Edit survey';
+
+  @override
+  String chaptersCreateTasks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tasks',
+      one: '1 task',
+    );
+    return 'Create $_temp0';
+  }
+
+  @override
+  String get chaptersCaptionSurvey =>
+      'Uses your survey answers. Unsurveyed chapters count as Medium.';
+
+  @override
+  String get chaptersCaptionNoSurvey =>
+      'Chapters count as Medium. A survey makes this sharper.';
+
+  @override
+  String get chaptersCaptionAll => 'Every chapter has a task.';
+
+  @override
+  String get chaptersAddTask => 'Add task';
+
+  @override
+  String get chaptersLoadError => 'Couldn\'t load this source.';
+
+  @override
+  String chaptersTasksCreated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tasks created',
+      one: '1 task created',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String chapterRowSemantics(int number, String title, String range) {
+    return 'Chapter $number, $title, $range.';
+  }
+
+  @override
+  String get chapterRead => 'Read';
+
+  @override
+  String chapterReadPart(int done, int total) {
+    return '$done of $total read';
+  }
+
+  @override
+  String chapterOpenTask(String title) {
+    return 'Open task $title';
+  }
+
+  @override
+  String readingExplored(int done, String size) {
+    return 'Explored $done of $size';
+  }
+
+  @override
+  String readingTimeLeft(String time) {
+    return 'about $time left';
+  }
+
+  @override
+  String get readingStart => 'Start reading';
+
+  @override
+  String readingFrom(String position) {
+    return 'Read from $position';
+  }
+
+  @override
+  String readingWatchFrom(String position) {
+    return 'Watch from $position';
+  }
+
+  @override
+  String readingPartly(String title, int done, int total) {
+    return '$title · $done of $total read';
+  }
+
+  @override
+  String readingSince(String time) {
+    return 'Reading since $time';
+  }
+
+  @override
+  String get readingFinish => 'Finish';
+
+  @override
+  String readingAllRead(String time) {
+    return 'Read to the end · $time';
+  }
+
+  @override
+  String get readingNotOpened =>
+      'Reading started. Read it anywhere, then tap Finish.';
+
+  @override
+  String get readingOpenFirst => 'Finish your open reading first.';
+
+  @override
+  String get readingSheetTitle => 'How far did you get?';
+
+  @override
+  String readingOverline(String title, String position) {
+    return '$title · from $position';
+  }
+
+  @override
+  String readingAway(String time) {
+    return 'You were away $time';
+  }
+
+  @override
+  String get readingTimeLabel => 'Time reading';
+
+  @override
+  String get readingUpTo => 'Up to';
+
+  @override
+  String readingChapterEnd(String title, String position) {
+    return 'End of $title · $position';
+  }
+
+  @override
+  String readingPreviewTask(String title, String range) {
+    return 'Creates task $title ($range).';
+  }
+
+  @override
+  String readingPreviewFirstRead(String title) {
+    return 'First read for $title.';
+  }
+
+  @override
+  String readingPreviewPartial(String title, int done, int total) {
+    return '$title: $done of $total read.';
+  }
+
+  @override
+  String get readingPreviewNothing => 'Saves your place.';
+
+  @override
+  String readingMakeTaskNow(String title) {
+    return 'Make $title a task now';
+  }
+
+  @override
+  String get readingDidntRead => 'I didn\'t read';
+
+  @override
+  String readingSaved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Reading saved · $count tasks created',
+      one: 'Reading saved · 1 task created',
+      zero: 'Reading saved',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get readingLess => 'Less';
+
+  @override
+  String get readingMore => 'More';
+
+  @override
+  String get addTaskTitle => 'Add task';
+
+  @override
+  String get addTaskChapters => 'Chapters';
+
+  @override
+  String get addTaskNextChapter => '+ next chapter';
+
+  @override
+  String get addTaskName => 'Task name';
+
+  @override
+  String get addTaskAlreadyRead => 'Already read it?';
+
+  @override
+  String get addTaskNotYet => 'Not yet';
+
+  @override
+  String get addTaskYes => 'Yes';
+
+  @override
+  String get addTaskYesHint =>
+      'Starts at White with its first review scheduled.';
+
+  @override
+  String get addTaskCreate => 'Create';
+
+  @override
+  String get addTaskAdded => 'Task added';
 }

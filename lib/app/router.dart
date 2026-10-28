@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../core/ui/bottom_sheet.dart';
 import '../core/ui/nav_bar.dart';
 import '../core/ui/placeholder_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
 import '../features/sources/ui/add_source_screen.dart';
+import '../features/sources/ui/reading_sheet.dart';
+import '../features/sources/ui/source_chapters_screen.dart';
 import '../features/sources/ui/sources_screen.dart';
 import '../features/survey/ui/survey_screen.dart';
 import '../features/today/ui/today_screen.dart';
@@ -79,6 +82,16 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
         ],
       ),
       GoRoute(path: '/sources/new', builder: (_, _) => const AddSourceScreen()),
+      GoRoute(
+        path: '/sources/:id',
+        builder: (_, state) =>
+            SourceChaptersScreen(sourceId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: Routes.reading,
+        pageBuilder: (_, state) =>
+            SheetPage<void>(key: state.pageKey, child: const ReadingSheet()),
+      ),
       GoRoute(
         path: '/sources/:id/survey',
         builder: (_, state) =>

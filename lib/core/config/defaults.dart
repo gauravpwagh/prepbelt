@@ -135,6 +135,20 @@ abstract final class Defaults {
   /// An unreturned session closes as unfinished after this long.
   static const int activeSessionTimeoutHours = 6;
 
+  // ------------------------------------------------- Reading as you go (D27)
+
+  /// Time away longer than this pre-fills as this many minutes.
+  static const int readingMaxAwayMinutes = 180;
+
+  /// The "How far did you get?" time stepper moves in steps of this size.
+  static const int readingAwayStepMinutes = 5;
+
+  /// Chapter ends within this many units of the guess show as chips.
+  static const int readingChapterChipWindow = 15;
+
+  /// The pace guess uses at most this many recent sittings (D30).
+  static const int readingPaceSittings = 10;
+
   // ------------------------------------------------------------ Game layer
 
   /// XP per review = [xpPerRatingWeight] × rating weight + promotion bonus.
@@ -168,4 +182,8 @@ abstract final class SettingKeys {
   static const reminderTime = 'ui.reminderTime';
   static const studentName = 'profile.name';
   static const onboarded = 'profile.onboarded';
+
+  static const readingMaxAwayMinutes = 'reading.maxAwayMinutes';
+  static const readingAwayStepMinutes = 'reading.awayStepMinutes';
+  static const readingChapterChipWindow = 'reading.chapterChipWindow';
 }

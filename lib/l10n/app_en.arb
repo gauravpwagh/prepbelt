@@ -295,8 +295,7 @@
       }
     }
   },
-  "sourceCardHintSurvey": "Continue the survey",
-  "sourceCardHintReview": "Review the survey",
+  "sourceCardHintOpen": "Open its chapters",
   "sourceRename": "Rename",
   "sourceRemove": "Remove",
   "sourceRemoved": "Removed {title}",
@@ -462,5 +461,264 @@
   "addSourcePdfMissing": "Choose a PDF",
   "addSourceTitleMissing": "Add a title",
   "addSourceUnitsMissing": "Must be more than 0",
-  "addSourceLinkMissing": "Add a link"
+  "addSourceLinkMissing": "Add a link",
+  "unitAtPage": "p. {unit}",
+  "@unitAtPage": {
+    "placeholders": {
+      "unit": {
+        "type": "int"
+      }
+    }
+  },
+  "unitAtMinute": "{unit} min",
+  "@unitAtMinute": {
+    "placeholders": {
+      "unit": {
+        "type": "int"
+      }
+    }
+  },
+  "unitAtQuestion": "Q{unit}",
+  "@unitAtQuestion": {
+    "placeholders": {
+      "unit": {
+        "type": "int"
+      }
+    }
+  },
+  "chaptersSummary": "{chapters, plural, =1{1 chapter} other{{chapters} chapters}} · {tasks, plural, =1{1 task} other{{tasks} tasks}} · surveyed {surveyed} of {chapters}",
+  "@chaptersSummary": {
+    "placeholders": {
+      "chapters": {
+        "type": "int"
+      },
+      "tasks": {
+        "type": "int"
+      },
+      "surveyed": {
+        "type": "int"
+      }
+    }
+  },
+  "chaptersEditSurvey": "Edit survey",
+  "chaptersCreateTasks": "Create {count, plural, =1{1 task} other{{count} tasks}}",
+  "@chaptersCreateTasks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chaptersCaptionSurvey": "Uses your survey answers. Unsurveyed chapters count as Medium.",
+  "chaptersCaptionNoSurvey": "Chapters count as Medium. A survey makes this sharper.",
+  "chaptersCaptionAll": "Every chapter has a task.",
+  "chaptersAddTask": "Add task",
+  "chaptersLoadError": "Couldn't load this source.",
+  "chaptersTasksCreated": "{count, plural, =1{1 task created} other{{count} tasks created}}",
+  "@chaptersTasksCreated": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chapterRowSemantics": "Chapter {number}, {title}, {range}.",
+  "@chapterRowSemantics": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      },
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "chapterRead": "Read",
+  "chapterReadPart": "{done} of {total} read",
+  "@chapterReadPart": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "chapterOpenTask": "Open task {title}",
+  "@chapterOpenTask": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "readingExplored": "Explored {done} of {size}",
+  "@readingExplored": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "readingTimeLeft": "about {time} left",
+  "@readingTimeLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "readingStart": "Start reading",
+  "readingFrom": "Read from {position}",
+  "@readingFrom": {
+    "placeholders": {
+      "position": {
+        "type": "String"
+      }
+    }
+  },
+  "readingWatchFrom": "Watch from {position}",
+  "@readingWatchFrom": {
+    "placeholders": {
+      "position": {
+        "type": "String"
+      }
+    }
+  },
+  "readingPartly": "{title} · {done} of {total} read",
+  "@readingPartly": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "readingSince": "Reading since {time}",
+  "@readingSince": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "readingFinish": "Finish",
+  "readingAllRead": "Read to the end · {time}",
+  "@readingAllRead": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "readingNotOpened": "Reading started. Read it anywhere, then tap Finish.",
+  "readingOpenFirst": "Finish your open reading first.",
+  "readingSheetTitle": "How far did you get?",
+  "readingOverline": "{title} · from {position}",
+  "@readingOverline": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "position": {
+        "type": "String"
+      }
+    }
+  },
+  "readingAway": "You were away {time}",
+  "@readingAway": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "readingTimeLabel": "Time reading",
+  "readingUpTo": "Up to",
+  "readingChapterEnd": "End of {title} · {position}",
+  "@readingChapterEnd": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "position": {
+        "type": "String"
+      }
+    }
+  },
+  "readingPreviewTask": "Creates task {title} ({range}).",
+  "@readingPreviewTask": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "readingPreviewFirstRead": "First read for {title}.",
+  "@readingPreviewFirstRead": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "readingPreviewPartial": "{title}: {done} of {total} read.",
+  "@readingPreviewPartial": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "readingPreviewNothing": "Saves your place.",
+  "readingMakeTaskNow": "Make {title} a task now",
+  "@readingMakeTaskNow": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "readingDidntRead": "I didn't read",
+  "readingSaved": "{count, plural, =0{Reading saved} =1{Reading saved · 1 task created} other{Reading saved · {count} tasks created}}",
+  "@readingSaved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "readingLess": "Less",
+  "readingMore": "More",
+  "addTaskTitle": "Add task",
+  "addTaskChapters": "Chapters",
+  "addTaskNextChapter": "+ next chapter",
+  "addTaskName": "Task name",
+  "addTaskAlreadyRead": "Already read it?",
+  "addTaskNotYet": "Not yet",
+  "addTaskYes": "Yes",
+  "addTaskYesHint": "Starts at White with its first review scheduled.",
+  "addTaskCreate": "Create",
+  "addTaskAdded": "Task added"
 }

@@ -71,3 +71,27 @@ Future<void> showActionSheet(
     );
   },
 );
+
+/// A router page shown as a modal bottom sheet, so a route (e.g.
+/// `/reading`) can open over whatever screen is showing.
+class SheetPage<T> extends Page<T> {
+  const SheetPage({required this.child, super.key});
+
+  final Widget child;
+
+  @override
+  Route<T> createRoute(BuildContext context) => ModalBottomSheetRoute<T>(
+    settings: this,
+    isScrollControlled: true,
+    useSafeArea: true,
+    showDragHandle: true,
+    backgroundColor: context.colors.surface,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.sheet)),
+    ),
+    builder: (sheet) => Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(sheet).bottom),
+      child: child,
+    ),
+  );
+}

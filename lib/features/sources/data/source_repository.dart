@@ -137,6 +137,13 @@ final class SourceRepository extends EventSourcedRepository {
     return rows.isEmpty ? null : rows.first.readTable(db.sources);
   }
 
+  /// The stored file of a source, if it has one.
+  Future<SourceFile?> fileOf(String sourceId) =>
+      (db.select(db.sourceFiles)
+            ..where((f) => f.sourceId.equals(sourceId) & f.deletedAt.isNull())
+            ..limit(1))
+          .getSingleOrNull();
+
   /// A source's chapters in reading order, top level first then parts.
   Stream<List<Chunk>> watchChunks(String sourceId) =>
       (db.select(db.chunks)

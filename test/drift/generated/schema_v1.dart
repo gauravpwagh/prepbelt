@@ -645,6 +645,154 @@ class ChunkSurveys extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
+class ReadingSessions extends Table with TableInfo {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  ReadingSessions(this.attachedDatabase, [this._alias]);
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<int> deletedAt = GeneratedColumn<int>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NULL',
+  );
+  late final GeneratedColumn<String> hlc = GeneratedColumn<String>(
+    'hlc',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> sourceId = GeneratedColumn<String>(
+    'source_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL REFERENCES sources(id)',
+  );
+  late final GeneratedColumn<int> startedAt = GeneratedColumn<int>(
+    'started_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<int> startUnit = GeneratedColumn<int>(
+    'start_unit',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<int> endedAt = GeneratedColumn<int>(
+    'ended_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NULL',
+  );
+  late final GeneratedColumn<int> endUnit = GeneratedColumn<int>(
+    'end_unit',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NULL',
+  );
+  late final GeneratedColumn<int> minutes = GeneratedColumn<int>(
+    'minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NULL',
+  );
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    hlc,
+    deviceId,
+    sourceId,
+    startedAt,
+    startUnit,
+    endedAt,
+    endUnit,
+    minutes,
+    status,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'reading_sessions';
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
+    throw UnsupportedError('TableInfo.map in schema verification code');
+  }
+
+  @override
+  ReadingSessions createAlias(String alias) {
+    return ReadingSessions(attachedDatabase, alias);
+  }
+
+  @override
+  List<String> get customConstraints => const ['PRIMARY KEY(id)'];
+  @override
+  bool get dontWriteConstraints => true;
+}
+
 class Tasks extends Table with TableInfo {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -2301,10 +2449,18 @@ class PlanItems extends Table with TableInfo {
   late final GeneratedColumn<String> taskId = GeneratedColumn<String>(
     'task_id',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL REFERENCES tasks(id)',
+    requiredDuringInsert: false,
+    $customConstraints: 'NULL REFERENCES tasks(id)',
+  );
+  late final GeneratedColumn<String> sourceId = GeneratedColumn<String>(
+    'source_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NULL REFERENCES sources(id)',
   );
   late final GeneratedColumn<String> examId = GeneratedColumn<String>(
     'exam_id',
@@ -2364,6 +2520,7 @@ class PlanItems extends Table with TableInfo {
     deviceId,
     date,
     taskId,
+    sourceId,
     examId,
     kind,
     estMinutes,
@@ -3315,6 +3472,7 @@ class DatabaseAtV1 extends GeneratedDatabase {
   late final SourceFiles sourceFiles = SourceFiles(this);
   late final Chunks chunks = Chunks(this);
   late final ChunkSurveys chunkSurveys = ChunkSurveys(this);
+  late final ReadingSessions readingSessions = ReadingSessions(this);
   late final Tasks tasks = Tasks(this);
   late final TaskChunks taskChunks = TaskChunks(this);
   late final TaskStates taskStates = TaskStates(this);
@@ -3337,6 +3495,10 @@ class DatabaseAtV1 extends GeneratedDatabase {
   late final Settings settings = Settings(this);
   late final Events events = Events(this);
   late final ActiveSessions activeSessions = ActiveSessions(this);
+  late final Index readingSessionsSource = Index(
+    'reading_sessions_source',
+    'CREATE INDEX reading_sessions_source ON reading_sessions (source_id)',
+  );
   late final Index taskChunksTask = Index(
     'task_chunks_task',
     'CREATE INDEX task_chunks_task ON task_chunks (task_id)',
@@ -3367,6 +3529,7 @@ class DatabaseAtV1 extends GeneratedDatabase {
     sourceFiles,
     chunks,
     chunkSurveys,
+    readingSessions,
     tasks,
     taskChunks,
     taskStates,
@@ -3388,6 +3551,7 @@ class DatabaseAtV1 extends GeneratedDatabase {
     settings,
     events,
     activeSessions,
+    readingSessionsSource,
     taskChunksTask,
     reviewsTaskAt,
     examTasksExam,

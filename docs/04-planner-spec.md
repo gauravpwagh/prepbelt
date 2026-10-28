@@ -16,6 +16,7 @@ The planner is a pure function: same inputs and date, same plan. It reads only s
 | Student's pace per subject | Derived from Review durations | Calibrating estimates |
 | Review schedule | Setting (at most 5 reviews, gap weights 1 : 2 : 3 : 5 : 8) and the ExamTask target | When reviews come due, and how many |
 | Today's date | Injected clock | Start of the plan |
+| Unexplored units per source | Source, ReadingSession, read tasks (D27) | "Continue reading" items |
 
 **Output:** PlanItem rows from today to exam day, each with date, task, kind (firstRead, review, finalReview), estimated minutes and an order within the day. Every run writes a new `generation`; older generations are discarded.
 
@@ -70,6 +71,16 @@ Deadlines are computed backward from the exam, but first reads are placed as ear
 5. Variety: at most 2 first reads from the same subject per day when there is an alternative.
 
 Partly read tasks continue before new ones in the same subject, from the resume page.
+
+### Exploring a source (D27)
+
+A student may read a source as they go instead of turning every chapter into a task first. The part of a source no task covers and nobody has read yet would otherwise count as no work, so the planner adds one **explore** item per source linked to the exam (through any of its chapters or ExamChunks):
+
+- **Size:** unexplored units = the source's units not covered by a saved ReadingSession, a read task, or a task not yet read (those are planned as first reads already).
+- **Estimate:** unexplored units × pace × Medium difficulty × New familiarity, split into reading sessions like any first read.
+- **Placement:** like the first read of a Medium task, in source order after the source's existing unread tasks; never in the taper. The item has `sourceId` set and no `taskId`.
+- It shrinks as the student reads, and disappears when the source is fully explored or every chapter has a task.
+- On Today it opens the source's "Read from" flow.
 
 **Feasibility:** if a High task cannot meet its deadline with all capacity before it, raise a triage case.
 
