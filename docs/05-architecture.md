@@ -28,7 +28,7 @@ Target the latest Flutter stable (3.44 with Dart 3.12, released May 2026, or new
 | Navigation | go_router | 17.1.0 | Typed routes |
 | Share into the app | receive_sharing_intent | 1.9.0 | Android intent filters, iOS share extension (Swift Package Manager) |
 | Open externally | open_filex | 4.7.0 | PDFs in the user's viewer; url_launcher for links |
-| PDF outline, page count | pdfrx | 2.6.x | Reads bookmarks offline; no in-app viewer |
+| PDF outline, page count | pdfrx | 2.4.7 | Reads bookmarks offline; no in-app viewer |
 | Files | file_picker, path_provider | latest stable | Import, app storage paths |
 | Notifications | flutter_local_notifications | latest stable | One daily reminder |
 | Models | freezed, json_serializable | latest stable | Immutable types, template export |
@@ -129,7 +129,7 @@ test/  integration_test/
 
 - On import, read page count and bookmarks with pdfrx; turn bookmarks into chunk ranges (each runs to the page before the next bookmark).
 - No bookmarks or a scanned PDF: fall back to a pasted table of contents or the size-based split.
-- pdfrx's outline API was not confirmed from its documentation. Verify at the start of milestone 3; syncfusion_flutter_pdf is the fallback for reading bookmarks.
+- Verified at the start of milestone 3: pdfrx 2.4.7 (the newest release that supports Flutter 3.41) exposes `PdfDocument.loadOutline()` → `PdfOutlineNode(title, dest.pageNumber, children)`, so no fallback package is needed.
 
 **Notifications**
 
