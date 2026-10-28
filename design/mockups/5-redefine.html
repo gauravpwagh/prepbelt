@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Redefine task</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#4338CA}a:hover{color:#3730A3}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #5B6072; font-family: 'Manrope', system-ui, sans-serif; color: #151A2D; display: flex; flex-direction: column; overflow: hidden">
+
+  <div aria-hidden="true" style="padding: 24px 20px; display: flex; flex-direction: column; gap: 8px; height: 150px; box-sizing: border-box; opacity: 0.55">
+    <span style="font-size: 13px; color: #FFFFFF">Task</span>
+    <span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 24px; font-weight: 700; color: #FFFFFF">Thermodynamics, 2nd law</span>
+    <span style="font-size: 13px; color: #FFFFFF">HC Verma Vol 2 · pp. 210–228 · Green belt</span>
+  </div>
+
+  <div role="dialog" aria-label="Redefine task" style="flex-grow: 1; background: #FFFFFF; border-radius: 26px 26px 0 0; padding: 10px 20px 24px; display: flex; flex-direction: column; gap: 16px">
+    <span style="align-self: center; width: 40px; height: 5px; border-radius: 999px; background: #D6DAE6"></span>
+
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      <h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 700">Redefine task</h1>
+      <span style="font-size: 13px; color: #5A6178">Your progress and review history are never lost.</span>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 8px">
+      <button type="button" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid #D6DAE6; background: #FFFFFF; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #151A2D">Edit</button>
+      <button type="button" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid #D6DAE6; background: #FFFFFF; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #151A2D">Scope</button>
+      <button type="button" aria-pressed="true" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1.5px solid #151A2D; background: #151A2D; font-family: inherit; font-size: 13.5px; font-weight: 700; color: #FFFFFF">Split</button>
+      <button type="button" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid #D6DAE6; background: #FFFFFF; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #151A2D">Merge</button>
+      <button type="button" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid #D6DAE6; background: #FFFFFF; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #151A2D">Swap source</button>
+      <button type="button" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid #D6DAE6; background: #FFFFFF; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #151A2D">Move to exam</button>
+      <button type="button" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid #D6DAE6; background: #FFFFFF; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #151A2D">Pause</button>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <span style="font-size: 13px; font-weight: 700">Drag to choose where to split</span>
+      <div style="position: relative; height: 44px; display: flex; align-items: center">
+        <div style="flex: 10 1 0; height: 12px; border-radius: 6px 0 0 6px; background: #C7D2FE"></div>
+        <div style="width: 6px"></div>
+        <div style="flex: 9 1 0; height: 12px; border-radius: 0 6px 6px 0; background: #FED7AA"></div>
+        <span aria-label="Split handle at page 219" style="position: absolute; left: 52%; top: 0; width: 28px; height: 44px; margin-left: -14px; border-radius: 10px; background: #FFFFFF; border: 1.5px solid #151A2D; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(21,26,45,0.18)">
+          <svg width="10" height="16" viewBox="0 0 10 16" aria-hidden="true"><path d="M3 2v12M7 2v12" stroke="#151A2D" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </span>
+      </div>
+      <div style="display: flex; justify-content: space-between">
+        <span style="font-size: 12px; color: #5A6178">p. 210</span>
+        <span style="font-size: 12px; font-weight: 700">after p. 219</span>
+        <span style="font-size: 12px; color: #5A6178">p. 228</span>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <div style="border: 1px solid #C7D2FE; background: #F5F6FF; border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px">
+        <label for="part-a" style="font-size: 11.5px; font-weight: 700; color: #3730A3">PART A · 10 PAGES</label>
+        <input id="part-a" type="text" value="Entropy and heat engines" style="border: 0; background: transparent; padding: 0; font-family: inherit; font-size: 14px; font-weight: 600; color: #151A2D; width: 100%">
+        <span style="font-size: 12px; color: #5A6178">pp. 210–219</span>
+      </div>
+      <div style="border: 1px solid #FED7AA; background: #FFF8F1; border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px">
+        <label for="part-b" style="font-size: 11.5px; font-weight: 700; color: #9A3412">PART B · 9 PAGES</label>
+        <input id="part-b" type="text" value="Carnot cycle problems" style="border: 0; background: transparent; padding: 0; font-family: inherit; font-size: 14px; font-weight: 600; color: #151A2D; width: 100%">
+        <span style="font-size: 12px; color: #5A6178">pp. 220–228</span>
+      </div>
+    </div>
+
+    <div style="background: #F3F4F8; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px">
+      <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: #5A6178">WHAT HAPPENS</span>
+      <div style="display: flex; gap: 10px; align-items: center">
+        <svg width="36" height="16" viewBox="0 0 36 16" role="img" aria-label="Green belt, 2 stripes"><rect x="1" y="4" width="34" height="8" rx="2" fill="#639922"/><rect x="13" y="1.5" width="10" height="13" rx="2.5" fill="#4E7A1B"/><rect x="28" y="4" width="2" height="8" fill="#151A2D"/><rect x="31.5" y="4" width="2" height="8" fill="#151A2D"/></svg>
+        <span style="font-size: 13.5px">Both parts keep <strong>Green belt, 2 stripes</strong></span>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center">
+        <svg width="36" height="16" viewBox="0 0 24 24" fill="none" stroke="#5A6178" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>
+        <span style="font-size: 13.5px">Next reviews <strong>Fri 30 Oct</strong> and <strong>Sat 31 Oct</strong></span>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center">
+        <svg width="36" height="16" viewBox="0 0 24 24" fill="none" stroke="#5A6178" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M4 4v4h4"/></svg>
+        <span style="font-size: 13.5px">Undo anytime from the task's history</span>
+      </div>
+    </div>
+
+    <div style="flex-grow: 1"></div>
+
+    <div style="display: flex; gap: 10px">
+      <a href="Main.dc.html" style="flex: 1 1 0; min-height: 52px; border-radius: 16px; border: 1px solid #E2E5EE; background: #FFFFFF; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 15px; font-weight: 700; color: #151A2D">Cancel</a>
+      <a href="Main.dc.html" style="flex: 2 1 0; min-height: 52px; border-radius: 16px; background: #4338CA; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 15px; font-weight: 700; color: #FFFFFF">Split into 2 tasks</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

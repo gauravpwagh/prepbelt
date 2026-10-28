@@ -1,0 +1,89 @@
+# PrepBelt
+
+An offline-first exam-preparation app for students, built with Flutter. Students add study sources (PDFs, books, videos, links), survey them, study them, and review them with spaced repetition. Each topic earns a level from 1 to 7, shown as a martial-arts belt (white to black). An exam planner schedules everything backwards from the exam date.
+
+The name: PrepBelt says what the app does — exam prep, mastered belt by belt, from white to black. Belts are the signature progress system; the gems theme (1.2) is an optional alternative skin. Always show a belt as a martial-arts belt (knot, dojo), never as a trouser belt, which for some students can recall punishment at home.
+
+## Read these first
+
+The specs in `docs/` are the source of truth. When code and spec disagree, ask before changing either.
+
+| File | What it defines |
+| --- | --- |
+| `docs/01-product.md` | Concept, features, user journeys, game design |
+| `docs/02-data-model.md` | Every table, derived value and redefinition operation |
+| `docs/03-phase1-scope.md` | What ships in 1.0, 1.1 and 1.2, acceptance criteria, milestones |
+| `docs/04-planner-spec.md` | The scheduling algorithm, with a worked example |
+| `docs/05-architecture.md` | Packages, folders, layers, platform integration, testing |
+| `docs/06-screens.md` | The five designed screens and the design tokens |
+| `design/mockups/*.html` | Source of the five mockups: exact colours, sizes, spacing and behaviour. Build screens to match them (see `design/README.md`) |
+
+## Current status
+
+Design is complete. No code exists yet. Start with `KICKOFF.md`, which covers milestones 1 and 2 (foundations and the review engine).
+
+## Platforms and stack
+
+- **1.0 targets Android and iOS only.** Web follows in 1.1, so keep code web-compatible (Drift supports a WASM backend) but do not ship or test web yet.
+- Flutter latest stable (3.44 / Dart 3.12 or newer).
+- Drift (SQLite) for storage, Riverpod 3 with code generation for state, go_router for navigation, the `fsrs` package for spaced repetition.
+- Fully offline in phase 1. No accounts, no network calls, no analytics.
+
+## Architecture rules (enforce these)
+
+1. **Layers:** `features` → `engines` and `core`. `engines` depend on nothing but Dart and `core/time`. No Flutter imports in `lib/engines/`.
+2. **Repositories are the only writers.** Every write changes the row and appends an `Event` row in the same Drift transaction. Screens never touch the database or repositories directly; they go through Riverpod providers.
+3. **The Review table is append-only** and is the source of truth for mastery. `TaskState` and `PlanItem` are caches that can be rebuilt from it.
+4. **Time is injected.** Never call `DateTime.now()` outside `core/time`. Engines take `now` as a parameter.
+5. **Every tunable number is configuration**, not a literal: level thresholds, FSRS parameters, planner defaults. They live in the `Setting` table with defaults in one Dart file.
+6. **The `fsrs` package is used only inside `engines/review`**, behind our own `SpacedRepetition` interface.
+7. **Themes are presentation only.** Data stores level 1–7 and retrievability; belt names, colours and gems come from a `LevelTheme`.
+
+## Conventions
+
+- IDs are UUIDv7 strings. Timestamps are UTC milliseconds (int).
+- Every syncable table has `id`, `createdAt`, `updatedAt`, `deletedAt` (soft delete), `hlc` and `deviceId`.
+- Immutable domain types use `freezed`. Generated files are committed.
+- Strings go in ARB files from the start (Hindi and other Indian languages later).
+- Accessibility: contrast at least 4.5:1, touch targets at least 44 px, never colour alone (show level number or stripes), Semantics labels on badges and grid cells.
+
+## Commands
+
+```
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs
+flutter analyze
+flutter test
+```
+
+## Design ownership
+
+There is no separate designer for 1.0. You own the UI:
+
+- **Five screens are designed** (`design/mockups/`). Match them closely.
+- **Six screens are not designed** (First launch, Add exam, Sources list, Add source, Task detail, Settings). When their milestone comes, design them yourself in the same visual language: same tokens, components and patterns. Before building each one, describe its layout and states (empty, loading, filled, error) in a short note in `design/notes/` and ask for approval.
+- **Build a component library first** (buttons, chips, session card, belt badge, stat tile, bottom sheet, nav bar) and compose screens from it.
+- **Reward moments** (belt promotion, stripe lost and restored, streak) are built in code with `flutter_animate`: short (under about 1.5 s), skippable, with haptics. Keep timings in one place so they can be tuned.
+- **Logo and app icon are yours too.** There is no external designer or freelancer. Design them as hand-written SVG:
+  - Concept: a martial-arts belt — calm, disciplined, earned progress. A belt knot, or a belt that also reads as upward progress, fits best. It must clearly read as a martial-arts belt, never a trouser belt with a buckle. Avoid aggressive fighting imagery (fists, kicks).
+  - Propose 3 distinct concepts, each as an icon mark plus a "PrepBelt" wordmark, shown at 1024, 192 and 48 px, on light and dark backgrounds. Put them in `design/brand/` with a one-paragraph rationale each, and wait for approval.
+  - The icon must read clearly at 48 px, use at most 2–3 colours from the tokens, and have no text inside the mark.
+  - After approval, generate Android adaptive icons (foreground and background layers, monochrome for Android 13+) and iOS icons with `flutter_launcher_icons`, plus a splash screen with `flutter_native_splash`.
+  - Keep all brand assets in `assets/brand/` so they can be refined later without code changes.
+- **Verify the look** with golden tests of each screen in light and dark mode, at 360 and 390 widths, and at 1.3× text size.
+
+## Decisions already made (do not reopen without asking)
+
+- One exam at a time in 1.0; multiple exams in 1.1.
+- A task belongs to exactly one topic. Merging across topics is blocked.
+- Retention target is one global setting, default 90%.
+- Source files are copied into app storage on every platform.
+- Sources open in external apps; there is no in-app PDF reader.
+- Flashcards and practice questions are optional and arrive in 1.2.
+- Overdue reviews always come first in a day; there is no backlog cap.
+- Students cannot drag sessions by hand; undone sessions become overdue and are replanned.
+- No cram mode: the last 2 days before an exam are reviews only.
+- Mock tests are availability overrides, not plan items.
+- Shared template files use the `.belt` extension.
+- Internal testers pilot 1.0 through Play Console internal testing and TestFlight.
+- Default theme is Dojo (belts). Gems theme arrives in 1.2. The progress grid uses the "Night to sun" palette.
