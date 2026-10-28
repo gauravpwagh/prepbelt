@@ -14,9 +14,14 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ReviewState {
 
-/// 0 = not started, 1..7 = stored level.
- int get level; double? get stability; double? get difficulty;/// Anchor for decay. Shifted forward by pauses (decision D6).
- DateTime? get lastReviewAt; DateTime? get dueAt; int get reps; int get lapses; DateTime? get pausedAt;
+/// 0 = not started, 1..7 = belt.
+ int get level;/// Scheduled reviews passed so far (beyond the schedule, voluntary
+/// reviews keep counting).
+ int get step;/// Dim steps from reviews that were not Good. Reset by a Good review.
+/// Above 0 means the current step is being retried.
+ int get dim;/// Time of the last review. Shifted forward by pauses (decision D6).
+ DateTime? get lastReviewAt;/// When the next review is due; null when none is scheduled.
+ DateTime? get dueAt; int get reps; int get lapses; DateTime? get pausedAt;
 /// Create a copy of ReviewState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -27,16 +32,16 @@ $ReviewStateCopyWith<ReviewState> get copyWith => _$ReviewStateCopyWithImpl<Revi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReviewState&&(identical(other.level, level) || other.level == level)&&(identical(other.stability, stability) || other.stability == stability)&&(identical(other.difficulty, difficulty) || other.difficulty == difficulty)&&(identical(other.lastReviewAt, lastReviewAt) || other.lastReviewAt == lastReviewAt)&&(identical(other.dueAt, dueAt) || other.dueAt == dueAt)&&(identical(other.reps, reps) || other.reps == reps)&&(identical(other.lapses, lapses) || other.lapses == lapses)&&(identical(other.pausedAt, pausedAt) || other.pausedAt == pausedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReviewState&&(identical(other.level, level) || other.level == level)&&(identical(other.step, step) || other.step == step)&&(identical(other.dim, dim) || other.dim == dim)&&(identical(other.lastReviewAt, lastReviewAt) || other.lastReviewAt == lastReviewAt)&&(identical(other.dueAt, dueAt) || other.dueAt == dueAt)&&(identical(other.reps, reps) || other.reps == reps)&&(identical(other.lapses, lapses) || other.lapses == lapses)&&(identical(other.pausedAt, pausedAt) || other.pausedAt == pausedAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,level,stability,difficulty,lastReviewAt,dueAt,reps,lapses,pausedAt);
+int get hashCode => Object.hash(runtimeType,level,step,dim,lastReviewAt,dueAt,reps,lapses,pausedAt);
 
 @override
 String toString() {
-  return 'ReviewState(level: $level, stability: $stability, difficulty: $difficulty, lastReviewAt: $lastReviewAt, dueAt: $dueAt, reps: $reps, lapses: $lapses, pausedAt: $pausedAt)';
+  return 'ReviewState(level: $level, step: $step, dim: $dim, lastReviewAt: $lastReviewAt, dueAt: $dueAt, reps: $reps, lapses: $lapses, pausedAt: $pausedAt)';
 }
 
 
@@ -47,7 +52,7 @@ abstract mixin class $ReviewStateCopyWith<$Res>  {
   factory $ReviewStateCopyWith(ReviewState value, $Res Function(ReviewState) _then) = _$ReviewStateCopyWithImpl;
 @useResult
 $Res call({
- int level, double? stability, double? difficulty, DateTime? lastReviewAt, DateTime? dueAt, int reps, int lapses, DateTime? pausedAt
+ int level, int step, int dim, DateTime? lastReviewAt, DateTime? dueAt, int reps, int lapses, DateTime? pausedAt
 });
 
 
@@ -64,12 +69,12 @@ class _$ReviewStateCopyWithImpl<$Res>
 
 /// Create a copy of ReviewState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? level = null,Object? stability = freezed,Object? difficulty = freezed,Object? lastReviewAt = freezed,Object? dueAt = freezed,Object? reps = null,Object? lapses = null,Object? pausedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? level = null,Object? step = null,Object? dim = null,Object? lastReviewAt = freezed,Object? dueAt = freezed,Object? reps = null,Object? lapses = null,Object? pausedAt = freezed,}) {
   return _then(_self.copyWith(
 level: null == level ? _self.level : level // ignore: cast_nullable_to_non_nullable
-as int,stability: freezed == stability ? _self.stability : stability // ignore: cast_nullable_to_non_nullable
-as double?,difficulty: freezed == difficulty ? _self.difficulty : difficulty // ignore: cast_nullable_to_non_nullable
-as double?,lastReviewAt: freezed == lastReviewAt ? _self.lastReviewAt : lastReviewAt // ignore: cast_nullable_to_non_nullable
+as int,step: null == step ? _self.step : step // ignore: cast_nullable_to_non_nullable
+as int,dim: null == dim ? _self.dim : dim // ignore: cast_nullable_to_non_nullable
+as int,lastReviewAt: freezed == lastReviewAt ? _self.lastReviewAt : lastReviewAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,dueAt: freezed == dueAt ? _self.dueAt : dueAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,reps: null == reps ? _self.reps : reps // ignore: cast_nullable_to_non_nullable
 as int,lapses: null == lapses ? _self.lapses : lapses // ignore: cast_nullable_to_non_nullable
@@ -159,10 +164,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int level,  double? stability,  double? difficulty,  DateTime? lastReviewAt,  DateTime? dueAt,  int reps,  int lapses,  DateTime? pausedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int level,  int step,  int dim,  DateTime? lastReviewAt,  DateTime? dueAt,  int reps,  int lapses,  DateTime? pausedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ReviewState() when $default != null:
-return $default(_that.level,_that.stability,_that.difficulty,_that.lastReviewAt,_that.dueAt,_that.reps,_that.lapses,_that.pausedAt);case _:
+return $default(_that.level,_that.step,_that.dim,_that.lastReviewAt,_that.dueAt,_that.reps,_that.lapses,_that.pausedAt);case _:
   return orElse();
 
 }
@@ -180,10 +185,10 @@ return $default(_that.level,_that.stability,_that.difficulty,_that.lastReviewAt,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int level,  double? stability,  double? difficulty,  DateTime? lastReviewAt,  DateTime? dueAt,  int reps,  int lapses,  DateTime? pausedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int level,  int step,  int dim,  DateTime? lastReviewAt,  DateTime? dueAt,  int reps,  int lapses,  DateTime? pausedAt)  $default,) {final _that = this;
 switch (_that) {
 case _ReviewState():
-return $default(_that.level,_that.stability,_that.difficulty,_that.lastReviewAt,_that.dueAt,_that.reps,_that.lapses,_that.pausedAt);case _:
+return $default(_that.level,_that.step,_that.dim,_that.lastReviewAt,_that.dueAt,_that.reps,_that.lapses,_that.pausedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +205,10 @@ return $default(_that.level,_that.stability,_that.difficulty,_that.lastReviewAt,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int level,  double? stability,  double? difficulty,  DateTime? lastReviewAt,  DateTime? dueAt,  int reps,  int lapses,  DateTime? pausedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int level,  int step,  int dim,  DateTime? lastReviewAt,  DateTime? dueAt,  int reps,  int lapses,  DateTime? pausedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _ReviewState() when $default != null:
-return $default(_that.level,_that.stability,_that.difficulty,_that.lastReviewAt,_that.dueAt,_that.reps,_that.lapses,_that.pausedAt);case _:
+return $default(_that.level,_that.step,_that.dim,_that.lastReviewAt,_that.dueAt,_that.reps,_that.lapses,_that.pausedAt);case _:
   return null;
 
 }
@@ -215,15 +220,20 @@ return $default(_that.level,_that.stability,_that.difficulty,_that.lastReviewAt,
 
 
 class _ReviewState extends ReviewState {
-  const _ReviewState({this.level = 0, this.stability, this.difficulty, this.lastReviewAt, this.dueAt, this.reps = 0, this.lapses = 0, this.pausedAt}): super._();
+  const _ReviewState({this.level = 0, this.step = 0, this.dim = 0, this.lastReviewAt, this.dueAt, this.reps = 0, this.lapses = 0, this.pausedAt}): super._();
   
 
-/// 0 = not started, 1..7 = stored level.
+/// 0 = not started, 1..7 = belt.
 @override@JsonKey() final  int level;
-@override final  double? stability;
-@override final  double? difficulty;
-/// Anchor for decay. Shifted forward by pauses (decision D6).
+/// Scheduled reviews passed so far (beyond the schedule, voluntary
+/// reviews keep counting).
+@override@JsonKey() final  int step;
+/// Dim steps from reviews that were not Good. Reset by a Good review.
+/// Above 0 means the current step is being retried.
+@override@JsonKey() final  int dim;
+/// Time of the last review. Shifted forward by pauses (decision D6).
 @override final  DateTime? lastReviewAt;
+/// When the next review is due; null when none is scheduled.
 @override final  DateTime? dueAt;
 @override@JsonKey() final  int reps;
 @override@JsonKey() final  int lapses;
@@ -239,16 +249,16 @@ _$ReviewStateCopyWith<_ReviewState> get copyWith => __$ReviewStateCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReviewState&&(identical(other.level, level) || other.level == level)&&(identical(other.stability, stability) || other.stability == stability)&&(identical(other.difficulty, difficulty) || other.difficulty == difficulty)&&(identical(other.lastReviewAt, lastReviewAt) || other.lastReviewAt == lastReviewAt)&&(identical(other.dueAt, dueAt) || other.dueAt == dueAt)&&(identical(other.reps, reps) || other.reps == reps)&&(identical(other.lapses, lapses) || other.lapses == lapses)&&(identical(other.pausedAt, pausedAt) || other.pausedAt == pausedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReviewState&&(identical(other.level, level) || other.level == level)&&(identical(other.step, step) || other.step == step)&&(identical(other.dim, dim) || other.dim == dim)&&(identical(other.lastReviewAt, lastReviewAt) || other.lastReviewAt == lastReviewAt)&&(identical(other.dueAt, dueAt) || other.dueAt == dueAt)&&(identical(other.reps, reps) || other.reps == reps)&&(identical(other.lapses, lapses) || other.lapses == lapses)&&(identical(other.pausedAt, pausedAt) || other.pausedAt == pausedAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,level,stability,difficulty,lastReviewAt,dueAt,reps,lapses,pausedAt);
+int get hashCode => Object.hash(runtimeType,level,step,dim,lastReviewAt,dueAt,reps,lapses,pausedAt);
 
 @override
 String toString() {
-  return 'ReviewState(level: $level, stability: $stability, difficulty: $difficulty, lastReviewAt: $lastReviewAt, dueAt: $dueAt, reps: $reps, lapses: $lapses, pausedAt: $pausedAt)';
+  return 'ReviewState(level: $level, step: $step, dim: $dim, lastReviewAt: $lastReviewAt, dueAt: $dueAt, reps: $reps, lapses: $lapses, pausedAt: $pausedAt)';
 }
 
 
@@ -259,7 +269,7 @@ abstract mixin class _$ReviewStateCopyWith<$Res> implements $ReviewStateCopyWith
   factory _$ReviewStateCopyWith(_ReviewState value, $Res Function(_ReviewState) _then) = __$ReviewStateCopyWithImpl;
 @override @useResult
 $Res call({
- int level, double? stability, double? difficulty, DateTime? lastReviewAt, DateTime? dueAt, int reps, int lapses, DateTime? pausedAt
+ int level, int step, int dim, DateTime? lastReviewAt, DateTime? dueAt, int reps, int lapses, DateTime? pausedAt
 });
 
 
@@ -276,12 +286,12 @@ class __$ReviewStateCopyWithImpl<$Res>
 
 /// Create a copy of ReviewState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? level = null,Object? stability = freezed,Object? difficulty = freezed,Object? lastReviewAt = freezed,Object? dueAt = freezed,Object? reps = null,Object? lapses = null,Object? pausedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? level = null,Object? step = null,Object? dim = null,Object? lastReviewAt = freezed,Object? dueAt = freezed,Object? reps = null,Object? lapses = null,Object? pausedAt = freezed,}) {
   return _then(_ReviewState(
 level: null == level ? _self.level : level // ignore: cast_nullable_to_non_nullable
-as int,stability: freezed == stability ? _self.stability : stability // ignore: cast_nullable_to_non_nullable
-as double?,difficulty: freezed == difficulty ? _self.difficulty : difficulty // ignore: cast_nullable_to_non_nullable
-as double?,lastReviewAt: freezed == lastReviewAt ? _self.lastReviewAt : lastReviewAt // ignore: cast_nullable_to_non_nullable
+as int,step: null == step ? _self.step : step // ignore: cast_nullable_to_non_nullable
+as int,dim: null == dim ? _self.dim : dim // ignore: cast_nullable_to_non_nullable
+as int,lastReviewAt: freezed == lastReviewAt ? _self.lastReviewAt : lastReviewAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,dueAt: freezed == dueAt ? _self.dueAt : dueAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,reps: null == reps ? _self.reps : reps // ignore: cast_nullable_to_non_nullable
 as int,lapses: null == lapses ? _self.lapses : lapses // ignore: cast_nullable_to_non_nullable
@@ -296,7 +306,7 @@ as DateTime?,
 /// @nodoc
 mixin _$ReviewOutcome {
 
- ReviewState get state; int get levelBefore; int get levelAfter; double get stabilityAfter; DateTime get dueAfter;
+ ReviewState get state; int get levelBefore; int get levelAfter; int get stepAfter; DateTime? get dueAfter;
 /// Create a copy of ReviewOutcome
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -307,16 +317,16 @@ $ReviewOutcomeCopyWith<ReviewOutcome> get copyWith => _$ReviewOutcomeCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReviewOutcome&&(identical(other.state, state) || other.state == state)&&(identical(other.levelBefore, levelBefore) || other.levelBefore == levelBefore)&&(identical(other.levelAfter, levelAfter) || other.levelAfter == levelAfter)&&(identical(other.stabilityAfter, stabilityAfter) || other.stabilityAfter == stabilityAfter)&&(identical(other.dueAfter, dueAfter) || other.dueAfter == dueAfter));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReviewOutcome&&(identical(other.state, state) || other.state == state)&&(identical(other.levelBefore, levelBefore) || other.levelBefore == levelBefore)&&(identical(other.levelAfter, levelAfter) || other.levelAfter == levelAfter)&&(identical(other.stepAfter, stepAfter) || other.stepAfter == stepAfter)&&(identical(other.dueAfter, dueAfter) || other.dueAfter == dueAfter));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,state,levelBefore,levelAfter,stabilityAfter,dueAfter);
+int get hashCode => Object.hash(runtimeType,state,levelBefore,levelAfter,stepAfter,dueAfter);
 
 @override
 String toString() {
-  return 'ReviewOutcome(state: $state, levelBefore: $levelBefore, levelAfter: $levelAfter, stabilityAfter: $stabilityAfter, dueAfter: $dueAfter)';
+  return 'ReviewOutcome(state: $state, levelBefore: $levelBefore, levelAfter: $levelAfter, stepAfter: $stepAfter, dueAfter: $dueAfter)';
 }
 
 
@@ -327,7 +337,7 @@ abstract mixin class $ReviewOutcomeCopyWith<$Res>  {
   factory $ReviewOutcomeCopyWith(ReviewOutcome value, $Res Function(ReviewOutcome) _then) = _$ReviewOutcomeCopyWithImpl;
 @useResult
 $Res call({
- ReviewState state, int levelBefore, int levelAfter, double stabilityAfter, DateTime dueAfter
+ ReviewState state, int levelBefore, int levelAfter, int stepAfter, DateTime? dueAfter
 });
 
 
@@ -344,14 +354,14 @@ class _$ReviewOutcomeCopyWithImpl<$Res>
 
 /// Create a copy of ReviewOutcome
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? levelBefore = null,Object? levelAfter = null,Object? stabilityAfter = null,Object? dueAfter = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? levelBefore = null,Object? levelAfter = null,Object? stepAfter = null,Object? dueAfter = freezed,}) {
   return _then(_self.copyWith(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
 as ReviewState,levelBefore: null == levelBefore ? _self.levelBefore : levelBefore // ignore: cast_nullable_to_non_nullable
 as int,levelAfter: null == levelAfter ? _self.levelAfter : levelAfter // ignore: cast_nullable_to_non_nullable
-as int,stabilityAfter: null == stabilityAfter ? _self.stabilityAfter : stabilityAfter // ignore: cast_nullable_to_non_nullable
-as double,dueAfter: null == dueAfter ? _self.dueAfter : dueAfter // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as int,stepAfter: null == stepAfter ? _self.stepAfter : stepAfter // ignore: cast_nullable_to_non_nullable
+as int,dueAfter: freezed == dueAfter ? _self.dueAfter : dueAfter // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 /// Create a copy of ReviewOutcome
@@ -445,10 +455,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ReviewState state,  int levelBefore,  int levelAfter,  double stabilityAfter,  DateTime dueAfter)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ReviewState state,  int levelBefore,  int levelAfter,  int stepAfter,  DateTime? dueAfter)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ReviewOutcome() when $default != null:
-return $default(_that.state,_that.levelBefore,_that.levelAfter,_that.stabilityAfter,_that.dueAfter);case _:
+return $default(_that.state,_that.levelBefore,_that.levelAfter,_that.stepAfter,_that.dueAfter);case _:
   return orElse();
 
 }
@@ -466,10 +476,10 @@ return $default(_that.state,_that.levelBefore,_that.levelAfter,_that.stabilityAf
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ReviewState state,  int levelBefore,  int levelAfter,  double stabilityAfter,  DateTime dueAfter)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ReviewState state,  int levelBefore,  int levelAfter,  int stepAfter,  DateTime? dueAfter)  $default,) {final _that = this;
 switch (_that) {
 case _ReviewOutcome():
-return $default(_that.state,_that.levelBefore,_that.levelAfter,_that.stabilityAfter,_that.dueAfter);case _:
+return $default(_that.state,_that.levelBefore,_that.levelAfter,_that.stepAfter,_that.dueAfter);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -486,10 +496,10 @@ return $default(_that.state,_that.levelBefore,_that.levelAfter,_that.stabilityAf
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ReviewState state,  int levelBefore,  int levelAfter,  double stabilityAfter,  DateTime dueAfter)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ReviewState state,  int levelBefore,  int levelAfter,  int stepAfter,  DateTime? dueAfter)?  $default,) {final _that = this;
 switch (_that) {
 case _ReviewOutcome() when $default != null:
-return $default(_that.state,_that.levelBefore,_that.levelAfter,_that.stabilityAfter,_that.dueAfter);case _:
+return $default(_that.state,_that.levelBefore,_that.levelAfter,_that.stepAfter,_that.dueAfter);case _:
   return null;
 
 }
@@ -501,14 +511,14 @@ return $default(_that.state,_that.levelBefore,_that.levelAfter,_that.stabilityAf
 
 
 class _ReviewOutcome implements ReviewOutcome {
-  const _ReviewOutcome({required this.state, required this.levelBefore, required this.levelAfter, required this.stabilityAfter, required this.dueAfter});
+  const _ReviewOutcome({required this.state, required this.levelBefore, required this.levelAfter, required this.stepAfter, this.dueAfter});
   
 
 @override final  ReviewState state;
 @override final  int levelBefore;
 @override final  int levelAfter;
-@override final  double stabilityAfter;
-@override final  DateTime dueAfter;
+@override final  int stepAfter;
+@override final  DateTime? dueAfter;
 
 /// Create a copy of ReviewOutcome
 /// with the given fields replaced by the non-null parameter values.
@@ -520,16 +530,16 @@ _$ReviewOutcomeCopyWith<_ReviewOutcome> get copyWith => __$ReviewOutcomeCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReviewOutcome&&(identical(other.state, state) || other.state == state)&&(identical(other.levelBefore, levelBefore) || other.levelBefore == levelBefore)&&(identical(other.levelAfter, levelAfter) || other.levelAfter == levelAfter)&&(identical(other.stabilityAfter, stabilityAfter) || other.stabilityAfter == stabilityAfter)&&(identical(other.dueAfter, dueAfter) || other.dueAfter == dueAfter));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReviewOutcome&&(identical(other.state, state) || other.state == state)&&(identical(other.levelBefore, levelBefore) || other.levelBefore == levelBefore)&&(identical(other.levelAfter, levelAfter) || other.levelAfter == levelAfter)&&(identical(other.stepAfter, stepAfter) || other.stepAfter == stepAfter)&&(identical(other.dueAfter, dueAfter) || other.dueAfter == dueAfter));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,state,levelBefore,levelAfter,stabilityAfter,dueAfter);
+int get hashCode => Object.hash(runtimeType,state,levelBefore,levelAfter,stepAfter,dueAfter);
 
 @override
 String toString() {
-  return 'ReviewOutcome(state: $state, levelBefore: $levelBefore, levelAfter: $levelAfter, stabilityAfter: $stabilityAfter, dueAfter: $dueAfter)';
+  return 'ReviewOutcome(state: $state, levelBefore: $levelBefore, levelAfter: $levelAfter, stepAfter: $stepAfter, dueAfter: $dueAfter)';
 }
 
 
@@ -540,7 +550,7 @@ abstract mixin class _$ReviewOutcomeCopyWith<$Res> implements $ReviewOutcomeCopy
   factory _$ReviewOutcomeCopyWith(_ReviewOutcome value, $Res Function(_ReviewOutcome) _then) = __$ReviewOutcomeCopyWithImpl;
 @override @useResult
 $Res call({
- ReviewState state, int levelBefore, int levelAfter, double stabilityAfter, DateTime dueAfter
+ ReviewState state, int levelBefore, int levelAfter, int stepAfter, DateTime? dueAfter
 });
 
 
@@ -557,14 +567,14 @@ class __$ReviewOutcomeCopyWithImpl<$Res>
 
 /// Create a copy of ReviewOutcome
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? levelBefore = null,Object? levelAfter = null,Object? stabilityAfter = null,Object? dueAfter = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? levelBefore = null,Object? levelAfter = null,Object? stepAfter = null,Object? dueAfter = freezed,}) {
   return _then(_ReviewOutcome(
 state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
 as ReviewState,levelBefore: null == levelBefore ? _self.levelBefore : levelBefore // ignore: cast_nullable_to_non_nullable
 as int,levelAfter: null == levelAfter ? _self.levelAfter : levelAfter // ignore: cast_nullable_to_non_nullable
-as int,stabilityAfter: null == stabilityAfter ? _self.stabilityAfter : stabilityAfter // ignore: cast_nullable_to_non_nullable
-as double,dueAfter: null == dueAfter ? _self.dueAfter : dueAfter // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as int,stepAfter: null == stepAfter ? _self.stepAfter : stepAfter // ignore: cast_nullable_to_non_nullable
+as int,dueAfter: freezed == dueAfter ? _self.dueAfter : dueAfter // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
@@ -1111,11 +1121,12 @@ as String,
 /// @nodoc
 mixin _$LevelDisplay {
 
-/// Displayed level: the stored level, one lower while fading.
- int get level;/// Shine as a stripe count.
- int get stripes;/// Overdue with recall below the fading threshold.
- bool get fading;/// Current recall estimate, null when not started.
- double? get retrievability;
+/// The belt, 0 when not started. Never lowered by fading.
+ int get level;/// 0 = full brightness .. maxDimSteps = faded.
+ int get dim;/// Brightness as stripes: 2 at full brightness, then 1, then 0.
+ int get stripes;/// Dimmed as far as it goes: drawn faded with the word "fading".
+ bool get fading;/// A scheduled review is past due.
+ bool get overdue;
 /// Create a copy of LevelDisplay
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1126,16 +1137,16 @@ $LevelDisplayCopyWith<LevelDisplay> get copyWith => _$LevelDisplayCopyWithImpl<L
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LevelDisplay&&(identical(other.level, level) || other.level == level)&&(identical(other.stripes, stripes) || other.stripes == stripes)&&(identical(other.fading, fading) || other.fading == fading)&&(identical(other.retrievability, retrievability) || other.retrievability == retrievability));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LevelDisplay&&(identical(other.level, level) || other.level == level)&&(identical(other.dim, dim) || other.dim == dim)&&(identical(other.stripes, stripes) || other.stripes == stripes)&&(identical(other.fading, fading) || other.fading == fading)&&(identical(other.overdue, overdue) || other.overdue == overdue));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,level,stripes,fading,retrievability);
+int get hashCode => Object.hash(runtimeType,level,dim,stripes,fading,overdue);
 
 @override
 String toString() {
-  return 'LevelDisplay(level: $level, stripes: $stripes, fading: $fading, retrievability: $retrievability)';
+  return 'LevelDisplay(level: $level, dim: $dim, stripes: $stripes, fading: $fading, overdue: $overdue)';
 }
 
 
@@ -1146,7 +1157,7 @@ abstract mixin class $LevelDisplayCopyWith<$Res>  {
   factory $LevelDisplayCopyWith(LevelDisplay value, $Res Function(LevelDisplay) _then) = _$LevelDisplayCopyWithImpl;
 @useResult
 $Res call({
- int level, int stripes, bool fading, double? retrievability
+ int level, int dim, int stripes, bool fading, bool overdue
 });
 
 
@@ -1163,13 +1174,14 @@ class _$LevelDisplayCopyWithImpl<$Res>
 
 /// Create a copy of LevelDisplay
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? level = null,Object? stripes = null,Object? fading = null,Object? retrievability = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? level = null,Object? dim = null,Object? stripes = null,Object? fading = null,Object? overdue = null,}) {
   return _then(_self.copyWith(
 level: null == level ? _self.level : level // ignore: cast_nullable_to_non_nullable
+as int,dim: null == dim ? _self.dim : dim // ignore: cast_nullable_to_non_nullable
 as int,stripes: null == stripes ? _self.stripes : stripes // ignore: cast_nullable_to_non_nullable
 as int,fading: null == fading ? _self.fading : fading // ignore: cast_nullable_to_non_nullable
-as bool,retrievability: freezed == retrievability ? _self.retrievability : retrievability // ignore: cast_nullable_to_non_nullable
-as double?,
+as bool,overdue: null == overdue ? _self.overdue : overdue // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -1254,10 +1266,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int level,  int stripes,  bool fading,  double? retrievability)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int level,  int dim,  int stripes,  bool fading,  bool overdue)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LevelDisplay() when $default != null:
-return $default(_that.level,_that.stripes,_that.fading,_that.retrievability);case _:
+return $default(_that.level,_that.dim,_that.stripes,_that.fading,_that.overdue);case _:
   return orElse();
 
 }
@@ -1275,10 +1287,10 @@ return $default(_that.level,_that.stripes,_that.fading,_that.retrievability);cas
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int level,  int stripes,  bool fading,  double? retrievability)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int level,  int dim,  int stripes,  bool fading,  bool overdue)  $default,) {final _that = this;
 switch (_that) {
 case _LevelDisplay():
-return $default(_that.level,_that.stripes,_that.fading,_that.retrievability);case _:
+return $default(_that.level,_that.dim,_that.stripes,_that.fading,_that.overdue);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1295,10 +1307,10 @@ return $default(_that.level,_that.stripes,_that.fading,_that.retrievability);cas
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int level,  int stripes,  bool fading,  double? retrievability)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int level,  int dim,  int stripes,  bool fading,  bool overdue)?  $default,) {final _that = this;
 switch (_that) {
 case _LevelDisplay() when $default != null:
-return $default(_that.level,_that.stripes,_that.fading,_that.retrievability);case _:
+return $default(_that.level,_that.dim,_that.stripes,_that.fading,_that.overdue);case _:
   return null;
 
 }
@@ -1310,17 +1322,19 @@ return $default(_that.level,_that.stripes,_that.fading,_that.retrievability);cas
 
 
 class _LevelDisplay implements LevelDisplay {
-  const _LevelDisplay({required this.level, required this.stripes, required this.fading, this.retrievability});
+  const _LevelDisplay({required this.level, required this.dim, required this.stripes, required this.fading, required this.overdue});
   
 
-/// Displayed level: the stored level, one lower while fading.
+/// The belt, 0 when not started. Never lowered by fading.
 @override final  int level;
-/// Shine as a stripe count.
+/// 0 = full brightness .. maxDimSteps = faded.
+@override final  int dim;
+/// Brightness as stripes: 2 at full brightness, then 1, then 0.
 @override final  int stripes;
-/// Overdue with recall below the fading threshold.
+/// Dimmed as far as it goes: drawn faded with the word "fading".
 @override final  bool fading;
-/// Current recall estimate, null when not started.
-@override final  double? retrievability;
+/// A scheduled review is past due.
+@override final  bool overdue;
 
 /// Create a copy of LevelDisplay
 /// with the given fields replaced by the non-null parameter values.
@@ -1332,16 +1346,16 @@ _$LevelDisplayCopyWith<_LevelDisplay> get copyWith => __$LevelDisplayCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LevelDisplay&&(identical(other.level, level) || other.level == level)&&(identical(other.stripes, stripes) || other.stripes == stripes)&&(identical(other.fading, fading) || other.fading == fading)&&(identical(other.retrievability, retrievability) || other.retrievability == retrievability));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LevelDisplay&&(identical(other.level, level) || other.level == level)&&(identical(other.dim, dim) || other.dim == dim)&&(identical(other.stripes, stripes) || other.stripes == stripes)&&(identical(other.fading, fading) || other.fading == fading)&&(identical(other.overdue, overdue) || other.overdue == overdue));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,level,stripes,fading,retrievability);
+int get hashCode => Object.hash(runtimeType,level,dim,stripes,fading,overdue);
 
 @override
 String toString() {
-  return 'LevelDisplay(level: $level, stripes: $stripes, fading: $fading, retrievability: $retrievability)';
+  return 'LevelDisplay(level: $level, dim: $dim, stripes: $stripes, fading: $fading, overdue: $overdue)';
 }
 
 
@@ -1352,7 +1366,7 @@ abstract mixin class _$LevelDisplayCopyWith<$Res> implements $LevelDisplayCopyWi
   factory _$LevelDisplayCopyWith(_LevelDisplay value, $Res Function(_LevelDisplay) _then) = __$LevelDisplayCopyWithImpl;
 @override @useResult
 $Res call({
- int level, int stripes, bool fading, double? retrievability
+ int level, int dim, int stripes, bool fading, bool overdue
 });
 
 
@@ -1369,13 +1383,14 @@ class __$LevelDisplayCopyWithImpl<$Res>
 
 /// Create a copy of LevelDisplay
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? level = null,Object? stripes = null,Object? fading = null,Object? retrievability = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? level = null,Object? dim = null,Object? stripes = null,Object? fading = null,Object? overdue = null,}) {
   return _then(_LevelDisplay(
 level: null == level ? _self.level : level // ignore: cast_nullable_to_non_nullable
+as int,dim: null == dim ? _self.dim : dim // ignore: cast_nullable_to_non_nullable
 as int,stripes: null == stripes ? _self.stripes : stripes // ignore: cast_nullable_to_non_nullable
 as int,fading: null == fading ? _self.fading : fading // ignore: cast_nullable_to_non_nullable
-as bool,retrievability: freezed == retrievability ? _self.retrievability : retrievability // ignore: cast_nullable_to_non_nullable
-as double?,
+as bool,overdue: null == overdue ? _self.overdue : overdue // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

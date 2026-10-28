@@ -68,17 +68,17 @@ void main() {
   group('ReviewConfig', () {
     test('defaults come from Defaults', () {
       const c = ReviewConfig();
-      expect(c.levelStabilityThresholds, Defaults.levelStabilityThresholds);
-      expect(c.retentionTarget, 0.9);
+      expect(c.scheduledReviews, Defaults.scheduledReviews);
+      expect(c.gapWeights, [1, 2, 3, 5, 8]);
     });
 
     test('settings override defaults and bad values fall back', () {
       final c = ReviewConfig.fromSettings({
-        SettingKeys.levelStabilityThresholds: [1, 2, 4, 8, 16, 32],
-        SettingKeys.retentionTarget: 'oops',
+        SettingKeys.reviewGapWeights: [1, 1, 2, 3, 5],
+        SettingKeys.scheduledReviews: 'oops',
       });
-      expect(c.levelStabilityThresholds, [1.0, 2.0, 4.0, 8.0, 16.0, 32.0]);
-      expect(c.retentionTarget, Defaults.retentionTarget);
+      expect(c.gapWeights, [1, 1, 2, 3, 5]);
+      expect(c.scheduledReviews, Defaults.scheduledReviews);
     });
   });
 }

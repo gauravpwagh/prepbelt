@@ -5,7 +5,7 @@
 /// values through config objects and never read this file's constants
 /// for anything a student or tester might tune.
 ///
-/// Sources: docs/02-data-model.md (levels, shine, exam tier, XP),
+/// Sources: docs/02-data-model.md (levels, review schedule, exam tier, XP),
 /// docs/04-planner-spec.md (planner), docs/05-architecture.md (sessions,
 /// debounce), docs/01-product.md (splitting).
 library;
@@ -13,32 +13,33 @@ library;
 abstract final class Defaults {
   // ---------------------------------------------------------------- Review
 
-  /// Target recall probability when a review falls due. One global value.
-  static const double retentionTarget = 0.90;
+  /// Scheduled reviews per task after the first read. Each Good one earns
+  /// the next belt, so 5 take White to Brown; Black needs one more,
+  /// voluntary review.
+  static const int scheduledReviews = 5;
 
-  /// Minimum FSRS stability (days) for levels 2..7. Level 1 is set by the
-  /// first read. Index 0 is level 2.
-  static const List<double> levelStabilityThresholds = [3, 7, 14, 30, 60, 120];
+  /// Relative sizes of the gaps before each scheduled review. Gaps are
+  /// fitted to the time left before the exam in these proportions.
+  static const List<int> reviewGapWeights = [1, 2, 3, 5, 8];
+
+  /// Gaps in days when no exam is set.
+  static const List<int> reviewGapDaysWithoutExam = [1, 3, 7, 14, 30];
+
+  /// A review that is not Good is repeated after this many days.
+  static const int retryGapDays = 1;
+
+  /// The last review falls at least this many days before the exam day.
+  static const int lastReviewDaysBeforeExam = 1;
+
+  /// An overdue belt dims one step once overdue, then one more step
+  /// every this many days.
+  static const int overdueDaysPerDimStep = 2;
+
+  /// Dim steps shown as 2 stripes, 1 stripe, 0 stripes, faded.
+  static const int maxDimSteps = 3;
 
   /// Highest level a task can reach.
   static const int maxLevel = 7;
-
-  /// Optional limit on levels gained in one review. Null means the level
-  /// follows stability directly (decision D2).
-  static const int? maxPromotionPerReview = null;
-
-  /// Retrievability at or above each value earns one stripe. Index 0 is
-  /// the 2-stripe cut-off, index 1 the 1-stripe cut-off (decision D3).
-  static const List<double> stripeThresholds = [0.90, 0.80];
-
-  /// Below this retrievability, an overdue task displays one level lower.
-  static const double fadingRetrievability = 0.70;
-
-  /// FSRS-6 model weights. Null means "use the scheduler's defaults".
-  static const List<double>? fsrsParameters = null;
-
-  /// Longest interval FSRS may schedule, in days.
-  static const int fsrsMaximumIntervalDays = 36500;
 
   // ---------------------------------------------------------- Effort model
 
@@ -150,13 +151,13 @@ abstract final class Defaults {
 
 /// Keys of `Setting` rows that override [Defaults]. Values are JSON.
 abstract final class SettingKeys {
-  static const retentionTarget = 'review.retentionTarget';
-  static const levelStabilityThresholds = 'review.levelStabilityThresholds';
-  static const maxPromotionPerReview = 'review.maxPromotionPerReview';
-  static const stripeThresholds = 'review.stripeThresholds';
-  static const fadingRetrievability = 'review.fadingRetrievability';
-  static const fsrsParameters = 'review.fsrsParameters';
-  static const fsrsMaximumIntervalDays = 'review.fsrsMaximumIntervalDays';
+  static const scheduledReviews = 'review.scheduledReviews';
+  static const reviewGapWeights = 'review.gapWeights';
+  static const reviewGapDaysWithoutExam = 'review.gapDaysWithoutExam';
+  static const retryGapDays = 'review.retryGapDays';
+  static const lastReviewDaysBeforeExam = 'review.lastReviewDaysBeforeExam';
+  static const overdueDaysPerDimStep = 'review.overdueDaysPerDimStep';
+  static const maxDimSteps = 'review.maxDimSteps';
 
   static const deviceId = 'app.deviceId';
   static const theme = 'ui.theme';

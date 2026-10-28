@@ -102,8 +102,12 @@ class TaskStates extends Table with SyncColumns {
 
   /// 0 = not started, 1..7 = belt.
   IntColumn get level => integer().check(level.isBetweenValues(0, 7))();
-  RealColumn get fsrsStability => real().nullable()();
-  RealColumn get fsrsDifficulty => real().nullable()();
+
+  /// Scheduled reviews passed (voluntary reviews keep counting).
+  IntColumn get step => integer().withDefault(const Constant(0))();
+
+  /// Dim steps from reviews that were not Good; reset by a Good review.
+  IntColumn get dim => integer().withDefault(const Constant(0))();
   IntColumn get lastReviewAt => integer().nullable()();
   IntColumn get dueAt => integer().nullable()();
   IntColumn get reps => integer().withDefault(const Constant(0))();
@@ -124,8 +128,10 @@ class Reviews extends Table with SyncColumns {
   IntColumn get resumeUnit => integer().nullable()();
   IntColumn get levelBefore => integer()();
   IntColumn get levelAfter => integer()();
-  RealColumn get stabilityAfter => real()();
-  IntColumn get dueAfter => integer()();
+  IntColumn get stepAfter => integer()();
+
+  /// Null when no further review is scheduled.
+  IntColumn get dueAfter => integer().nullable()();
 }
 
 class TaskLineages extends Table with SyncColumns {

@@ -975,21 +975,23 @@ class TaskStates extends Table with TableInfo {
     requiredDuringInsert: true,
     $customConstraints: 'NOT NULL CHECK (level BETWEEN 0 AND 7)',
   );
-  late final GeneratedColumn<double> fsrsStability = GeneratedColumn<double>(
-    'fsrs_stability',
+  late final GeneratedColumn<int> step = GeneratedColumn<int>(
+    'step',
     aliasedName,
-    true,
-    type: DriftSqlType.double,
+    false,
+    type: DriftSqlType.int,
     requiredDuringInsert: false,
-    $customConstraints: 'NULL',
+    $customConstraints: 'NOT NULL DEFAULT 0',
+    defaultValue: const CustomExpression('0'),
   );
-  late final GeneratedColumn<double> fsrsDifficulty = GeneratedColumn<double>(
-    'fsrs_difficulty',
+  late final GeneratedColumn<int> dim = GeneratedColumn<int>(
+    'dim',
     aliasedName,
-    true,
-    type: DriftSqlType.double,
+    false,
+    type: DriftSqlType.int,
     requiredDuringInsert: false,
-    $customConstraints: 'NULL',
+    $customConstraints: 'NOT NULL DEFAULT 0',
+    defaultValue: const CustomExpression('0'),
   );
   late final GeneratedColumn<int> lastReviewAt = GeneratedColumn<int>(
     'last_review_at',
@@ -1043,8 +1045,8 @@ class TaskStates extends Table with TableInfo {
     deviceId,
     taskId,
     level,
-    fsrsStability,
-    fsrsDifficulty,
+    step,
+    dim,
     lastReviewAt,
     dueAt,
     reps,
@@ -1191,21 +1193,21 @@ class Reviews extends Table with TableInfo {
     requiredDuringInsert: true,
     $customConstraints: 'NOT NULL',
   );
-  late final GeneratedColumn<double> stabilityAfter = GeneratedColumn<double>(
-    'stability_after',
+  late final GeneratedColumn<int> stepAfter = GeneratedColumn<int>(
+    'step_after',
     aliasedName,
     false,
-    type: DriftSqlType.double,
+    type: DriftSqlType.int,
     requiredDuringInsert: true,
     $customConstraints: 'NOT NULL',
   );
   late final GeneratedColumn<int> dueAfter = GeneratedColumn<int>(
     'due_after',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL',
+    requiredDuringInsert: false,
+    $customConstraints: 'NULL',
   );
   @override
   List<GeneratedColumn> get $columns => [
@@ -1223,7 +1225,7 @@ class Reviews extends Table with TableInfo {
     resumeUnit,
     levelBefore,
     levelAfter,
-    stabilityAfter,
+    stepAfter,
     dueAfter,
   ];
   @override

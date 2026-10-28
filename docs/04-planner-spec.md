@@ -11,10 +11,10 @@ The planner is a pure function: same inputs and date, same plan. It reads only s
 | Exam date, priority | Exam | Deadline and, in 1.1, capacity share |
 | Tasks with importance, target level | ExamTask | What must reach which belt |
 | Size, difficulty, familiarity | Chunk, ChunkSurvey via TaskChunk | Time estimates |
-| Level, stability, due date, resume page | TaskState, Review | What is due and how much is left to read |
+| Level, review step, due date, resume page | TaskState, Review | What is due and how much is left to read |
 | Daily minutes per weekday, overrides, locked days | Availability, AvailabilityOverride | Capacity per day |
 | Student's pace per subject | Derived from Review durations | Calibrating estimates |
-| Retention target | Setting (default 90%) | How soon reviews come due |
+| Review schedule | Setting (5 reviews, gap weights 1 : 2 : 3 : 5 : 8) | When reviews come due |
 | Today's date | Injected clock | Start of the plan |
 
 **Output:** PlanItem rows from today to exam day, each with date, task, kind (firstRead, review, finalReview), estimated minutes and an order within the day. Every run writes a new `generation`; older generations are discarded.
@@ -40,42 +40,20 @@ firstRead = remainingUnits × pace[subject] × d[difficulty] × f[familiarity]
 
 ## Reachable targets
 
-High belts need long gaps between reviews, so they take calendar time that studying harder cannot shorten. The planner caps each task's target at the highest level reachable before the exam.
+Every task gets the same schedule (see `02-data-model.md`): a first read (White), then 5 reviews with growing gaps, all fitted before the exam. Each Good review earns the next belt, so a task can reach **Brown** by exam day if its first read is done at least 5 days before the deadline. **Black** takes one extra review the student chooses to do; the planner never schedules it.
 
-**Computation:** simulate FSRS forward from the task's current state, assuming every review is rated Good and happens on its due date. The reachable level is the highest level whose stability threshold is crossed on or before the day before the exam.
-
-Illustrative days from first read, all Good ratings (real numbers come from the simulation):
-
-| Level | Stability threshold | About this many days after first read |
-| --- | --- | --- |
-| 2 · Yellow | 3 days | 3 |
-| 3 · Orange | 7 days | 10 |
-| 4 · Green | 14 days | 25 |
-| 5 · Blue | 30 days | 55 |
-| 6 · Brown | 60 days | 115 |
-| 7 · Black | 120 days | 235 |
-
-**Effective target** = min(exam target level, reachable level). Readiness, exam tier and triage use effective targets. The student sees, for example, "Blue by exam day · Black needs about 8 months". After the exam the original target returns.
-
-**Exam-day recall:** every task with an effective target of Yellow or above must have predicted recall on exam day ≥ the retention target. The final-review rule guarantees this.
+**Effective target** = min(exam target level, Brown). Readiness, exam tier and triage use effective targets. A target of Black shows as "Brown by exam day · Black with one extra review". After the exam the original target returns.
 
 ## Scheduling reviews
 
-1. **Due dates:** FSRS gives each started task a due date at which predicted recall falls to the retention target.
-2. **Exam cap:** if a due date lands on or after the exam, check predicted recall on exam day. Below the retention target, the review moves into the task's final-review window.
-3. **Final review:** every task with an effective target of Yellow or above gets one final review in a window set by importance:
-
-| Importance | Final-review window |
-| --- | --- |
-| High | 1–3 days before the exam |
-| Medium | 2–5 days before |
-| Low | 3–7 days before, only if capacity allows |
-
-4. **Smoothing:** a review may move up to 2 days earlier than due, or 1 day later, to even out load. Never later than that, except through triage.
-5. **Overdue reviews:** scheduled from today ahead of everything else, most-decayed high-importance tasks first.
+1. **Due dates:** after each review the engine fits the task's remaining reviews between that review and the deadline (the day before the exam), in the gap proportions 1 : 2 : 3 : 5 : 8, at least a day apart. The next one is the task's due date. The fifth review is the final review and lands in the last days before the exam.
+2. **Not Good:** a Forgot or Hard review repeats the same step the next day; the remaining gaps re-fit after it.
+3. **Early reviews:** a student may review any task before it is due; it counts as the next step and the rest re-fit. Unplanned reviews are never added to the plan silently.
+4. **Smoothing:** a review may move up to 2 days earlier than due, or 1 day later, to even out load, never past the deadline. Never later than that, except through triage.
+5. **Overdue reviews:** scheduled from today ahead of everything else, the dimmest high-importance tasks first.
 6. **Taper:** the 2 days before the exam hold reviews only, no first reads. The exam day is left empty.
 
-Moving a review changes when it is planned, not how FSRS updates after it is done.
+Moving a review changes when it is planned, not what the review earns when it is done.
 
 ## Placing first reads
 
@@ -108,7 +86,7 @@ for day in today..examDay-1:
     t = next first read by placement order
     session = min(t.nextSession, left)       // a reading session, ≤ 45 min
     place session; left -= session
-  simulate FSRS forward for tasks started today, adding their future reviews
+  schedule the 5 reviews of tasks started today, fitted before the exam
 ```
 
 - **15-minute floor:** a new first-read session never starts with less than 15 minutes left. Continuing a started reading may use less.
@@ -124,7 +102,7 @@ Overdue reviews always come first, ahead of any new material. Sessions are never
 - **Detection:** on the first app open of a new day, PlanItems still planned for earlier dates are marked `moved`, and the planner reruns from today.
 - **Overdue first:** overdue reviews fill each day before anything else, most at-risk first. If they exceed a day's minutes, the rest carry to the next day, still ahead of first reads.
 - **First reads shift later.** If that pushes a High task past its deadline, the effective target is recomputed and triage is raised.
-- **No punishment:** the planner never demotes belts. Overdue tasks fade in shine; one good review restores them.
+- **No punishment:** belts never drop. Overdue tasks dim; one Good review restores them.
 - **Message:** one line on Today, e.g. "Yesterday's 3 sessions are spread over the next 2 days · still on track for Blue". If the projection drops, say so plainly.
 - **Breaks and mock tests:** set in advance as an AvailabilityOverride (0 minutes, or reduced minutes on a mock-test day). Planned around, never counted as missed, and they don't break the streak.
 
@@ -136,7 +114,7 @@ The planner cuts the least valuable work first, shows exactly what it cut, and l
 
 | Step | Cut |
 | --- | --- |
-| 1 | Drop final reviews of Low tasks |
+| 1 | Drop the fifth (final) review of Low tasks |
 | 2 | Lower Low targets to Yellow |
 | 3 | Mark Low and Easy first reads as "skim": 40% of the estimate, one review |
 | 4 | Lower Medium targets by one level |
@@ -166,18 +144,18 @@ share[e] = w[e] × remaining[e] / daysLeft[e]  ÷  Σ_k ( w[k] × remaining[k] /
 **Rotational motion** (High, target Black, HC Verma pp. 166–197, Hard, New):
 
 1. Estimate: 32 pages × 3 × 1.33 × 1.0 ≈ 128 min → reading sessions of 45, 45, 38 on days 0, 1, 2.
-2. Reachable: first read finishes day 2, leaving 71 days. Blue needs about 55, Brown about 115 → effective target Blue.
-3. Reviews (all Good): days 3, 6, 13, 28, 58. First 30 min (35% of 128, capped), the rest about 26.
-4. The next review after day 58 would fall after the exam, so a final review goes in the High window on day 72 (8 Jan).
-5. Total: 128 min reading + 6 reviews ≈ 160 min.
+2. Reachable: the first read finishes day 2, with 71 days left, so all 5 reviews fit. Effective target Brown; Black needs one extra review by choice.
+3. Reviews (all Good), gaps in proportion 1 : 2 : 3 : 5 : 8 over days 2–73: about days 6, 15, 27, 46 and 73. Each earns a belt, Yellow to Brown. First review 30 min (35% of 128, capped), the rest about 26.
+4. The fifth review on day 73 (9 Jan) is the final review.
+5. Total: 128 min reading + 5 reviews ≈ 135 min.
 
-The FSRS intervals above are illustrative. The golden test should assert the structure (sessions, effective target, final review in window, no day over capacity), not the exact interval days.
+The golden test should assert the structure (sessions, 5 reviews with growing gaps, the last one before the exam, effective target Brown, no day over capacity), allowing a day either way for rounding and smoothing.
 
 **Triage:** the student drops to 30 min every day → 2,190 min (about 36 h) against 80 h.
 
 | Step | Cut | Plan size after |
 | --- | --- | --- |
-| 1 | Final reviews of 10 Low tasks | about 77 h |
+| 1 | Fifth (final) reviews of 10 Low tasks | about 77 h |
 | 2 | Low targets to Yellow | about 70 h |
 | 3 | 4 Low and Easy first reads become skims | about 66 h |
 | 4 | Medium targets down one level | about 58 h |
@@ -189,13 +167,13 @@ Step 5 message: "About 18 more minutes a day keeps this reduced plan. About 36 m
 
 | Setting | Default | Student can change |
 | --- | --- | --- |
-| Retention target | 90% | Yes |
+| Reviews per task | 5, gaps 1 : 2 : 3 : 5 : 8, retry after 1 day | No |
 | Daily minutes per weekday | Set at first launch | Yes |
 | Max reading session | 45 min | No |
 | New-session floor | 15 min | No |
 | Overdue reviews | Always first, before first reads | No |
 | Taper before exam | 2 days | No |
-| Final-review windows | High 1–3, Medium 2–5, Low 3–7 days | No |
+| Last review | By the day before the exam | No |
 | Review smoothing | 2 days earlier, 1 day later | No |
 | Source order | Enforced | Per source ("any order") |
 

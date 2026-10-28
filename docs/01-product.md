@@ -17,11 +17,11 @@ A general-purpose study planner for students preparing for any exam. It should f
 4. The planner builds a day-by-day schedule.
 5. Each day the **Today** screen lists sessions. Tapping Start opens the source in its own app (external PDF viewer, YouTube, browser).
 6. Back in PrepBelt, the student says where they stopped and rates recall: **Forgot / Hard / Good / Easy**.
-7. Spaced repetition (FSRS) schedules the next review. Good reviews promote the task to a higher belt.
+7. Each task gets 5 reviews with growing gaps, all fitted before the exam. A Good review promotes the task to the next belt; a weaker one keeps the belt but dims it, and that review is repeated the next day. Students can also review any task early.
 
 ## Levels and belts
 
-Seven levels from FSRS stability. Data stores the level; the theme decides how it looks.
+Seven levels: the first read earns White, each Good review the next belt (5 reviews reach Brown), and an extra review by choice earns Black. Data stores the level; the theme decides how it looks.
 
 | Level | Dojo theme | Gems theme (1.2) |
 | --- | --- | --- |
@@ -33,7 +33,7 @@ Seven levels from FSRS stability. Data stores the level; the theme decides how i
 | 6 | Brown | Ruby |
 | 7 | Black | Diamond |
 
-- **Decay without punishment**: as recall fades, the belt loses stripes (gems lose shine). The stored level only changes through reviews, and one good review restores the shine.
+- **Dimming without punishment**: a belt never drops. It dims (loses stripes; gems lose shine) after a review that was not Good, and gradually while a review is overdue. One Good review restores it.
 - **Promotion moment**: animation, haptic and sound when a belt is earned.
 - Badges always show the level number or stripes too, so colour is never the only signal.
 

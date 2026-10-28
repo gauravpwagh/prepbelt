@@ -1,6 +1,6 @@
 # PrepBelt
 
-An offline-first exam-preparation app for students, built with Flutter. Students add study sources (PDFs, books, videos, links), survey them, study them, and review them with spaced repetition. Each topic earns a level from 1 to 7, shown as a martial-arts belt (white to black). An exam planner schedules everything backwards from the exam date.
+An offline-first exam-preparation app for students, built with Flutter. Students add study sources (PDFs, books, videos, links), survey them, study them, and review each topic 5 times on a schedule fitted to the exam date. Each topic earns a level from 1 to 7, shown as a martial-arts belt (white to black). An exam planner schedules everything backwards from the exam date.
 
 The name: PrepBelt says what the app does — exam prep, mastered belt by belt, from white to black. Belts are the signature progress system; the gems theme (1.2) is an optional alternative skin. Always show a belt as a martial-arts belt (knot, dojo), never as a trouser belt, which for some students can recall punishment at home.
 
@@ -26,7 +26,7 @@ Design is complete. No code exists yet. Start with `KICKOFF.md`, which covers mi
 
 - **1.0 targets Android and iOS only.** Web follows in 1.1, so keep code web-compatible (Drift supports a WASM backend) but do not ship or test web yet.
 - Flutter latest stable (3.44 / Dart 3.12 or newer).
-- Drift (SQLite) for storage, Riverpod 3 with code generation for state, go_router for navigation, the `fsrs` package for spaced repetition.
+- Drift (SQLite) for storage, Riverpod 3 with code generation for state, go_router for navigation. No spaced-repetition package: the review schedule is our own simple rule (`docs/02-data-model.md`).
 - Fully offline in phase 1. No accounts, no network calls, no analytics.
 
 ## Architecture rules (enforce these)
@@ -35,9 +35,9 @@ Design is complete. No code exists yet. Start with `KICKOFF.md`, which covers mi
 2. **Repositories are the only writers.** Every write changes the row and appends an `Event` row in the same Drift transaction. Screens never touch the database or repositories directly; they go through Riverpod providers.
 3. **The Review table is append-only** and is the source of truth for mastery. `TaskState` and `PlanItem` are caches that can be rebuilt from it.
 4. **Time is injected.** Never call `DateTime.now()` outside `core/time`. Engines take `now` as a parameter.
-5. **Every tunable number is configuration**, not a literal: level thresholds, FSRS parameters, planner defaults. They live in the `Setting` table with defaults in one Dart file.
-6. **The `fsrs` package is used only inside `engines/review`**, behind our own `SpacedRepetition` interface.
-7. **Themes are presentation only.** Data stores level 1–7 and retrievability; belt names, colours and gems come from a `LevelTheme`.
+5. **Every tunable number is configuration**, not a literal: the review schedule (number of reviews, gap weights, retry gap), planner defaults. They live in the `Setting` table with defaults in one Dart file.
+6. **Keep the review model simple.** Belts move only through reviews: Good earns the next belt, anything else dims it. Do not add a spaced-repetition algorithm (FSRS was removed on purpose).
+7. **Themes are presentation only.** Data stores level 1–7 and a dim (brightness) value; belt names, colours and gems come from a `LevelTheme`.
 
 ## Conventions
 
@@ -73,7 +73,7 @@ There is no separate designer for 1.0. You own the UI:
 
 - One exam at a time in 1.0; multiple exams in 1.1.
 - A task belongs to exactly one topic. Merging across topics is blocked.
-- Retention target is one global setting, default 90%.
+- Reviews: 5 per task after the first read, growing gaps fitted before the exam; Good earns the next belt (5 → Brown, Black by an extra review), Forgot/Hard dims and repeats the step next day; any task may be reviewed early and it counts.
 - Source files are copied into app storage on every platform.
 - Sources open in external apps; there is no in-app PDF reader.
 - Flashcards and practice questions are optional and arrive in 1.2.

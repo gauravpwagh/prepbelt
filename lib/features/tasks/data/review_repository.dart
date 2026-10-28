@@ -25,9 +25,30 @@ final class ReviewRepository extends EventSourcedRepository {
 
   Future<ReviewEngine> _engine() async => ReviewEngine(await config());
 
+  /// The latest time a review may be due: the start of the day that is
+  /// `lastReviewDaysBeforeExam - 1` days before the upcoming exam (with the
+  /// default of 1, midnight at the start of exam day). Null without an exam.
+  Future<DateTime?> deadline() async {
+    final exam =
+        await (db.select(db.exams)
+              ..where(
+                (e) =>
+                    e.deletedAt.isNull() &
+                    e.status.equalsValue(ExamStatus.upcoming),
+              )
+              ..orderBy([(e) => OrderingTerm.asc(e.date)])
+              ..limit(1))
+            .getSingleOrNull();
+    if (exam == null) return null;
+    final days = (await config()).lastReviewDaysBeforeExam;
+    final day = DateTime.parse(exam.date);
+    return DateTime(day.year, day.month, day.day - (days - 1)).toUtc();
+  }
+
   /// Records one review at the current time: appends the Review row,
   /// updates TaskState through the engine and logs an Event, in one
-  /// transaction.
+  /// transaction. Any task may be reviewed early; it counts as its next
+  /// step.
   Future<Review> record({
     required String taskId,
     required Rating rating,
@@ -36,6 +57,7 @@ final class ReviewRepository extends EventSourcedRepository {
     int? resumeUnit,
   }) async {
     final engine = await _engine();
+    final deadline = await this.deadline();
     return mutate(
       entity: entity,
       entityId: taskId,
@@ -48,7 +70,7 @@ final class ReviewRepository extends EventSourcedRepository {
           throw const InvalidOperationError('Resume the task to review it');
         }
         final at = fromUtcMs(rec.now);
-        final out = engine.applyReview(state, rating, at);
+        final out = engine.applyReview(state, rating, at, deadline: deadline);
         final review = await rec.insert(
           db.reviews,
           ReviewsCompanion(
@@ -61,8 +83,8 @@ final class ReviewRepository extends EventSourcedRepository {
             resumeUnit: Value(resumeUnit),
             levelBefore: Value(out.levelBefore),
             levelAfter: Value(out.levelAfter),
-            stabilityAfter: Value(out.stabilityAfter),
-            dueAfter: Value(out.dueAfter.millisecondsSinceEpoch),
+            stepAfter: Value(out.stepAfter),
+            dueAfter: Value(out.dueAfter?.millisecondsSinceEpoch),
           ),
         );
         await rec.update(db.taskStates, row.id, toCompanion(out.state));
@@ -71,7 +93,7 @@ final class ReviewRepository extends EventSourcedRepository {
     );
   }
 
-  /// Pauses a task: no decay and no due date until it resumes.
+  /// Pauses a task: no fading and nothing due until it resumes.
   Future<void> pause(String taskId) async {
     final engine = await _engine();
     await mutate<void>(
@@ -99,9 +121,11 @@ final class ReviewRepository extends EventSourcedRepository {
     );
   }
 
-  /// Resumes a paused task; its due date moves later by the paused time.
+  /// Resumes a paused task; its schedule moves later by the paused time
+  /// and re-fits before the exam.
   Future<void> resume(String taskId) async {
     final engine = await _engine();
+    final deadline = await this.deadline();
     await mutate<void>(
       entity: entity,
       entityId: taskId,
@@ -121,7 +145,9 @@ final class ReviewRepository extends EventSourcedRepository {
         await rec.update(
           db.taskStates,
           row.id,
-          toCompanion(engine.resume(state, fromUtcMs(rec.now))),
+          toCompanion(
+            engine.resume(state, fromUtcMs(rec.now), deadline: deadline),
+          ),
         );
       },
     );
@@ -165,12 +191,17 @@ final class ReviewRepository extends EventSourcedRepository {
           order: r.hlc,
         ),
     ];
-    return engine.rebuild(reviews, await pausesFor(taskId));
+    return engine.rebuild(
+      reviews,
+      pauses: await pausesFor(taskId),
+      deadline: await deadline(),
+    );
   }
 
   /// The rebuild command: recomputes every TaskState from the Review log
-  /// and writes the ones that differ (each with an Event). Returns how
-  /// many tasks were checked.
+  /// and writes the ones that differ (each with an Event). It also re-fits
+  /// every schedule to the current exam date. Returns how many tasks were
+  /// checked.
   Future<int> rebuildAll() async {
     final rows = await db.select(db.taskStates).get();
     for (final row in rows) {
@@ -199,8 +230,8 @@ final class ReviewRepository extends EventSourcedRepository {
 
   static ReviewState toReviewState(TaskState row) => ReviewState(
     level: row.level,
-    stability: row.fsrsStability,
-    difficulty: row.fsrsDifficulty,
+    step: row.step,
+    dim: row.dim,
     lastReviewAt: row.lastReviewAt == null
         ? null
         : fromUtcMs(row.lastReviewAt!),
@@ -212,8 +243,8 @@ final class ReviewRepository extends EventSourcedRepository {
 
   static TaskStatesCompanion toCompanion(ReviewState s) => TaskStatesCompanion(
     level: Value(s.level),
-    fsrsStability: Value(s.stability),
-    fsrsDifficulty: Value(s.difficulty),
+    step: Value(s.step),
+    dim: Value(s.dim),
     lastReviewAt: Value(s.lastReviewAt?.millisecondsSinceEpoch),
     dueAt: Value(s.dueAt?.millisecondsSinceEpoch),
     reps: Value(s.reps),

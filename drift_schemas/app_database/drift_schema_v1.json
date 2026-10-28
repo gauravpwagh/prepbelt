@@ -1211,22 +1211,22 @@
             ]
           },
           {
-            "name": "fsrs_stability",
-            "getter_name": "fsrsStability",
-            "moor_type": "double",
-            "nullable": true,
+            "name": "step",
+            "getter_name": "step",
+            "moor_type": "int",
+            "nullable": false,
             "customConstraints": null,
-            "default_dart": null,
+            "default_dart": "const CustomExpression('0')",
             "default_client_dart": null,
             "dsl_features": []
           },
           {
-            "name": "fsrs_difficulty",
-            "getter_name": "fsrsDifficulty",
-            "moor_type": "double",
-            "nullable": true,
+            "name": "dim",
+            "getter_name": "dim",
+            "moor_type": "int",
+            "nullable": false,
             "customConstraints": null,
-            "default_dart": null,
+            "default_dart": "const CustomExpression('0')",
             "default_client_dart": null,
             "dsl_features": []
           },
@@ -1479,9 +1479,9 @@
             "dsl_features": []
           },
           {
-            "name": "stability_after",
-            "getter_name": "stabilityAfter",
-            "moor_type": "double",
+            "name": "step_after",
+            "getter_name": "stepAfter",
+            "moor_type": "int",
             "nullable": false,
             "customConstraints": null,
             "default_dart": null,
@@ -1492,7 +1492,7 @@
             "name": "due_after",
             "getter_name": "dueAfter",
             "moor_type": "int",
-            "nullable": false,
+            "nullable": true,
             "customConstraints": null,
             "default_dart": null,
             "default_client_dart": null,
@@ -4046,7 +4046,7 @@
       "sql": [
         {
           "dialect": "sqlite",
-          "sql": "CREATE TABLE IF NOT EXISTS \"task_states\" (\"id\" TEXT NOT NULL, \"created_at\" INTEGER NOT NULL, \"updated_at\" INTEGER NOT NULL, \"deleted_at\" INTEGER NULL, \"hlc\" TEXT NOT NULL, \"device_id\" TEXT NOT NULL, \"task_id\" TEXT NOT NULL UNIQUE REFERENCES tasks (id), \"level\" INTEGER NOT NULL CHECK(\"level\" BETWEEN 0 AND 7), \"fsrs_stability\" REAL NULL, \"fsrs_difficulty\" REAL NULL, \"last_review_at\" INTEGER NULL, \"due_at\" INTEGER NULL, \"reps\" INTEGER NOT NULL DEFAULT 0, \"lapses\" INTEGER NOT NULL DEFAULT 0, \"paused_at\" INTEGER NULL, PRIMARY KEY (\"id\"));"
+          "sql": "CREATE TABLE IF NOT EXISTS \"task_states\" (\"id\" TEXT NOT NULL, \"created_at\" INTEGER NOT NULL, \"updated_at\" INTEGER NOT NULL, \"deleted_at\" INTEGER NULL, \"hlc\" TEXT NOT NULL, \"device_id\" TEXT NOT NULL, \"task_id\" TEXT NOT NULL UNIQUE REFERENCES tasks (id), \"level\" INTEGER NOT NULL CHECK(\"level\" BETWEEN 0 AND 7), \"step\" INTEGER NOT NULL DEFAULT 0, \"dim\" INTEGER NOT NULL DEFAULT 0, \"last_review_at\" INTEGER NULL, \"due_at\" INTEGER NULL, \"reps\" INTEGER NOT NULL DEFAULT 0, \"lapses\" INTEGER NOT NULL DEFAULT 0, \"paused_at\" INTEGER NULL, PRIMARY KEY (\"id\"));"
         }
       ]
     },
@@ -4055,7 +4055,7 @@
       "sql": [
         {
           "dialect": "sqlite",
-          "sql": "CREATE TABLE IF NOT EXISTS \"reviews\" (\"id\" TEXT NOT NULL, \"created_at\" INTEGER NOT NULL, \"updated_at\" INTEGER NOT NULL, \"deleted_at\" INTEGER NULL, \"hlc\" TEXT NOT NULL, \"device_id\" TEXT NOT NULL, \"task_id\" TEXT NOT NULL REFERENCES tasks (id), \"at\" INTEGER NOT NULL, \"kind\" TEXT NOT NULL, \"rating\" INTEGER NOT NULL CHECK(\"rating\" BETWEEN 1 AND 4), \"duration_sec\" INTEGER NOT NULL, \"resume_unit\" INTEGER NULL, \"level_before\" INTEGER NOT NULL, \"level_after\" INTEGER NOT NULL, \"stability_after\" REAL NOT NULL, \"due_after\" INTEGER NOT NULL, PRIMARY KEY (\"id\"));"
+          "sql": "CREATE TABLE IF NOT EXISTS \"reviews\" (\"id\" TEXT NOT NULL, \"created_at\" INTEGER NOT NULL, \"updated_at\" INTEGER NOT NULL, \"deleted_at\" INTEGER NULL, \"hlc\" TEXT NOT NULL, \"device_id\" TEXT NOT NULL, \"task_id\" TEXT NOT NULL REFERENCES tasks (id), \"at\" INTEGER NOT NULL, \"kind\" TEXT NOT NULL, \"rating\" INTEGER NOT NULL CHECK(\"rating\" BETWEEN 1 AND 4), \"duration_sec\" INTEGER NOT NULL, \"resume_unit\" INTEGER NULL, \"level_before\" INTEGER NOT NULL, \"level_after\" INTEGER NOT NULL, \"step_after\" INTEGER NOT NULL, \"due_after\" INTEGER NULL, PRIMARY KEY (\"id\"));"
         }
       ]
     },

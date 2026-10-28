@@ -9,6 +9,7 @@ import 'package:prepbelt/core/db/event_log.dart';
 import 'package:prepbelt/core/result/result.dart';
 import 'package:prepbelt/core/time/clock.dart';
 import 'package:prepbelt/engines/review/review_types.dart';
+import 'package:prepbelt/features/exams/data/exam_repository.dart';
 import 'package:prepbelt/features/settings/data/settings_repository.dart';
 import 'package:prepbelt/features/tasks/data/review_repository.dart';
 import 'package:prepbelt/features/tasks/data/task_repository.dart';
@@ -21,9 +22,11 @@ void main() {
   late TaskRepository tasks;
   late ReviewRepository reviews;
   late SettingsRepository settings;
+  late WriteContext ctx;
 
   setUp(() {
     final t = openTestContext();
+    ctx = t.ctx;
     db = t.db;
     clock = t.clock;
     tasks = TaskRepository(t.ctx);
@@ -41,7 +44,8 @@ void main() {
   Future<void> goodUntilDue(String taskId, int times) async {
     for (var i = 0; i < times; i++) {
       await reviews.record(taskId: taskId, rating: Rating.good);
-      clock.set((await stateOf(taskId)).dueAt!);
+      final due = (await stateOf(taskId)).dueAt;
+      if (due != null) clock.set(due);
     }
   }
 
@@ -61,7 +65,7 @@ void main() {
       expect(review.at, clock.nowMs());
       expect(review.levelBefore, 0);
       expect(review.levelAfter, 1);
-      expect(review.stabilityAfter, state.fsrsStability);
+      expect(review.stepAfter, state.step);
       expect(review.dueAfter, state.dueAt);
       expect(review.resumeUnit, 228);
       expect(state.level, 1);
@@ -84,7 +88,7 @@ void main() {
     expect(await db.select(db.events).get(), isEmpty);
   });
 
-  test('Forgot after several Good reviews lowers stability and keeps every '
+  test('Forgot after several Good reviews keeps the belt, dims it and keeps '
       'review; reviews cannot be undone', () async {
     final task = await tasks.create(title: 'Electrostatics');
     await goodUntilDue(task.id, 5);
@@ -92,7 +96,8 @@ void main() {
 
     await reviews.record(taskId: task.id, rating: Rating.forgot);
     final after = await stateOf(task.id);
-    expect(after.stability, lessThan(before.stability!));
+    expect(after.level, before.level);
+    expect(after.dim, 1);
     expect(after.lapses, 1);
     expect(await reviews.reviewsFor(task.id), hasLength(6));
 
@@ -191,25 +196,27 @@ void main() {
     }
   });
 
-  test('level thresholds from the Setting table change levels', () async {
-    await settings.set(SettingKeys.levelStabilityThresholds, [
-      20,
-      40,
-      80,
-      160,
-      320,
-      640,
-    ]);
-    final strict = await tasks.create(title: 'Optics');
-    await goodUntilDue(strict.id, 3);
+  test(
+    'the schedule fits before the upcoming exam, from the Exam table',
+    () async {
+      await ExamRepository(ctx).create(name: 'JEE Main', date: '2027-01-10');
+      final deadline = (await reviews.deadline())!;
+      final task = await tasks.create(title: 'Optics');
+      await goodUntilDue(task.id, 6); // first read + 5 reviews
+      final state = await stateOf(task.id);
+      expect(state.level, 6, reason: 'Brown after 5 Good reviews');
+      expect(state.dueAt, isNull);
+      for (final r in await reviews.reviewsFor(task.id)) {
+        expect(fromUtcMs(r.at).isAfter(deadline), isFalse);
+      }
+    },
+  );
 
-    await settings.remove(SettingKeys.levelStabilityThresholds);
-    final normal = await tasks.create(title: 'Optics 2');
-    await goodUntilDue(normal.id, 3);
-
-    // Three Good reviews reach a stability of about 37 days: level 2 with
-    // the strict thresholds, level 5 (Blue) with the defaults.
-    expect((await stateOf(strict.id)).level, 2);
-    expect((await stateOf(normal.id)).level, 5);
+  test('settings change the schedule', () async {
+    await settings.set(SettingKeys.scheduledReviews, 2);
+    final task = await tasks.create(title: 'Optics');
+    await goodUntilDue(task.id, 3); // first read + 2 reviews
+    expect((await stateOf(task.id)).dueAt, isNull);
+    expect((await stateOf(task.id)).level, 3);
   });
 }

@@ -21,9 +21,9 @@ void main() {
     write('engines/exam/c.dart', "import '../../core/db/app_database.dart';");
     write(
       'engines/review/ok.dart',
-      "import 'package:fsrs/fsrs.dart';\nimport '../../core/time/clock.dart';",
+      "import 'package:meta/meta.dart';\nimport '../../core/time/clock.dart';",
     );
-    write('features/tasks/data/d.dart', "import 'package:fsrs/fsrs.dart';");
+    write('engines/exam/d.dart', "import 'package:path/path.dart';");
     write(
       'features/today/ui/e.dart',
       "import '../../tasks/data/task_repository.dart';",

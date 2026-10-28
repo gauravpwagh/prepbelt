@@ -7,8 +7,8 @@ Phase 1 stores everything locally in one SQLite database (Drift), shaped so phas
 - **What vs where.** A Task is the thing being learned (a topic); Sources and Chunks are where it is learned from. Mastery belongs to the Task, so swapping a book never wipes progress.
 - **Personal vs shared.** Templates carry structure and exam importance. Difficulty, familiarity and mastery are personal and never exported by default.
 - **Exam-scoped importance.** Importance and target level live on the exam link, not on the task, because the same topic matters differently to different exams.
-- **Theme-agnostic progress.** Data stores a level 1–7 plus a retention value. Belts, gems or palettes are a presentation layer.
-- **Stored vs derived.** Stored: user input and the review and event logs. Cached: FSRS state and level on the task, the generated plan. Derived on read: exam tier, readiness, XP, streaks, both grids.
+- **Theme-agnostic progress.** Data stores a level 1–7 plus a brightness (dim) value. Belts, gems or palettes are a presentation layer.
+- **Stored vs derived.** Stored: user input and the review and event logs. Cached: review step, dim and level on the task, the generated plan. Derived on read: exam tier, readiness, XP, streaks, both grids.
 
 Conventions on every syncable table:
 
@@ -50,8 +50,8 @@ Conventions on every syncable table:
 | --- | --- | --- |
 | Task | topicId?, title, kind (learn, practice), status (active, paused, archived), needsDetail | The unit that earns a level. Belongs to exactly one Topic; a rough task may have none until refined. |
 | TaskChunk | taskId FK, chunkId FK, startUnit?, endUnit?, order | Many-to-many: a task can span several chunks or sources, or part of one. |
-| TaskState | taskId FK (unique), level (0–7), fsrsStability, fsrsDifficulty, lastReviewAt?, dueAt?, reps, lapses, pausedAt? | Cache, rebuildable by replaying Review rows. level 0 = not started. |
-| Review | taskId FK, at, kind (firstRead, review, quiz), rating (1–4), durationSec, resumeUnit?, levelBefore, levelAfter, stabilityAfter, dueAfter | Append-only. Source of truth for mastery and both grids. |
+| TaskState | taskId FK (unique), level (0–7), step (scheduled reviews passed), dim (brightness steps lost), lastReviewAt?, dueAt?, reps, lapses, pausedAt? | Cache, rebuildable by replaying Review rows. level 0 = not started. |
+| Review | taskId FK, at, kind (firstRead, review, quiz), rating (1–4), durationSec, resumeUnit?, levelBefore, levelAfter, stepAfter, dueAfter? | Append-only. Source of truth for mastery and both grids. |
 | TaskLineage | childTaskId FK, parentTaskId FK, op (split, merge, expand), at | Lets history follow a task through redefinitions. |
 | Card | taskId FK, type (flash, mcq), front, back, options? (JSON), order | Optional flashcards and practice questions (1.2). |
 | CardResult | cardId FK, reviewId FK, correct, answerMs | Quiz outcomes. A quiz review's rating is derived from these. |
@@ -83,7 +83,7 @@ XP, level-ups and streaks are not stored; they are computed from Review.
 | --- | --- | --- |
 | Template | kind (syllabus, sourceList, examPack), name, author?, version, origin (local, imported), payload (JSON), importedAt? | Record of shared bundles, so re-imports update instead of duplicating. |
 | ImportMap | templateId FK, externalId, localTable, localId | Maps ids inside a bundle to local rows. |
-| Setting | key (unique), value (JSON) | Theme, grid palette, reminder time, retention target (default 90%, one global value), FSRS parameters, level thresholds, planner defaults. |
+| Setting | key (unique), value (JSON) | Theme, grid palette, reminder time, review schedule (number of reviews, gap weights, retry gap), planner defaults. |
 
 ### Sync and undo
 
@@ -101,21 +101,27 @@ XP, level-ups and streaks are not stored; they are computed from Review.
 
 Computed from TaskState, Review and ExamTask; nothing here is stored except as a cache.
 
-**Level (1–7) from FSRS stability.** The first read sets level 1. After that, level follows stability S (days until recall drops to 90%):
+**Level (1–7) and the review schedule.** Every task follows the same simple schedule (no spaced-repetition algorithm):
 
-| Level | Stability S | Dojo | Gems |
+- The **first read** earns level 1 (White), whatever its rating.
+- Then come **5 scheduled reviews** with growing gaps, all fitted before the exam: the gaps keep the proportions 1 : 2 : 3 : 5 : 8 and are re-fitted to the days left after every review, so the last review lands by the day before the exam. A close exam crams them closer, at least a day apart; with no exam the gaps are 1, 3, 7, 14 and 30 days.
+- A **Good or Easy** review earns the next belt and moves to the next step. Five Good reviews reach Brown (level 6). **Black** (level 7) takes one more review that the student chooses to do after the schedule.
+- A **Forgot or Hard** review keeps the belt, dims it one step, and repeats the same step 1 day later.
+- The student may review **any task early**; it counts as that task's next step, and the remaining gaps re-fit.
+
+| Level | Earned by | Dojo | Gems |
 | --- | --- | --- | --- |
-| 1 | first read done | White | Quartz |
-| 2 | ≥ 3 days | Yellow | Amethyst |
-| 3 | ≥ 7 days | Orange | Topaz |
-| 4 | ≥ 14 days | Green | Emerald |
-| 5 | ≥ 30 days | Blue | Sapphire |
-| 6 | ≥ 60 days | Brown | Ruby |
-| 7 | ≥ 120 days | Black | Diamond |
+| 1 | first read | White | Quartz |
+| 2 | 1st Good review | Yellow | Amethyst |
+| 3 | 2nd Good review | Orange | Topaz |
+| 4 | 3rd Good review | Green | Emerald |
+| 5 | 4th Good review | Blue | Sapphire |
+| 6 | 5th Good review | Brown | Ruby |
+| 7 | an extra Good review after the schedule | Black | Diamond |
 
-Thresholds are starting values to tune with internal testers; keep them in configuration, not code.
+The number of reviews, the gap weights, the gaps without an exam and the retry gap are configuration, not code.
 
-**Shine / stripes from retrievability.** Retrievability R (0–1) is FSRS's current recall estimate. Shine = R, shown as stripes for belts or lustre for gems. When R falls below 0.7 and the task is overdue, the *displayed* level drops by one; a single good review restores it. The stored level never drops on decay alone, only through reviews.
+**Brightness (stripes) instead of decay.** The stored level never drops. A belt dims instead, in steps: one step per review that was not Good, one step once a review is overdue, and one more every 2 days it stays overdue. Steps show as 2 stripes (full), 1 stripe, no stripes, then faded (about 45% opacity, captioned "fading"). Any Good review restores full brightness. Paused tasks do not dim.
 
 **Exam tier.** For each ExamTask: attainment = min(level ÷ effectiveTargetLevel, 1); weight = importance (high 3, medium 2, low 1) × size. The exam's tier is the highest level L where 80% of total weight has attainment ≥ L ÷ 7. A weak-link flag is raised for any high-importance task below level 2. (Effective target: see the planner spec, "Reachable targets".)
 
@@ -138,9 +144,9 @@ Every operation runs in one transaction, writes one Event row (which makes it un
 | Rename, notes, tags | Task updated | None |
 | Shrink scope | TaskChunk range updated | TaskState kept |
 | Expand scope (split offered) | New Task + TaskChunk for the added range; TaskLineage (expand) | Original kept; new task at level 0 |
-| Expand scope (kept as one) | TaskChunk range updated | Level kept; R reduced in proportion to the added size, so it shows as lost shine |
+| Expand scope (kept as one) | TaskChunk range updated | Level kept; the belt dims one step until the next Good review |
 | Split | N new Tasks, each copying TaskState and ExamTask rows; TaskLineage (split); parent archived | Inherited; dueAt staggered by up to 2 days |
-| Merge | New Task in the same Topic (cross-topic merges are blocked); TaskChunks unioned; TaskLineage (merge) per parent; parents archived | Lowest level, lowest stability, earliest dueAt |
+| Merge | New Task in the same Topic (cross-topic merges are blocked); TaskChunks unioned; TaskLineage (merge) per parent; parents archived | Lowest level and step, highest dim, earliest dueAt |
 | Swap source, same content | TaskChunk rows replaced | Kept |
 | Swap source, new content | TaskChunk rows replaced; TaskState reset; old reviews stay linked via lineage | Reset to level 0 |
 | Change importance or target | ExamTask updated, importanceOverridden = true | None; plan regenerated |
@@ -188,4 +194,4 @@ Phase 2 can ship sync by uploading the Event and Review logs; no table needs to 
 - Repositories write the data row and its Event row in one transaction; the UI never writes tables directly.
 - TaskState and PlanItem are caches: a "rebuild" command recomputes them from Review.
 - Index Review(taskId, at), PlanItem(date), ExamTask(examId) and TaskChunk(taskId).
-- Keep FSRS parameters and level thresholds in Setting, so they can be tuned without a migration.
+- Keep the review-schedule numbers in Setting, so they can be tuned without a migration.

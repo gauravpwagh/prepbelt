@@ -13,22 +13,33 @@ enum Rating {
 
   final int value;
 
+  /// Good and Easy earn the next belt; Forgot and Hard do not.
+  bool get passed => this == good || this == easy;
+
   static Rating fromValue(int value) =>
       values.firstWhere((r) => r.value == value);
 }
 
-/// The review engine's view of one task's mastery: the fields of the
-/// `TaskState` cache, with times as UTC [DateTime]s.
+/// The review engine's view of one task: the fields of the `TaskState`
+/// cache, with times as UTC [DateTime]s.
 @freezed
 abstract class ReviewState with _$ReviewState {
   const factory ReviewState({
-    /// 0 = not started, 1..7 = stored level.
+    /// 0 = not started, 1..7 = belt.
     @Default(0) int level,
-    double? stability,
-    double? difficulty,
 
-    /// Anchor for decay. Shifted forward by pauses (decision D6).
+    /// Scheduled reviews passed so far (beyond the schedule, voluntary
+    /// reviews keep counting).
+    @Default(0) int step,
+
+    /// Dim steps from reviews that were not Good. Reset by a Good review.
+    /// Above 0 means the current step is being retried.
+    @Default(0) int dim,
+
+    /// Time of the last review. Shifted forward by pauses (decision D6).
     DateTime? lastReviewAt,
+
+    /// When the next review is due; null when none is scheduled.
     DateTime? dueAt,
     @Default(0) int reps,
     @Default(0) int lapses,
@@ -48,8 +59,8 @@ abstract class ReviewOutcome with _$ReviewOutcome {
     required ReviewState state,
     required int levelBefore,
     required int levelAfter,
-    required double stabilityAfter,
-    required DateTime dueAfter,
+    required int stepAfter,
+    DateTime? dueAfter,
   }) = _ReviewOutcome;
 }
 
@@ -79,16 +90,19 @@ abstract class PauseInterval with _$PauseInterval {
 @freezed
 abstract class LevelDisplay with _$LevelDisplay {
   const factory LevelDisplay({
-    /// Displayed level: the stored level, one lower while fading.
+    /// The belt, 0 when not started. Never lowered by fading.
     required int level,
 
-    /// Shine as a stripe count.
+    /// 0 = full brightness .. maxDimSteps = faded.
+    required int dim,
+
+    /// Brightness as stripes: 2 at full brightness, then 1, then 0.
     required int stripes,
 
-    /// Overdue with recall below the fading threshold.
+    /// Dimmed as far as it goes: drawn faded with the word "fading".
     required bool fading,
 
-    /// Current recall estimate, null when not started.
-    double? retrievability,
+    /// A scheduled review is past due.
+    required bool overdue,
   }) = _LevelDisplay;
 }

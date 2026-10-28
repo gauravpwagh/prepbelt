@@ -6,7 +6,7 @@ Phase 1 is fully offline and ships in three releases. 1.0 proves the core loop f
 
 | Release | Goal | Adds |
 | --- | --- | --- |
-| 1.0 | One student, one exam, the daily loop works and feels good (Android and iOS) | Sources (share-in + manual), survey, tasks, open externally, review with 4 ratings, FSRS, belts (Dojo theme), one exam, planner, Today screen, exam belt + readiness, activity grid, redefine (edit, scope, split, pause), undo, settings |
+| 1.0 | One student, one exam, the daily loop works and feels good (Android and iOS) | Sources (share-in + manual), survey, tasks, open externally, review with 4 ratings, 5-review schedule, belts (Dojo theme), one exam, planner, Today screen, exam belt + readiness, activity grid, redefine (edit, scope, split, pause), undo, settings |
 | 1.1 | Real exam season: several exams and sharing with friends | Web build, multiple exams with capacity split, triage view, mastery timeline, merge and swap source, `.belt` template export and import, rest tokens, daily quests, XP |
 | 1.2 | Depth and delight | Optional flashcards and questions, gem theme and palette picker, achievements and vault, community difficulty hints, belt ceremony polish, home-screen widget |
 
@@ -26,7 +26,7 @@ The data model already covers all three, so no release needs a schema redesign.
 | Exam | Belt, projection, readiness, weak links, activity grid | Yes (timeline moves to 1.1) |
 | Task detail | Belt, next review, history, sources, Start, Redefine | No |
 | Redefine | Edit, scope, split, pause with impact preview and undo | Yes (split) |
-| Settings | Theme (Dojo only in 1.0), retention target, reminder time, export a backup file | No |
+| Settings | Theme (Dojo only in 1.0), reminder time, export a backup file | No |
 
 Screens marked "No" need design before milestone 3. Follow the tokens and patterns in `06-screens.md` until then.
 
@@ -67,7 +67,7 @@ Screens marked "No" need design before milestone 3. Follow the tokens and patter
 ## Build order
 
 1. **Foundations**: Flutter project for Android and iOS, kept web-compatible for 1.1; Drift schema with the event log; repository layer; theme tokens.
-2. **Review engine**: FSRS integration, Review log, TaskState rebuild, level and shine rules, with unit tests replaying sample histories.
+2. **Review engine**: the 5-review schedule fitted to the exam date, Review log, TaskState rebuild, belt and brightness rules, with unit tests replaying sample histories.
 3. **Sources and survey**: add source (manual, file, share-in), chapter split from PDF bookmarks, survey flow, local file storage.
 4. **Daily loop**: tasks, Today screen, open externally, return-and-rate screen, promotion animation, streak, reminder.
 5. **Exam and planner**: add exam, availability, backward planner, rebalancing, exam belt, readiness, weak links, activity grid.

@@ -1,119 +1,167 @@
 import 'dart:math';
 
 import '../../core/config/review_config.dart';
-import 'fsrs_scheduler.dart';
 import 'review_types.dart';
-import 'spaced_repetition.dart';
 
-/// Level, shine and scheduling rules of docs/02-data-model.md. Pure: every
+/// Belt and review-schedule rules of docs/02-data-model.md. Pure: every
 /// time comes in as a parameter, every number from [config].
+///
+/// A task is first read (White), then reviewed [ReviewConfig.scheduledReviews]
+/// times with growing gaps that all fit before the exam. Each Good review
+/// earns the next belt; one that is not Good keeps the belt, dims it and
+/// repeats the step. [deadline] is the latest time a review may be due
+/// (the end of the day before the exam), or null when there is no exam.
 final class ReviewEngine {
-  ReviewEngine(this.config, {SpacedRepetition? srs})
-    : srs = srs ?? FsrsScheduler(config);
+  ReviewEngine(this.config);
 
   final ReviewConfig config;
-  final SpacedRepetition srs;
 
-  /// The level that stability [stability] (days) earns, 1..7. Level 1 is
-  /// the floor for any started task.
-  int levelFor(double stability) {
-    var level = 1;
-    for (final threshold in config.levelStabilityThresholds) {
-      if (stability >= threshold) level++;
-    }
-    return level;
-  }
+  static const _maxLevel = 7;
 
-  /// Stripes for retrievability [r]: one per cut-off reached (decision D3).
-  int shineFor(double r) =>
-      config.stripeThresholds.where((cutoff) => r >= cutoff).length;
-
-  /// Current recall estimate, or null before the first review. Paused
-  /// tasks do not decay: recall is frozen at the moment of pausing.
-  double? retrievability(ReviewState state, DateTime now) {
-    final memory = _memory(state);
-    if (memory == null) return null;
-    return srs.retrievability(memory, state.pausedAt ?? now);
-  }
-
-  /// What to show now. The displayed level drops by one (never below 1)
-  /// while the task is overdue and recall is below the fading threshold;
-  /// the stored level is untouched.
-  LevelDisplay display(ReviewState state, DateTime now) {
-    final r = retrievability(state, now);
-    if (r == null) {
-      return const LevelDisplay(level: 0, stripes: 0, fading: false);
-    }
-    final overdue =
-        !state.paused && state.dueAt != null && now.isAfter(state.dueAt!);
-    final fading = overdue && r < config.fadingRetrievability;
-    return LevelDisplay(
-      level: fading ? (state.level - 1).clamp(1, 7) : state.level,
-      stripes: fading ? 0 : shineFor(r),
-      fading: fading,
-      retrievability: r,
-    );
-  }
-
-  /// The level to show at [now]. See [display].
-  int displayedLevel(ReviewState state, DateTime now) =>
-      display(state, now).level;
-
-  /// Applies one review. The first review sets level 1; later ones take
-  /// [levelFor] the new stability (decision D2), up or down. An optional
-  /// `maxPromotionPerReview` limits the levels gained in one review.
-  ReviewOutcome applyReview(ReviewState state, Rating rating, DateTime at) {
+  /// Applies one review at [at]. Reviewing before the due date is allowed
+  /// and counts as the next step; the remaining gaps re-fit.
+  ReviewOutcome applyReview(
+    ReviewState state,
+    Rating rating,
+    DateTime at, {
+    DateTime? deadline,
+  }) {
     if (state.paused) {
       throw StateError('Resume a paused task before reviewing it');
     }
-    final result = srs.schedule(_memory(state), rating, at);
-    final before = state.level;
-    final earned = levelFor(result.stability);
-    final cap = config.maxPromotionPerReview;
-    final after = !state.started
-        ? 1
-        : _clampLevel(cap == null ? earned : min(earned, before + cap));
-    final next = state.copyWith(
-      level: after,
-      stability: result.stability,
-      difficulty: result.difficulty,
-      lastReviewAt: at,
-      dueAt: result.dueAt,
-      reps: state.reps + 1,
-      lapses: state.lapses + (state.started && rating == Rating.forgot ? 1 : 0),
+    final ReviewState next;
+    if (!state.started) {
+      // The first read always earns White.
+      next = state.copyWith(level: 1, step: 0, dim: 0);
+    } else if (rating.passed) {
+      next = state.copyWith(
+        level: min(_maxLevel, state.level + 1),
+        step: state.step + 1,
+        dim: 0,
+      );
+    } else {
+      next = state.copyWith(
+        dim: min(config.maxDimSteps, state.dim + 1),
+        lapses: state.lapses + 1,
+      );
+    }
+    final reviewed = next.copyWith(reps: state.reps + 1, lastReviewAt: at);
+    final scheduled = reviewed.copyWith(
+      dueAt: dueFor(reviewed, deadline: deadline),
     );
     return ReviewOutcome(
-      state: next,
-      levelBefore: before,
-      levelAfter: after,
-      stabilityAfter: result.stability,
-      dueAfter: result.dueAt,
+      state: scheduled,
+      levelBefore: state.level,
+      levelAfter: scheduled.level,
+      stepAfter: scheduled.step,
+      dueAfter: scheduled.dueAt,
     );
   }
 
-  /// Freezes decay from [at]. Pausing a paused task changes nothing.
+  /// When the next review is due: a retry after [ReviewConfig.retryGapDays]
+  /// if the last review was not Good, otherwise the next scheduled step,
+  /// with the remaining gaps fitted before [deadline] in the proportions of
+  /// [ReviewConfig.gapWeights]. Null when nothing is left to schedule.
+  DateTime? dueFor(ReviewState state, {DateTime? deadline}) {
+    final last = state.lastReviewAt;
+    if (last == null) return null;
+
+    // No review is scheduled after the deadline; past it, nothing is due.
+    DateTime? capped(DateTime due) {
+      if (deadline == null) return due;
+      if (!deadline.isAfter(last)) return null;
+      return due.isAfter(deadline) ? deadline : due;
+    }
+
+    if (state.dim > 0) {
+      return capped(last.add(Duration(days: config.retryGapDays)));
+    }
+    final remaining = config.scheduledReviews - state.step;
+    if (remaining <= 0) return null;
+
+    if (deadline == null) {
+      final gaps = config.gapDaysWithoutExam;
+      return last.add(Duration(days: gaps[min(state.step, gaps.length - 1)]));
+    }
+
+    final daysLeft = deadline.difference(last).inDays;
+    if (daysLeft < 1) return deadline.isAfter(last) ? deadline : null;
+    final weights = [
+      for (var i = state.step; i < config.scheduledReviews; i++)
+        config.gapWeights[min(i, config.gapWeights.length - 1)],
+    ];
+    final total = weights.reduce((a, b) => a + b);
+    final share = (daysLeft * weights.first / total).round();
+    // Leave at least a day for each later review when time allows.
+    final gap = max(1, min(share, daysLeft - (remaining - 1)));
+    return last.add(Duration(days: gap));
+  }
+
+  /// How far the belt is dimmed at [now]: one step per review that was not
+  /// Good, plus one once a review is overdue and another every
+  /// [ReviewConfig.overdueDaysPerDimStep] days after. Paused tasks do not
+  /// fade.
+  int dimAt(ReviewState state, DateTime now) {
+    final due = state.dueAt;
+    var dim = state.dim;
+    if (!state.paused && due != null && now.isAfter(due)) {
+      dim += 1 + now.difference(due).inDays ~/ config.overdueDaysPerDimStep;
+    }
+    return min(config.maxDimSteps, dim);
+  }
+
+  /// What to show now. The belt itself never drops; it dims instead.
+  LevelDisplay display(ReviewState state, DateTime now) {
+    if (!state.started) {
+      return const LevelDisplay(
+        level: 0,
+        dim: 0,
+        stripes: 0,
+        fading: false,
+        overdue: false,
+      );
+    }
+    final dim = dimAt(state, now);
+    return LevelDisplay(
+      level: state.level,
+      dim: dim,
+      stripes: max(0, 2 - dim),
+      fading: dim >= config.maxDimSteps,
+      overdue:
+          !state.paused && state.dueAt != null && now.isAfter(state.dueAt!),
+    );
+  }
+
+  /// The belt to show at [now]: always the stored level.
+  int displayedLevel(ReviewState state, DateTime now) =>
+      display(state, now).level;
+
+  /// Freezes the task from [at]: no fading, nothing due. Pausing a paused
+  /// task changes nothing.
   ReviewState pause(ReviewState state, DateTime at) =>
       state.paused ? state : state.copyWith(pausedAt: at);
 
-  /// Ends a pause at [at]: the due date and the decay anchor both move
-  /// later by the paused duration (decision D6).
-  ReviewState resume(ReviewState state, DateTime at) {
+  /// Ends a pause at [at]. The last review time moves later by the paused
+  /// duration and the schedule re-fits from there (decision D6): without
+  /// an exam the due date moves by exactly the paused time.
+  ReviewState resume(ReviewState state, DateTime at, {DateTime? deadline}) {
     final pausedAt = state.pausedAt;
     if (pausedAt == null) return state;
-    final shift = at.difference(pausedAt);
-    return state.copyWith(
+    final shifted = state.copyWith(
       pausedAt: null,
-      dueAt: state.dueAt?.add(shift),
-      lastReviewAt: state.lastReviewAt?.add(shift),
+      lastReviewAt: state.lastReviewAt?.add(at.difference(pausedAt)),
     );
+    return shifted.copyWith(dueAt: dueFor(shifted, deadline: deadline));
   }
 
   /// Recomputes a task's state from its review log and pause history
-  /// (decision D4). Equal to applying the same events one by one.
+  /// (decision D4). Equal to applying the same events one by one with the
+  /// same [deadline].
   ReviewState rebuild(
-    List<ReviewRecord> reviews, [
+    List<ReviewRecord> reviews, {
     List<PauseInterval> pauses = const [],
-  ]) {
+    DateTime? deadline,
+  }) {
     final events = <_Event>[
       for (final r in reviews) _Event(r.at, r.order, 1, review: r),
       for (final p in pauses) ...[
@@ -125,24 +173,18 @@ final class ReviewEngine {
     var state = const ReviewState();
     for (final e in events) {
       state = switch (e) {
-        _Event(review: final r?) => applyReview(state, r.rating, r.at).state,
+        _Event(review: final r?) => applyReview(
+          state,
+          r.rating,
+          r.at,
+          deadline: deadline,
+        ).state,
         _Event(pause: true) => pause(state, e.at),
-        _ => resume(state, e.at),
+        _ => resume(state, e.at, deadline: deadline),
       };
     }
     return state;
   }
-
-  static int _clampLevel(int level) => level.clamp(1, 7);
-
-  static SrsMemory? _memory(ReviewState s) =>
-      s.stability == null || s.difficulty == null || s.lastReviewAt == null
-      ? null
-      : SrsMemory(
-          stability: s.stability!,
-          difficulty: s.difficulty!,
-          lastReviewAt: s.lastReviewAt!,
-        );
 }
 
 /// A replayed event. Sorted by time, then by row order, then pause start

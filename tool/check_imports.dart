@@ -2,16 +2,14 @@
 //
 // 1. lib/engines/ imports only Dart, pure packages, other engine files,
 //    core/time and core/config. Never Flutter or Drift (decision D5).
-// 2. Only lib/engines/review/ imports the fsrs package.
-// 3. Screens (features/*/ui) never import the database or repositories.
-// 4. DateTime.now() appears only in lib/core/time/.
+// 2. Screens (features/*/ui) never import the database or repositories.
+// 3. DateTime.now() appears only in lib/core/time/.
 //
 // Run: dart run tool/check_imports.dart   (exit code 1 on violations)
 import 'dart:io';
 
 /// Packages an engine may import.
 const _enginePackages = {
-  'fsrs',
   'meta',
   'collection',
   'freezed_annotation',
@@ -52,10 +50,6 @@ List<String> checkImports(Directory libDir) {
                   target.startsWith('core/config/')
             : _enginePackages.contains(_package(uri));
         if (!ok) violations.add('$rel: engines may not import $uri');
-      }
-
-      if (_package(uri) == 'fsrs' && !rel.startsWith('engines/review/')) {
-        violations.add('$rel: only lib/engines/review may import fsrs');
       }
 
       if (RegExp(r'^features/[^/]+/ui/').hasMatch(rel) &&

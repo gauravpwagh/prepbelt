@@ -4703,27 +4703,25 @@ class $TaskStatesTable extends TaskStates
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _fsrsStabilityMeta = const VerificationMeta(
-    'fsrsStability',
-  );
+  static const VerificationMeta _stepMeta = const VerificationMeta('step');
   @override
-  late final GeneratedColumn<double> fsrsStability = GeneratedColumn<double>(
-    'fsrs_stability',
+  late final GeneratedColumn<int> step = GeneratedColumn<int>(
+    'step',
     aliasedName,
-    true,
-    type: DriftSqlType.double,
+    false,
+    type: DriftSqlType.int,
     requiredDuringInsert: false,
+    defaultValue: const Constant(0),
   );
-  static const VerificationMeta _fsrsDifficultyMeta = const VerificationMeta(
-    'fsrsDifficulty',
-  );
+  static const VerificationMeta _dimMeta = const VerificationMeta('dim');
   @override
-  late final GeneratedColumn<double> fsrsDifficulty = GeneratedColumn<double>(
-    'fsrs_difficulty',
+  late final GeneratedColumn<int> dim = GeneratedColumn<int>(
+    'dim',
     aliasedName,
-    true,
-    type: DriftSqlType.double,
+    false,
+    type: DriftSqlType.int,
     requiredDuringInsert: false,
+    defaultValue: const Constant(0),
   );
   static const VerificationMeta _lastReviewAtMeta = const VerificationMeta(
     'lastReviewAt',
@@ -4786,8 +4784,8 @@ class $TaskStatesTable extends TaskStates
     deviceId,
     taskId,
     level,
-    fsrsStability,
-    fsrsDifficulty,
+    step,
+    dim,
     lastReviewAt,
     dueAt,
     reps,
@@ -4865,22 +4863,16 @@ class $TaskStatesTable extends TaskStates
     } else if (isInserting) {
       context.missing(_levelMeta);
     }
-    if (data.containsKey('fsrs_stability')) {
+    if (data.containsKey('step')) {
       context.handle(
-        _fsrsStabilityMeta,
-        fsrsStability.isAcceptableOrUnknown(
-          data['fsrs_stability']!,
-          _fsrsStabilityMeta,
-        ),
+        _stepMeta,
+        step.isAcceptableOrUnknown(data['step']!, _stepMeta),
       );
     }
-    if (data.containsKey('fsrs_difficulty')) {
+    if (data.containsKey('dim')) {
       context.handle(
-        _fsrsDifficultyMeta,
-        fsrsDifficulty.isAcceptableOrUnknown(
-          data['fsrs_difficulty']!,
-          _fsrsDifficultyMeta,
-        ),
+        _dimMeta,
+        dim.isAcceptableOrUnknown(data['dim']!, _dimMeta),
       );
     }
     if (data.containsKey('last_review_at')) {
@@ -4957,14 +4949,14 @@ class $TaskStatesTable extends TaskStates
         DriftSqlType.int,
         data['${effectivePrefix}level'],
       )!,
-      fsrsStability: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}fsrs_stability'],
-      ),
-      fsrsDifficulty: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}fsrs_difficulty'],
-      ),
+      step: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}step'],
+      )!,
+      dim: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}dim'],
+      )!,
       lastReviewAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}last_review_at'],
@@ -5008,8 +5000,12 @@ class TaskState extends DataClass implements Insertable<TaskState> {
 
   /// 0 = not started, 1..7 = belt.
   final int level;
-  final double? fsrsStability;
-  final double? fsrsDifficulty;
+
+  /// Scheduled reviews passed (voluntary reviews keep counting).
+  final int step;
+
+  /// Dim steps from reviews that were not Good; reset by a Good review.
+  final int dim;
   final int? lastReviewAt;
   final int? dueAt;
   final int reps;
@@ -5024,8 +5020,8 @@ class TaskState extends DataClass implements Insertable<TaskState> {
     required this.deviceId,
     required this.taskId,
     required this.level,
-    this.fsrsStability,
-    this.fsrsDifficulty,
+    required this.step,
+    required this.dim,
     this.lastReviewAt,
     this.dueAt,
     required this.reps,
@@ -5045,12 +5041,8 @@ class TaskState extends DataClass implements Insertable<TaskState> {
     map['device_id'] = Variable<String>(deviceId);
     map['task_id'] = Variable<String>(taskId);
     map['level'] = Variable<int>(level);
-    if (!nullToAbsent || fsrsStability != null) {
-      map['fsrs_stability'] = Variable<double>(fsrsStability);
-    }
-    if (!nullToAbsent || fsrsDifficulty != null) {
-      map['fsrs_difficulty'] = Variable<double>(fsrsDifficulty);
-    }
+    map['step'] = Variable<int>(step);
+    map['dim'] = Variable<int>(dim);
     if (!nullToAbsent || lastReviewAt != null) {
       map['last_review_at'] = Variable<int>(lastReviewAt);
     }
@@ -5077,12 +5069,8 @@ class TaskState extends DataClass implements Insertable<TaskState> {
       deviceId: Value(deviceId),
       taskId: Value(taskId),
       level: Value(level),
-      fsrsStability: fsrsStability == null && nullToAbsent
-          ? const Value.absent()
-          : Value(fsrsStability),
-      fsrsDifficulty: fsrsDifficulty == null && nullToAbsent
-          ? const Value.absent()
-          : Value(fsrsDifficulty),
+      step: Value(step),
+      dim: Value(dim),
       lastReviewAt: lastReviewAt == null && nullToAbsent
           ? const Value.absent()
           : Value(lastReviewAt),
@@ -5111,8 +5099,8 @@ class TaskState extends DataClass implements Insertable<TaskState> {
       deviceId: serializer.fromJson<String>(json['deviceId']),
       taskId: serializer.fromJson<String>(json['taskId']),
       level: serializer.fromJson<int>(json['level']),
-      fsrsStability: serializer.fromJson<double?>(json['fsrsStability']),
-      fsrsDifficulty: serializer.fromJson<double?>(json['fsrsDifficulty']),
+      step: serializer.fromJson<int>(json['step']),
+      dim: serializer.fromJson<int>(json['dim']),
       lastReviewAt: serializer.fromJson<int?>(json['lastReviewAt']),
       dueAt: serializer.fromJson<int?>(json['dueAt']),
       reps: serializer.fromJson<int>(json['reps']),
@@ -5132,8 +5120,8 @@ class TaskState extends DataClass implements Insertable<TaskState> {
       'deviceId': serializer.toJson<String>(deviceId),
       'taskId': serializer.toJson<String>(taskId),
       'level': serializer.toJson<int>(level),
-      'fsrsStability': serializer.toJson<double?>(fsrsStability),
-      'fsrsDifficulty': serializer.toJson<double?>(fsrsDifficulty),
+      'step': serializer.toJson<int>(step),
+      'dim': serializer.toJson<int>(dim),
       'lastReviewAt': serializer.toJson<int?>(lastReviewAt),
       'dueAt': serializer.toJson<int?>(dueAt),
       'reps': serializer.toJson<int>(reps),
@@ -5151,8 +5139,8 @@ class TaskState extends DataClass implements Insertable<TaskState> {
     String? deviceId,
     String? taskId,
     int? level,
-    Value<double?> fsrsStability = const Value.absent(),
-    Value<double?> fsrsDifficulty = const Value.absent(),
+    int? step,
+    int? dim,
     Value<int?> lastReviewAt = const Value.absent(),
     Value<int?> dueAt = const Value.absent(),
     int? reps,
@@ -5167,12 +5155,8 @@ class TaskState extends DataClass implements Insertable<TaskState> {
     deviceId: deviceId ?? this.deviceId,
     taskId: taskId ?? this.taskId,
     level: level ?? this.level,
-    fsrsStability: fsrsStability.present
-        ? fsrsStability.value
-        : this.fsrsStability,
-    fsrsDifficulty: fsrsDifficulty.present
-        ? fsrsDifficulty.value
-        : this.fsrsDifficulty,
+    step: step ?? this.step,
+    dim: dim ?? this.dim,
     lastReviewAt: lastReviewAt.present ? lastReviewAt.value : this.lastReviewAt,
     dueAt: dueAt.present ? dueAt.value : this.dueAt,
     reps: reps ?? this.reps,
@@ -5189,12 +5173,8 @@ class TaskState extends DataClass implements Insertable<TaskState> {
       deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
       taskId: data.taskId.present ? data.taskId.value : this.taskId,
       level: data.level.present ? data.level.value : this.level,
-      fsrsStability: data.fsrsStability.present
-          ? data.fsrsStability.value
-          : this.fsrsStability,
-      fsrsDifficulty: data.fsrsDifficulty.present
-          ? data.fsrsDifficulty.value
-          : this.fsrsDifficulty,
+      step: data.step.present ? data.step.value : this.step,
+      dim: data.dim.present ? data.dim.value : this.dim,
       lastReviewAt: data.lastReviewAt.present
           ? data.lastReviewAt.value
           : this.lastReviewAt,
@@ -5216,8 +5196,8 @@ class TaskState extends DataClass implements Insertable<TaskState> {
           ..write('deviceId: $deviceId, ')
           ..write('taskId: $taskId, ')
           ..write('level: $level, ')
-          ..write('fsrsStability: $fsrsStability, ')
-          ..write('fsrsDifficulty: $fsrsDifficulty, ')
+          ..write('step: $step, ')
+          ..write('dim: $dim, ')
           ..write('lastReviewAt: $lastReviewAt, ')
           ..write('dueAt: $dueAt, ')
           ..write('reps: $reps, ')
@@ -5237,8 +5217,8 @@ class TaskState extends DataClass implements Insertable<TaskState> {
     deviceId,
     taskId,
     level,
-    fsrsStability,
-    fsrsDifficulty,
+    step,
+    dim,
     lastReviewAt,
     dueAt,
     reps,
@@ -5257,8 +5237,8 @@ class TaskState extends DataClass implements Insertable<TaskState> {
           other.deviceId == this.deviceId &&
           other.taskId == this.taskId &&
           other.level == this.level &&
-          other.fsrsStability == this.fsrsStability &&
-          other.fsrsDifficulty == this.fsrsDifficulty &&
+          other.step == this.step &&
+          other.dim == this.dim &&
           other.lastReviewAt == this.lastReviewAt &&
           other.dueAt == this.dueAt &&
           other.reps == this.reps &&
@@ -5275,8 +5255,8 @@ class TaskStatesCompanion extends UpdateCompanion<TaskState> {
   final Value<String> deviceId;
   final Value<String> taskId;
   final Value<int> level;
-  final Value<double?> fsrsStability;
-  final Value<double?> fsrsDifficulty;
+  final Value<int> step;
+  final Value<int> dim;
   final Value<int?> lastReviewAt;
   final Value<int?> dueAt;
   final Value<int> reps;
@@ -5292,8 +5272,8 @@ class TaskStatesCompanion extends UpdateCompanion<TaskState> {
     this.deviceId = const Value.absent(),
     this.taskId = const Value.absent(),
     this.level = const Value.absent(),
-    this.fsrsStability = const Value.absent(),
-    this.fsrsDifficulty = const Value.absent(),
+    this.step = const Value.absent(),
+    this.dim = const Value.absent(),
     this.lastReviewAt = const Value.absent(),
     this.dueAt = const Value.absent(),
     this.reps = const Value.absent(),
@@ -5310,8 +5290,8 @@ class TaskStatesCompanion extends UpdateCompanion<TaskState> {
     required String deviceId,
     required String taskId,
     required int level,
-    this.fsrsStability = const Value.absent(),
-    this.fsrsDifficulty = const Value.absent(),
+    this.step = const Value.absent(),
+    this.dim = const Value.absent(),
     this.lastReviewAt = const Value.absent(),
     this.dueAt = const Value.absent(),
     this.reps = const Value.absent(),
@@ -5334,8 +5314,8 @@ class TaskStatesCompanion extends UpdateCompanion<TaskState> {
     Expression<String>? deviceId,
     Expression<String>? taskId,
     Expression<int>? level,
-    Expression<double>? fsrsStability,
-    Expression<double>? fsrsDifficulty,
+    Expression<int>? step,
+    Expression<int>? dim,
     Expression<int>? lastReviewAt,
     Expression<int>? dueAt,
     Expression<int>? reps,
@@ -5352,8 +5332,8 @@ class TaskStatesCompanion extends UpdateCompanion<TaskState> {
       if (deviceId != null) 'device_id': deviceId,
       if (taskId != null) 'task_id': taskId,
       if (level != null) 'level': level,
-      if (fsrsStability != null) 'fsrs_stability': fsrsStability,
-      if (fsrsDifficulty != null) 'fsrs_difficulty': fsrsDifficulty,
+      if (step != null) 'step': step,
+      if (dim != null) 'dim': dim,
       if (lastReviewAt != null) 'last_review_at': lastReviewAt,
       if (dueAt != null) 'due_at': dueAt,
       if (reps != null) 'reps': reps,
@@ -5372,8 +5352,8 @@ class TaskStatesCompanion extends UpdateCompanion<TaskState> {
     Value<String>? deviceId,
     Value<String>? taskId,
     Value<int>? level,
-    Value<double?>? fsrsStability,
-    Value<double?>? fsrsDifficulty,
+    Value<int>? step,
+    Value<int>? dim,
     Value<int?>? lastReviewAt,
     Value<int?>? dueAt,
     Value<int>? reps,
@@ -5390,8 +5370,8 @@ class TaskStatesCompanion extends UpdateCompanion<TaskState> {
       deviceId: deviceId ?? this.deviceId,
       taskId: taskId ?? this.taskId,
       level: level ?? this.level,
-      fsrsStability: fsrsStability ?? this.fsrsStability,
-      fsrsDifficulty: fsrsDifficulty ?? this.fsrsDifficulty,
+      step: step ?? this.step,
+      dim: dim ?? this.dim,
       lastReviewAt: lastReviewAt ?? this.lastReviewAt,
       dueAt: dueAt ?? this.dueAt,
       reps: reps ?? this.reps,
@@ -5428,11 +5408,11 @@ class TaskStatesCompanion extends UpdateCompanion<TaskState> {
     if (level.present) {
       map['level'] = Variable<int>(level.value);
     }
-    if (fsrsStability.present) {
-      map['fsrs_stability'] = Variable<double>(fsrsStability.value);
+    if (step.present) {
+      map['step'] = Variable<int>(step.value);
     }
-    if (fsrsDifficulty.present) {
-      map['fsrs_difficulty'] = Variable<double>(fsrsDifficulty.value);
+    if (dim.present) {
+      map['dim'] = Variable<int>(dim.value);
     }
     if (lastReviewAt.present) {
       map['last_review_at'] = Variable<int>(lastReviewAt.value);
@@ -5466,8 +5446,8 @@ class TaskStatesCompanion extends UpdateCompanion<TaskState> {
           ..write('deviceId: $deviceId, ')
           ..write('taskId: $taskId, ')
           ..write('level: $level, ')
-          ..write('fsrsStability: $fsrsStability, ')
-          ..write('fsrsDifficulty: $fsrsDifficulty, ')
+          ..write('step: $step, ')
+          ..write('dim: $dim, ')
           ..write('lastReviewAt: $lastReviewAt, ')
           ..write('dueAt: $dueAt, ')
           ..write('reps: $reps, ')
@@ -5630,15 +5610,15 @@ class $ReviewsTable extends Reviews with TableInfo<$ReviewsTable, Review> {
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _stabilityAfterMeta = const VerificationMeta(
-    'stabilityAfter',
+  static const VerificationMeta _stepAfterMeta = const VerificationMeta(
+    'stepAfter',
   );
   @override
-  late final GeneratedColumn<double> stabilityAfter = GeneratedColumn<double>(
-    'stability_after',
+  late final GeneratedColumn<int> stepAfter = GeneratedColumn<int>(
+    'step_after',
     aliasedName,
     false,
-    type: DriftSqlType.double,
+    type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
   static const VerificationMeta _dueAfterMeta = const VerificationMeta(
@@ -5648,9 +5628,9 @@ class $ReviewsTable extends Reviews with TableInfo<$ReviewsTable, Review> {
   late final GeneratedColumn<int> dueAfter = GeneratedColumn<int>(
     'due_after',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.int,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
   );
   @override
   List<GeneratedColumn> get $columns => [
@@ -5668,7 +5648,7 @@ class $ReviewsTable extends Reviews with TableInfo<$ReviewsTable, Review> {
     resumeUnit,
     levelBefore,
     levelAfter,
-    stabilityAfter,
+    stepAfter,
     dueAfter,
   ];
   @override
@@ -5783,24 +5763,19 @@ class $ReviewsTable extends Reviews with TableInfo<$ReviewsTable, Review> {
     } else if (isInserting) {
       context.missing(_levelAfterMeta);
     }
-    if (data.containsKey('stability_after')) {
+    if (data.containsKey('step_after')) {
       context.handle(
-        _stabilityAfterMeta,
-        stabilityAfter.isAcceptableOrUnknown(
-          data['stability_after']!,
-          _stabilityAfterMeta,
-        ),
+        _stepAfterMeta,
+        stepAfter.isAcceptableOrUnknown(data['step_after']!, _stepAfterMeta),
       );
     } else if (isInserting) {
-      context.missing(_stabilityAfterMeta);
+      context.missing(_stepAfterMeta);
     }
     if (data.containsKey('due_after')) {
       context.handle(
         _dueAfterMeta,
         dueAfter.isAcceptableOrUnknown(data['due_after']!, _dueAfterMeta),
       );
-    } else if (isInserting) {
-      context.missing(_dueAfterMeta);
     }
     return context;
   }
@@ -5869,14 +5844,14 @@ class $ReviewsTable extends Reviews with TableInfo<$ReviewsTable, Review> {
         DriftSqlType.int,
         data['${effectivePrefix}level_after'],
       )!,
-      stabilityAfter: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}stability_after'],
+      stepAfter: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}step_after'],
       )!,
       dueAfter: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}due_after'],
-      )!,
+      ),
     );
   }
 
@@ -5909,8 +5884,10 @@ class Review extends DataClass implements Insertable<Review> {
   final int? resumeUnit;
   final int levelBefore;
   final int levelAfter;
-  final double stabilityAfter;
-  final int dueAfter;
+  final int stepAfter;
+
+  /// Null when no further review is scheduled.
+  final int? dueAfter;
   const Review({
     required this.id,
     required this.createdAt,
@@ -5926,8 +5903,8 @@ class Review extends DataClass implements Insertable<Review> {
     this.resumeUnit,
     required this.levelBefore,
     required this.levelAfter,
-    required this.stabilityAfter,
-    required this.dueAfter,
+    required this.stepAfter,
+    this.dueAfter,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5952,8 +5929,10 @@ class Review extends DataClass implements Insertable<Review> {
     }
     map['level_before'] = Variable<int>(levelBefore);
     map['level_after'] = Variable<int>(levelAfter);
-    map['stability_after'] = Variable<double>(stabilityAfter);
-    map['due_after'] = Variable<int>(dueAfter);
+    map['step_after'] = Variable<int>(stepAfter);
+    if (!nullToAbsent || dueAfter != null) {
+      map['due_after'] = Variable<int>(dueAfter);
+    }
     return map;
   }
 
@@ -5977,8 +5956,10 @@ class Review extends DataClass implements Insertable<Review> {
           : Value(resumeUnit),
       levelBefore: Value(levelBefore),
       levelAfter: Value(levelAfter),
-      stabilityAfter: Value(stabilityAfter),
-      dueAfter: Value(dueAfter),
+      stepAfter: Value(stepAfter),
+      dueAfter: dueAfter == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dueAfter),
     );
   }
 
@@ -6004,8 +5985,8 @@ class Review extends DataClass implements Insertable<Review> {
       resumeUnit: serializer.fromJson<int?>(json['resumeUnit']),
       levelBefore: serializer.fromJson<int>(json['levelBefore']),
       levelAfter: serializer.fromJson<int>(json['levelAfter']),
-      stabilityAfter: serializer.fromJson<double>(json['stabilityAfter']),
-      dueAfter: serializer.fromJson<int>(json['dueAfter']),
+      stepAfter: serializer.fromJson<int>(json['stepAfter']),
+      dueAfter: serializer.fromJson<int?>(json['dueAfter']),
     );
   }
   @override
@@ -6028,8 +6009,8 @@ class Review extends DataClass implements Insertable<Review> {
       'resumeUnit': serializer.toJson<int?>(resumeUnit),
       'levelBefore': serializer.toJson<int>(levelBefore),
       'levelAfter': serializer.toJson<int>(levelAfter),
-      'stabilityAfter': serializer.toJson<double>(stabilityAfter),
-      'dueAfter': serializer.toJson<int>(dueAfter),
+      'stepAfter': serializer.toJson<int>(stepAfter),
+      'dueAfter': serializer.toJson<int?>(dueAfter),
     };
   }
 
@@ -6048,8 +6029,8 @@ class Review extends DataClass implements Insertable<Review> {
     Value<int?> resumeUnit = const Value.absent(),
     int? levelBefore,
     int? levelAfter,
-    double? stabilityAfter,
-    int? dueAfter,
+    int? stepAfter,
+    Value<int?> dueAfter = const Value.absent(),
   }) => Review(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -6065,8 +6046,8 @@ class Review extends DataClass implements Insertable<Review> {
     resumeUnit: resumeUnit.present ? resumeUnit.value : this.resumeUnit,
     levelBefore: levelBefore ?? this.levelBefore,
     levelAfter: levelAfter ?? this.levelAfter,
-    stabilityAfter: stabilityAfter ?? this.stabilityAfter,
-    dueAfter: dueAfter ?? this.dueAfter,
+    stepAfter: stepAfter ?? this.stepAfter,
+    dueAfter: dueAfter.present ? dueAfter.value : this.dueAfter,
   );
   Review copyWithCompanion(ReviewsCompanion data) {
     return Review(
@@ -6092,9 +6073,7 @@ class Review extends DataClass implements Insertable<Review> {
       levelAfter: data.levelAfter.present
           ? data.levelAfter.value
           : this.levelAfter,
-      stabilityAfter: data.stabilityAfter.present
-          ? data.stabilityAfter.value
-          : this.stabilityAfter,
+      stepAfter: data.stepAfter.present ? data.stepAfter.value : this.stepAfter,
       dueAfter: data.dueAfter.present ? data.dueAfter.value : this.dueAfter,
     );
   }
@@ -6116,7 +6095,7 @@ class Review extends DataClass implements Insertable<Review> {
           ..write('resumeUnit: $resumeUnit, ')
           ..write('levelBefore: $levelBefore, ')
           ..write('levelAfter: $levelAfter, ')
-          ..write('stabilityAfter: $stabilityAfter, ')
+          ..write('stepAfter: $stepAfter, ')
           ..write('dueAfter: $dueAfter')
           ..write(')'))
         .toString();
@@ -6138,7 +6117,7 @@ class Review extends DataClass implements Insertable<Review> {
     resumeUnit,
     levelBefore,
     levelAfter,
-    stabilityAfter,
+    stepAfter,
     dueAfter,
   );
   @override
@@ -6159,7 +6138,7 @@ class Review extends DataClass implements Insertable<Review> {
           other.resumeUnit == this.resumeUnit &&
           other.levelBefore == this.levelBefore &&
           other.levelAfter == this.levelAfter &&
-          other.stabilityAfter == this.stabilityAfter &&
+          other.stepAfter == this.stepAfter &&
           other.dueAfter == this.dueAfter);
 }
 
@@ -6178,8 +6157,8 @@ class ReviewsCompanion extends UpdateCompanion<Review> {
   final Value<int?> resumeUnit;
   final Value<int> levelBefore;
   final Value<int> levelAfter;
-  final Value<double> stabilityAfter;
-  final Value<int> dueAfter;
+  final Value<int> stepAfter;
+  final Value<int?> dueAfter;
   final Value<int> rowid;
   const ReviewsCompanion({
     this.id = const Value.absent(),
@@ -6196,7 +6175,7 @@ class ReviewsCompanion extends UpdateCompanion<Review> {
     this.resumeUnit = const Value.absent(),
     this.levelBefore = const Value.absent(),
     this.levelAfter = const Value.absent(),
-    this.stabilityAfter = const Value.absent(),
+    this.stepAfter = const Value.absent(),
     this.dueAfter = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -6215,8 +6194,8 @@ class ReviewsCompanion extends UpdateCompanion<Review> {
     this.resumeUnit = const Value.absent(),
     required int levelBefore,
     required int levelAfter,
-    required double stabilityAfter,
-    required int dueAfter,
+    required int stepAfter,
+    this.dueAfter = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -6230,8 +6209,7 @@ class ReviewsCompanion extends UpdateCompanion<Review> {
        durationSec = Value(durationSec),
        levelBefore = Value(levelBefore),
        levelAfter = Value(levelAfter),
-       stabilityAfter = Value(stabilityAfter),
-       dueAfter = Value(dueAfter);
+       stepAfter = Value(stepAfter);
   static Insertable<Review> custom({
     Expression<String>? id,
     Expression<int>? createdAt,
@@ -6247,7 +6225,7 @@ class ReviewsCompanion extends UpdateCompanion<Review> {
     Expression<int>? resumeUnit,
     Expression<int>? levelBefore,
     Expression<int>? levelAfter,
-    Expression<double>? stabilityAfter,
+    Expression<int>? stepAfter,
     Expression<int>? dueAfter,
     Expression<int>? rowid,
   }) {
@@ -6266,7 +6244,7 @@ class ReviewsCompanion extends UpdateCompanion<Review> {
       if (resumeUnit != null) 'resume_unit': resumeUnit,
       if (levelBefore != null) 'level_before': levelBefore,
       if (levelAfter != null) 'level_after': levelAfter,
-      if (stabilityAfter != null) 'stability_after': stabilityAfter,
+      if (stepAfter != null) 'step_after': stepAfter,
       if (dueAfter != null) 'due_after': dueAfter,
       if (rowid != null) 'rowid': rowid,
     });
@@ -6287,8 +6265,8 @@ class ReviewsCompanion extends UpdateCompanion<Review> {
     Value<int?>? resumeUnit,
     Value<int>? levelBefore,
     Value<int>? levelAfter,
-    Value<double>? stabilityAfter,
-    Value<int>? dueAfter,
+    Value<int>? stepAfter,
+    Value<int?>? dueAfter,
     Value<int>? rowid,
   }) {
     return ReviewsCompanion(
@@ -6306,7 +6284,7 @@ class ReviewsCompanion extends UpdateCompanion<Review> {
       resumeUnit: resumeUnit ?? this.resumeUnit,
       levelBefore: levelBefore ?? this.levelBefore,
       levelAfter: levelAfter ?? this.levelAfter,
-      stabilityAfter: stabilityAfter ?? this.stabilityAfter,
+      stepAfter: stepAfter ?? this.stepAfter,
       dueAfter: dueAfter ?? this.dueAfter,
       rowid: rowid ?? this.rowid,
     );
@@ -6359,8 +6337,8 @@ class ReviewsCompanion extends UpdateCompanion<Review> {
     if (levelAfter.present) {
       map['level_after'] = Variable<int>(levelAfter.value);
     }
-    if (stabilityAfter.present) {
-      map['stability_after'] = Variable<double>(stabilityAfter.value);
+    if (stepAfter.present) {
+      map['step_after'] = Variable<int>(stepAfter.value);
     }
     if (dueAfter.present) {
       map['due_after'] = Variable<int>(dueAfter.value);
@@ -6388,7 +6366,7 @@ class ReviewsCompanion extends UpdateCompanion<Review> {
           ..write('resumeUnit: $resumeUnit, ')
           ..write('levelBefore: $levelBefore, ')
           ..write('levelAfter: $levelAfter, ')
-          ..write('stabilityAfter: $stabilityAfter, ')
+          ..write('stepAfter: $stepAfter, ')
           ..write('dueAfter: $dueAfter, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -21387,8 +21365,8 @@ typedef $$TaskStatesTableCreateCompanionBuilder =
       required String deviceId,
       required String taskId,
       required int level,
-      Value<double?> fsrsStability,
-      Value<double?> fsrsDifficulty,
+      Value<int> step,
+      Value<int> dim,
       Value<int?> lastReviewAt,
       Value<int?> dueAt,
       Value<int> reps,
@@ -21406,8 +21384,8 @@ typedef $$TaskStatesTableUpdateCompanionBuilder =
       Value<String> deviceId,
       Value<String> taskId,
       Value<int> level,
-      Value<double?> fsrsStability,
-      Value<double?> fsrsDifficulty,
+      Value<int> step,
+      Value<int> dim,
       Value<int?> lastReviewAt,
       Value<int?> dueAt,
       Value<int> reps,
@@ -21483,13 +21461,13 @@ class $$TaskStatesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get fsrsStability => $composableBuilder(
-    column: $table.fsrsStability,
+  ColumnFilters<int> get step => $composableBuilder(
+    column: $table.step,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get fsrsDifficulty => $composableBuilder(
-    column: $table.fsrsDifficulty,
+  ColumnFilters<int> get dim => $composableBuilder(
+    column: $table.dim,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -21586,13 +21564,13 @@ class $$TaskStatesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get fsrsStability => $composableBuilder(
-    column: $table.fsrsStability,
+  ColumnOrderings<int> get step => $composableBuilder(
+    column: $table.step,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get fsrsDifficulty => $composableBuilder(
-    column: $table.fsrsDifficulty,
+  ColumnOrderings<int> get dim => $composableBuilder(
+    column: $table.dim,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -21675,15 +21653,11 @@ class $$TaskStatesTableAnnotationComposer
   GeneratedColumn<int> get level =>
       $composableBuilder(column: $table.level, builder: (column) => column);
 
-  GeneratedColumn<double> get fsrsStability => $composableBuilder(
-    column: $table.fsrsStability,
-    builder: (column) => column,
-  );
+  GeneratedColumn<int> get step =>
+      $composableBuilder(column: $table.step, builder: (column) => column);
 
-  GeneratedColumn<double> get fsrsDifficulty => $composableBuilder(
-    column: $table.fsrsDifficulty,
-    builder: (column) => column,
-  );
+  GeneratedColumn<int> get dim =>
+      $composableBuilder(column: $table.dim, builder: (column) => column);
 
   GeneratedColumn<int> get lastReviewAt => $composableBuilder(
     column: $table.lastReviewAt,
@@ -21762,8 +21736,8 @@ class $$TaskStatesTableTableManager
                 Value<String> deviceId = const Value.absent(),
                 Value<String> taskId = const Value.absent(),
                 Value<int> level = const Value.absent(),
-                Value<double?> fsrsStability = const Value.absent(),
-                Value<double?> fsrsDifficulty = const Value.absent(),
+                Value<int> step = const Value.absent(),
+                Value<int> dim = const Value.absent(),
                 Value<int?> lastReviewAt = const Value.absent(),
                 Value<int?> dueAt = const Value.absent(),
                 Value<int> reps = const Value.absent(),
@@ -21779,8 +21753,8 @@ class $$TaskStatesTableTableManager
                 deviceId: deviceId,
                 taskId: taskId,
                 level: level,
-                fsrsStability: fsrsStability,
-                fsrsDifficulty: fsrsDifficulty,
+                step: step,
+                dim: dim,
                 lastReviewAt: lastReviewAt,
                 dueAt: dueAt,
                 reps: reps,
@@ -21798,8 +21772,8 @@ class $$TaskStatesTableTableManager
                 required String deviceId,
                 required String taskId,
                 required int level,
-                Value<double?> fsrsStability = const Value.absent(),
-                Value<double?> fsrsDifficulty = const Value.absent(),
+                Value<int> step = const Value.absent(),
+                Value<int> dim = const Value.absent(),
                 Value<int?> lastReviewAt = const Value.absent(),
                 Value<int?> dueAt = const Value.absent(),
                 Value<int> reps = const Value.absent(),
@@ -21815,8 +21789,8 @@ class $$TaskStatesTableTableManager
                 deviceId: deviceId,
                 taskId: taskId,
                 level: level,
-                fsrsStability: fsrsStability,
-                fsrsDifficulty: fsrsDifficulty,
+                step: step,
+                dim: dim,
                 lastReviewAt: lastReviewAt,
                 dueAt: dueAt,
                 reps: reps,
@@ -21907,8 +21881,8 @@ typedef $$ReviewsTableCreateCompanionBuilder =
       Value<int?> resumeUnit,
       required int levelBefore,
       required int levelAfter,
-      required double stabilityAfter,
-      required int dueAfter,
+      required int stepAfter,
+      Value<int?> dueAfter,
       Value<int> rowid,
     });
 typedef $$ReviewsTableUpdateCompanionBuilder =
@@ -21927,8 +21901,8 @@ typedef $$ReviewsTableUpdateCompanionBuilder =
       Value<int?> resumeUnit,
       Value<int> levelBefore,
       Value<int> levelAfter,
-      Value<double> stabilityAfter,
-      Value<int> dueAfter,
+      Value<int> stepAfter,
+      Value<int?> dueAfter,
       Value<int> rowid,
     });
 
@@ -22048,8 +22022,8 @@ class $$ReviewsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get stabilityAfter => $composableBuilder(
-    column: $table.stabilityAfter,
+  ColumnFilters<int> get stepAfter => $composableBuilder(
+    column: $table.stepAfter,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -22181,8 +22155,8 @@ class $$ReviewsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get stabilityAfter => $composableBuilder(
-    column: $table.stabilityAfter,
+  ColumnOrderings<int> get stepAfter => $composableBuilder(
+    column: $table.stepAfter,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -22271,10 +22245,8 @@ class $$ReviewsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<double> get stabilityAfter => $composableBuilder(
-    column: $table.stabilityAfter,
-    builder: (column) => column,
-  );
+  GeneratedColumn<int> get stepAfter =>
+      $composableBuilder(column: $table.stepAfter, builder: (column) => column);
 
   GeneratedColumn<int> get dueAfter =>
       $composableBuilder(column: $table.dueAfter, builder: (column) => column);
@@ -22370,8 +22342,8 @@ class $$ReviewsTableTableManager
                 Value<int?> resumeUnit = const Value.absent(),
                 Value<int> levelBefore = const Value.absent(),
                 Value<int> levelAfter = const Value.absent(),
-                Value<double> stabilityAfter = const Value.absent(),
-                Value<int> dueAfter = const Value.absent(),
+                Value<int> stepAfter = const Value.absent(),
+                Value<int?> dueAfter = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ReviewsCompanion(
                 id: id,
@@ -22388,7 +22360,7 @@ class $$ReviewsTableTableManager
                 resumeUnit: resumeUnit,
                 levelBefore: levelBefore,
                 levelAfter: levelAfter,
-                stabilityAfter: stabilityAfter,
+                stepAfter: stepAfter,
                 dueAfter: dueAfter,
                 rowid: rowid,
               ),
@@ -22408,8 +22380,8 @@ class $$ReviewsTableTableManager
                 Value<int?> resumeUnit = const Value.absent(),
                 required int levelBefore,
                 required int levelAfter,
-                required double stabilityAfter,
-                required int dueAfter,
+                required int stepAfter,
+                Value<int?> dueAfter = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ReviewsCompanion.insert(
                 id: id,
@@ -22426,7 +22398,7 @@ class $$ReviewsTableTableManager
                 resumeUnit: resumeUnit,
                 levelBefore: levelBefore,
                 levelAfter: levelAfter,
-                stabilityAfter: stabilityAfter,
+                stepAfter: stepAfter,
                 dueAfter: dueAfter,
                 rowid: rowid,
               ),

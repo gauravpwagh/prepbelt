@@ -40,8 +40,8 @@ Five 1.0 screens are designed as phone mockups (390 × 844) on the design canvas
 - Close button; "Review session".
 - "Welcome back" and the task with its belt.
 - "Where did you stop?" stepper (− p. 228 +) with the range, a progress bar, "Finished the whole range" or "N pages left for next time", and time logged (22 min).
-- "How well could you recall it?" 2×2 buttons: Forgot (back tomorrow), Hard (next in 3 days), Good (next in 9 days), Easy (next in 18 days). The selected button fills with the accent colour. Interval text comes from FSRS.
-- After rating, a dark result card: belt graphic plus "Promoted to Blue belt · +40 XP", "Green belt holds", or "Green belt, one stripe lost".
+- "How well could you recall it?" 2×2 buttons: Forgot (back tomorrow), Hard (back tomorrow), Good (next in N days), Easy (next in N days). The selected button fills with the accent colour. Interval text comes from the review schedule; Good and Easy both earn the next belt.
+- After rating, a dark result card: belt graphic plus "Promoted to Blue belt · +40 XP", or "Green belt, one stripe lost · again tomorrow".
 - Primary button "Done · back to Today", disabled until a rating is chosen.
 
 ## 3. Source survey

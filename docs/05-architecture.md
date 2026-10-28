@@ -26,7 +26,6 @@ Target the latest Flutter stable (3.44 with Dart 3.12, released May 2026, or new
 | Database | drift, drift_flutter, drift_dev | 2.32.0 | SQLite on Android and iOS; WASM ready for web in 1.1 |
 | State | flutter_riverpod, riverpod_annotation, riverpod_generator | 3.2.1 | Code-generated providers |
 | Navigation | go_router | 17.1.0 | Typed routes |
-| Spaced repetition | fsrs | 2.0.1 | Wrapped behind our own interface |
 | Share into the app | receive_sharing_intent | 1.9.0 | Android intent filters, iOS share extension (Swift Package Manager) |
 | Open externally | open_filex | 4.7.0 | PDFs in the user's viewer; url_launcher for links |
 | PDF outline, page count | pdfrx | 2.6.x | Reads bookmarks offline; no in-app viewer |
@@ -36,7 +35,6 @@ Target the latest Flutter stable (3.44 with Dart 3.12, released May 2026, or new
 | IDs | uuid | latest stable | UUIDv7 |
 | Motion | flutter_animate, lottie | latest stable | Promotion moments |
 
-The fsrs package's last release was early 2026; keep it behind `SpacedRepetition` so it can be replaced.
 
 ## Project structure
 
@@ -49,7 +47,7 @@ lib/
     ids/  time/  result/    // UUIDv7, injectable clock, error types
     config/                 // defaults for every tunable number
   engines/                  // pure Dart, no Flutter imports
-    review/                 // FSRS wrapper, level and shine rules, rebuild
+    review/                 // review schedule, belt and brightness rules, rebuild
     planner/                // estimate, reachability, schedule, triage
     exam/                   // exam tier, readiness, weak links
   features/
@@ -80,10 +78,10 @@ test/  integration_test/
 
 **Review engine** (`engines/review`)
 
-- `SpacedRepetition` interface; `FsrsScheduler` implements it with the fsrs package. Retention target and parameters from configuration.
-- `applyReview(state, rating, at) → (newState, levelBefore, levelAfter, dueAt)`.
-- `levelFor(stability)`, `shineFor(retrievability)`, `displayedLevel(state, now)` read thresholds from configuration.
-- `rebuild(reviews) → TaskState`.
+- No spaced-repetition algorithm: a fixed schedule of 5 reviews with growing gaps, fitted before the exam (`02-data-model.md`). Every number comes from configuration.
+- `applyReview(state, rating, at, deadline) → (newState, levelBefore, levelAfter, stepAfter, dueAfter)`.
+- `dueFor(state, deadline)`, `display(state, now)` (level, dim, stripes, fading) and `displayedLevel(state, now)`, which is always the stored level.
+- `pause`, `resume` and `rebuild(reviews, pauses, deadline) → TaskState`.
 
 **Planner engine** (`engines/planner`)
 
@@ -105,7 +103,7 @@ test/  integration_test/
 | `surveyProvider(sourceId)` | Notifier | Survey flow |
 | `redefineProvider(taskId)` | Notifier | Impact preview, then apply |
 | `plannerProvider` | Notifier | Debounced replans, "Replanning…" status |
-| `settingsProvider` | Stream | Theme, retention target, reminder time |
+| `settingsProvider` | Stream | Theme, reminder time, review schedule |
 
 **Routes:** `/today`, `/session/:taskId`, `/sources`, `/sources/new`, `/sources/:id/survey`, `/exams/:id`, `/tasks/:id`, `/tasks/:id/redefine`, `/settings`, `/onboarding`. First-time users redirect to `/onboarding`; a pending active session redirects to `/session/:taskId` on resume.
 
@@ -141,7 +139,7 @@ test/  integration_test/
 ## Theming
 
 - Tokens from the mockups (see `06-screens.md`).
-- `LevelTheme` (a ThemeExtension) holds 7 level names, 7 colours, an action word (Promote / Polish), a decay style (stripes / shine), an exam emblem and a badge builder. 1.0 ships Dojo; Gems in 1.2.
+- `LevelTheme` (a ThemeExtension) holds 7 level names, 7 colours, an action word (Promote / Polish), a dimming style (stripes / shine), an exam emblem and a badge builder. 1.0 ships Dojo; Gems in 1.2.
 - Grid palette separate from the theme: Night to sun by default.
 - Dark mode from day one. Accessibility as in `CLAUDE.md`. Strings in ARB files.
 

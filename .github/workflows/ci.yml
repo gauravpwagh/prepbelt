@@ -42,7 +42,7 @@ jobs:
 
       - run: flutter analyze
 
-      - name: Import rules (engines stay pure Dart; only engines/review imports fsrs)
+      - name: Import rules (engines stay pure Dart; screens never touch the database)
         run: dart run tool/check_imports.dart
 
       # Goldens are compared on Windows, where they are recorded.
