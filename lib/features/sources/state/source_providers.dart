@@ -13,3 +13,7 @@ SourceRepository sourceRepository(Ref ref) =>
 @riverpod
 Stream<List<Source>> sources(Ref ref) =>
     ref.watch(sourceRepositoryProvider).watchAll();
+
+@riverpod
+Stream<Source?> source(Ref ref, String id) =>
+    ref.watch(sourceRepositoryProvider).watch(id);

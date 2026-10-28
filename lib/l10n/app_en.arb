@@ -108,5 +108,118 @@
         "type": "int"
       }
     }
-  }
+  },
+  "surveyKicker": "Scouting the terrain",
+  "surveyProgress": "Chapter {current} of {total}",
+  "@surveyProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "surveyTimeLeft": "about {minutes, plural, =1{1 min} other{{minutes} min}} left",
+  "@surveyTimeLeft": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "surveyDone": "All chapters surveyed",
+  "surveyChapterLabel": "CHAPTER {number}",
+  "@surveyChapterLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "surveyRange": "pp. {start}–{end} · {pages, plural, =1{1 page} other{{pages} pages}}",
+  "@surveyRange": {
+    "placeholders": {
+      "start": {
+        "type": "int"
+      },
+      "end": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "int"
+      }
+    }
+  },
+  "surveyImportanceFor": "Importance for {exam}",
+  "@surveyImportanceFor": {
+    "placeholders": {
+      "exam": {
+        "type": "String"
+      }
+    }
+  },
+  "surveyDifficulty": "How hard does it look?",
+  "surveyFamiliarity": "Studied it before?",
+  "importanceHigh": "High",
+  "importanceMedium": "Medium",
+  "importanceLow": "Low",
+  "difficultyEasy": "Easy",
+  "difficultyMedium": "Medium",
+  "difficultyHard": "Hard",
+  "familiarityNew": "New",
+  "familiaritySeen": "Seen it",
+  "familiarityComfortable": "Comfortable",
+  "surveyFirstRead": "First read",
+  "surveyTarget": "Target",
+  "durationHoursMinutes": "{hours} h {minutes} min",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "durationHours": "{hours} h",
+  "@durationHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "durationMinutes": "{minutes} min",
+  "@durationMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "approximately": "≈ {value}",
+  "@approximately": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "surveyMarkRest": "Mark the other {count} as Medium",
+  "@surveyMarkRest": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "surveyPrevious": "Previous",
+  "surveyNext": "Next chapter",
+  "surveyFinish": "Finish survey",
+  "surveyEmpty": "This source has no chapters yet.",
+  "loadError": "Couldn't load this. Try again.",
+  "tryAgain": "Try again"
 }

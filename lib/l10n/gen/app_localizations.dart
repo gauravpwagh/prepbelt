@@ -339,6 +339,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rebuilt {count, plural, =1{1 task} other{{count} tasks}}'**
   String debugRebuildDone(int count);
+
+  /// No description provided for @surveyKicker.
+  ///
+  /// In en, this message translates to:
+  /// **'Scouting the terrain'**
+  String get surveyKicker;
+
+  /// No description provided for @surveyProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter {current} of {total}'**
+  String surveyProgress(int current, int total);
+
+  /// No description provided for @surveyTimeLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'about {minutes, plural, =1{1 min} other{{minutes} min}} left'**
+  String surveyTimeLeft(int minutes);
+
+  /// No description provided for @surveyDone.
+  ///
+  /// In en, this message translates to:
+  /// **'All chapters surveyed'**
+  String get surveyDone;
+
+  /// No description provided for @surveyChapterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'CHAPTER {number}'**
+  String surveyChapterLabel(int number);
+
+  /// No description provided for @surveyRange.
+  ///
+  /// In en, this message translates to:
+  /// **'pp. {start}–{end} · {pages, plural, =1{1 page} other{{pages} pages}}'**
+  String surveyRange(int start, int end, int pages);
+
+  /// No description provided for @surveyImportanceFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Importance for {exam}'**
+  String surveyImportanceFor(String exam);
+
+  /// No description provided for @surveyDifficulty.
+  ///
+  /// In en, this message translates to:
+  /// **'How hard does it look?'**
+  String get surveyDifficulty;
+
+  /// No description provided for @surveyFamiliarity.
+  ///
+  /// In en, this message translates to:
+  /// **'Studied it before?'**
+  String get surveyFamiliarity;
+
+  /// No description provided for @importanceHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get importanceHigh;
+
+  /// No description provided for @importanceMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get importanceMedium;
+
+  /// No description provided for @importanceLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get importanceLow;
+
+  /// No description provided for @difficultyEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy'**
+  String get difficultyEasy;
+
+  /// No description provided for @difficultyMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get difficultyMedium;
+
+  /// No description provided for @difficultyHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard'**
+  String get difficultyHard;
+
+  /// No description provided for @familiarityNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get familiarityNew;
+
+  /// No description provided for @familiaritySeen.
+  ///
+  /// In en, this message translates to:
+  /// **'Seen it'**
+  String get familiaritySeen;
+
+  /// No description provided for @familiarityComfortable.
+  ///
+  /// In en, this message translates to:
+  /// **'Comfortable'**
+  String get familiarityComfortable;
+
+  /// No description provided for @surveyFirstRead.
+  ///
+  /// In en, this message translates to:
+  /// **'First read'**
+  String get surveyFirstRead;
+
+  /// No description provided for @surveyTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Target'**
+  String get surveyTarget;
+
+  /// No description provided for @durationHoursMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h {minutes} min'**
+  String durationHoursMinutes(int hours, int minutes);
+
+  /// No description provided for @durationHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h'**
+  String durationHours(int hours);
+
+  /// No description provided for @durationMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String durationMinutes(int minutes);
+
+  /// No description provided for @approximately.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {value}'**
+  String approximately(String value);
+
+  /// No description provided for @surveyMarkRest.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark the other {count} as Medium'**
+  String surveyMarkRest(int count);
+
+  /// No description provided for @surveyPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get surveyPrevious;
+
+  /// No description provided for @surveyNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next chapter'**
+  String get surveyNext;
+
+  /// No description provided for @surveyFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish survey'**
+  String get surveyFinish;
+
+  /// No description provided for @surveyEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'This source has no chapters yet.'**
+  String get surveyEmpty;
+
+  /// No description provided for @loadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this. Try again.'**
+  String get loadError;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get tryAgain;
 }
 
 class _AppLocalizationsDelegate

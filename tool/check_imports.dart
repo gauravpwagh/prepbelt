@@ -2,7 +2,8 @@
 //
 // 1. lib/engines/ imports only Dart, pure packages, other engine files,
 //    core/time and core/config. Never Flutter or Drift (decision D5).
-// 2. Screens (features/*/ui) never import the database or repositories.
+// 2. Screens (features/*/ui) never import the database or repositories
+//    (core/db/enums.dart, plain enum values, is allowed).
 // 3. DateTime.now() appears only in lib/core/time/.
 //
 // Run: dart run tool/check_imports.dart   (exit code 1 on violations)
@@ -54,7 +55,8 @@ List<String> checkImports(Directory libDir) {
 
       if (RegExp(r'^features/[^/]+/ui/').hasMatch(rel) &&
           target != null &&
-          (target.startsWith('core/db/') ||
+          // Enum values are plain data; everything else in core/db is not.
+          ((target.startsWith('core/db/') && target != 'core/db/enums.dart') ||
               RegExp(r'^features/[^/]+/data/').hasMatch(target))) {
         violations.add(
           '$rel: screens read and write through providers, not $uri',

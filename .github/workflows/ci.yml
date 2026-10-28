@@ -38,7 +38,7 @@ jobs:
           dart run drift_dev make-migrations
           git diff --exit-code -- lib test drift_schemas
 
-      - run: dart format --output=none --set-exit-if-changed lib test tool
+      - run: dart format --output=none --set-exit-if-changed lib test tool integration_test
 
       - run: flutter analyze
 

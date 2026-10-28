@@ -9,12 +9,16 @@ class ChoiceChipButton extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.onPressed,
+    this.fontSize = 14,
     super.key,
   });
 
   final String label;
   final bool selected;
   final VoidCallback? onPressed;
+
+  /// The mockups use 14, and 13.5 for the longer familiarity labels.
+  final double fontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +29,13 @@ class ChoiceChipButton extends StatelessWidget {
       onPressed: onPressed,
       radius: AppRadii.chip,
       minHeight: kMinTouchTarget,
-      padding: AppSpace.md,
+      padding: AppSpace.sm,
       background: selected ? c.ink : c.surface,
       foreground: selected ? c.surface : c.ink,
       border: selected
           ? BorderSide(color: c.ink, width: 1.5)
           : BorderSide(color: c.chipBorder),
-      style: AppText.button.copyWith(fontSize: 14),
+      style: AppText.button.copyWith(fontSize: fontSize),
     );
   }
 }
@@ -151,9 +155,8 @@ class _Chip extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: padding),
               child: Center(
                 widthFactor: 1,
-                child: Text(
+                child: _OneLine(
                   label,
-                  textAlign: TextAlign.center,
                   style: style.copyWith(color: foreground),
                 ),
               ),
@@ -163,4 +166,19 @@ class _Chip extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A label kept on one line: when a word cannot fit (narrow screens, large
+/// text) it shrinks to fit instead of breaking mid-word.
+class _OneLine extends StatelessWidget {
+  const _OneLine(this.text, {required this.style});
+
+  final String text;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) => FittedBox(
+    fit: BoxFit.scaleDown,
+    child: Text(text, maxLines: 1, textAlign: TextAlign.center, style: style),
+  );
 }

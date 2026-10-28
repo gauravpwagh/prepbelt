@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/gen/app_localizations.dart';
 import '../../theme/tokens/app_tokens.dart';
-import 'app_icons.dart';
+import 'buttons.dart';
 
 /// Stand-in for screens built in later milestones.
 class PlaceholderScreen extends StatelessWidget {
@@ -30,7 +30,10 @@ class PlaceholderScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (showBack) ...[
-              _BackButton(color: c.ink),
+              RoundIconButton.back(
+                context,
+                () => Navigator.of(context).maybePop(),
+              ),
               const SizedBox(height: AppSpace.lg),
             ],
             Semantics(
@@ -45,34 +48,6 @@ class PlaceholderScreen extends StatelessWidget {
             const SizedBox(height: AppSpace.xl),
             ...children,
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _BackButton extends StatelessWidget {
-  const _BackButton({required this.color});
-
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    return Semantics(
-      button: true,
-      label: MaterialLocalizations.of(context).backButtonTooltip,
-      excludeSemantics: true,
-      child: Material(
-        color: c.surface,
-        shape: CircleBorder(side: BorderSide(color: c.line)),
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: () => Navigator.of(context).maybePop(),
-          child: SizedBox.square(
-            dimension: kMinTouchTarget,
-            child: Center(child: AppIconView(AppIcon.back, color: color)),
-          ),
         ),
       ),
     );

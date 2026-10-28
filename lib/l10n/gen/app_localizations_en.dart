@@ -165,4 +165,129 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return 'Rebuilt $_temp0';
   }
+
+  @override
+  String get surveyKicker => 'Scouting the terrain';
+
+  @override
+  String surveyProgress(int current, int total) {
+    return 'Chapter $current of $total';
+  }
+
+  @override
+  String surveyTimeLeft(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes min',
+      one: '1 min',
+    );
+    return 'about $_temp0 left';
+  }
+
+  @override
+  String get surveyDone => 'All chapters surveyed';
+
+  @override
+  String surveyChapterLabel(int number) {
+    return 'CHAPTER $number';
+  }
+
+  @override
+  String surveyRange(int start, int end, int pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      pages,
+      locale: localeName,
+      other: '$pages pages',
+      one: '1 page',
+    );
+    return 'pp. $start–$end · $_temp0';
+  }
+
+  @override
+  String surveyImportanceFor(String exam) {
+    return 'Importance for $exam';
+  }
+
+  @override
+  String get surveyDifficulty => 'How hard does it look?';
+
+  @override
+  String get surveyFamiliarity => 'Studied it before?';
+
+  @override
+  String get importanceHigh => 'High';
+
+  @override
+  String get importanceMedium => 'Medium';
+
+  @override
+  String get importanceLow => 'Low';
+
+  @override
+  String get difficultyEasy => 'Easy';
+
+  @override
+  String get difficultyMedium => 'Medium';
+
+  @override
+  String get difficultyHard => 'Hard';
+
+  @override
+  String get familiarityNew => 'New';
+
+  @override
+  String get familiaritySeen => 'Seen it';
+
+  @override
+  String get familiarityComfortable => 'Comfortable';
+
+  @override
+  String get surveyFirstRead => 'First read';
+
+  @override
+  String get surveyTarget => 'Target';
+
+  @override
+  String durationHoursMinutes(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String durationHours(int hours) {
+    return '$hours h';
+  }
+
+  @override
+  String durationMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String approximately(String value) {
+    return '≈ $value';
+  }
+
+  @override
+  String surveyMarkRest(int count) {
+    return 'Mark the other $count as Medium';
+  }
+
+  @override
+  String get surveyPrevious => 'Previous';
+
+  @override
+  String get surveyNext => 'Next chapter';
+
+  @override
+  String get surveyFinish => 'Finish survey';
+
+  @override
+  String get surveyEmpty => 'This source has no chapters yet.';
+
+  @override
+  String get loadError => 'Couldn\'t load this. Try again.';
+
+  @override
+  String get tryAgain => 'Try again';
 }

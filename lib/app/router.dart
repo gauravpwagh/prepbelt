@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../core/ui/nav_bar.dart';
 import '../core/ui/placeholder_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
+import '../features/survey/ui/survey_screen.dart';
 import '../features/today/ui/today_screen.dart';
 import '../l10n/gen/app_localizations.dart';
 
@@ -105,7 +106,8 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
       ),
       GoRoute(
         path: '/sources/:id/survey',
-        builder: (_, _) => placeholder((l) => l.screenSurvey),
+        builder: (_, state) =>
+            SurveyScreen(sourceId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/exams/:id',

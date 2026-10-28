@@ -93,3 +93,71 @@ final class SourcesProvider
 }
 
 String _$sourcesHash() => r'843873ae1c0f0edd3f6ab8ff273ad6df49d1d0e6';
+
+@ProviderFor(source)
+final sourceProvider = SourceFamily._();
+
+final class SourceProvider
+    extends $FunctionalProvider<AsyncValue<Source?>, Source?, Stream<Source?>>
+    with $FutureModifier<Source?>, $StreamProvider<Source?> {
+  SourceProvider._({
+    required SourceFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'sourceProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$sourceHash();
+
+  @override
+  String toString() {
+    return r'sourceProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<Source?> $createElement($ProviderPointer pointer) =>
+      $StreamProviderElement(pointer);
+
+  @override
+  Stream<Source?> create(Ref ref) {
+    final argument = this.argument as String;
+    return source(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SourceProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$sourceHash() => r'ddfdc52b062c7a259d07e09eef34defa45cddc86';
+
+final class SourceFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<Source?>, String> {
+  SourceFamily._()
+    : super(
+        retry: null,
+        name: r'sourceProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  SourceProvider call(String id) => SourceProvider._(argument: id, from: this);
+
+  @override
+  String toString() => r'sourceProvider';
+}
