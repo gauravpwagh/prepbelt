@@ -1,4 +1,4 @@
-package app.prepbelt.prepbelt
+package io.github.gauravpwagh.prepbelt
 
 import io.flutter.embedding.android.FlutterActivity
 
