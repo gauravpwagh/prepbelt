@@ -157,6 +157,12 @@ abstract final class Defaults {
   /// many not-started tasks as first reads.
   static const int todayFirstReadsWithoutPlan = 2;
 
+  /// Rows each Today box shows before "Show all" (D50).
+  static const int todayBoxVisible = 3;
+
+  /// Reviews ahead further than this show their date too (D50).
+  static const int todayAheadDateAfterDays = 13;
+
   // ------------------------------------------------- Reading as you go (D27)
 
   /// Time away longer than this pre-fills as this many minutes.

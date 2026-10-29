@@ -1226,6 +1226,100 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todayRetry => 'Try again';
 
   @override
+  String todayDueCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reviews due',
+      one: '1 review due',
+      zero: 'No reviews due',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String todayFreshCount(int count) {
+    return '$count not started';
+  }
+
+  @override
+  String todayPlannedReads(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count first reads planned',
+      one: '1 first read planned',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String todayAbout(String time) {
+    return 'about $time';
+  }
+
+  @override
+  String get todayBoxDue => 'Reviews due';
+
+  @override
+  String get todayBoxDueEmpty => 'No reviews due. You\'re clear today.';
+
+  @override
+  String get todayBoxFresh => 'Not started';
+
+  @override
+  String get todayBoxFreshEmpty => 'Every task has had its first read.';
+
+  @override
+  String get todayBoxAhead => 'Reviews ahead';
+
+  @override
+  String get todayBoxAheadEmpty =>
+      'No reviews scheduled yet. They start after a first read.';
+
+  @override
+  String todayShowAll(int count) {
+    return 'Show all $count';
+  }
+
+  @override
+  String get todayShowFewer => 'Show fewer';
+
+  @override
+  String todayPlanned(String kind) {
+    return 'Planned today · $kind';
+  }
+
+  @override
+  String todayAheadTomorrow(String time) {
+    return 'Tomorrow · $time';
+  }
+
+  @override
+  String todayAheadDays(int days, String time) {
+    return 'In $days days · $time';
+  }
+
+  @override
+  String todayAheadDate(int days, String date) {
+    return 'In $days days · $date';
+  }
+
+  @override
+  String todayUntasked(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count chapters without tasks',
+      one: '1 chapter without a task',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get todayUntaskedHint => 'Open it to add tasks';
+
+  @override
   String get taskOverline => 'TASK';
 
   @override

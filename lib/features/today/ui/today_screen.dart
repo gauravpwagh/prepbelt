@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/config/defaults.dart';
 import '../../../core/result/result.dart';
 import '../../../core/ui/app_icons.dart';
 import '../../../core/ui/buttons.dart';
@@ -136,37 +137,57 @@ class TodayBody extends StatelessWidget {
               ),
             ),
           );
-        } else if (v.cards.isEmpty) {
-          children.add(
-            _Message(title: l10n.todayDoneTitle, body: l10n.todayDoneBody),
-          );
         } else {
+          Widget row(TodayCard card) => _Card(
+            card: card,
+            today: v.today,
+            onStart: switch (card.item.kind) {
+              TodayKind.ahead || TodayKind.untasked => null,
+              TodayKind.explore => () => onStartReading(card.item.id),
+              _ => () => onStart(card.item.id),
+            },
+            onTap: card.item.info == null
+                ? () => onOpenSource(card.item.id)
+                : () => onOpenTask(card.item.id),
+          );
           children
             ..add(
               Text(
-                l10n.todaySessions(
-                  v.cards.length,
-                  formatMinutes(l10n, v.totalMinutes),
-                ),
-                style: AppText.section.copyWith(color: c.ink),
+                [
+                  l10n.todayDueCount(v.due.length),
+                  if (!v.hasPlan) l10n.todayFreshCount(v.fresh.length),
+                  if (v.plannedFirstReads > 0)
+                    l10n.todayPlannedReads(v.plannedFirstReads),
+                  if (v.plannedMinutes > 0)
+                    l10n.todayAbout(formatMinutes(l10n, v.plannedMinutes)),
+                ].join(' · '),
+                style: AppText.subtitle.copyWith(color: c.ink),
               ),
             )
-            ..add(const SizedBox(height: AppSpace.lg));
-          for (final card in v.cards) {
-            children
-              ..add(
-                _Card(
-                  card: card,
-                  onStart: card.item.info == null
-                      ? () => onStartReading(card.item.id)
-                      : () => onStart(card.item.id),
-                  onTap: card.item.info == null
-                      ? () => onOpenSource(card.item.id)
-                      : () => onOpenTask(card.item.id),
-                ),
-              )
-              ..add(const SizedBox(height: AppSpace.md));
-          }
+            ..add(const SizedBox(height: AppSpace.lg))
+            ..add(
+              _Box(
+                title: l10n.todayBoxDue,
+                empty: l10n.todayBoxDueEmpty,
+                rows: [for (final card in v.due) row(card)],
+              ),
+            )
+            ..add(const SizedBox(height: AppSpace.md))
+            ..add(
+              _Box(
+                title: l10n.todayBoxFresh,
+                empty: l10n.todayBoxFreshEmpty,
+                rows: [for (final card in v.fresh) row(card)],
+              ),
+            )
+            ..add(const SizedBox(height: AppSpace.md))
+            ..add(
+              _Box(
+                title: l10n.todayBoxAhead,
+                empty: l10n.todayBoxAheadEmpty,
+                rows: [for (final card in v.ahead) row(card)],
+              ),
+            );
         }
       case AsyncError():
         children.add(
@@ -395,11 +416,104 @@ class _ExamCard extends StatelessWidget {
   }
 }
 
+/// One of Today's three boxes (D50): a title with a count, the first
+/// [Defaults.todayBoxVisible] rows, and "Show all" for the rest.
+class _Box extends StatefulWidget {
+  const _Box({required this.title, required this.empty, required this.rows});
+
+  final String title;
+  final String empty;
+  final List<Widget> rows;
+
+  @override
+  State<_Box> createState() => _BoxState();
+}
+
+class _BoxState extends State<_Box> {
+  bool _all = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final c = context.colors;
+    final rows = widget.rows;
+    final shown = _all ? rows : rows.take(Defaults.todayBoxVisible).toList();
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: c.surface,
+        borderRadius: BorderRadius.circular(AppRadii.card),
+        border: Border.all(color: c.line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(
+            header: true,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.title,
+                    style: AppText.cardTitle.copyWith(color: c.ink),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: c.accentSoft,
+                    borderRadius: BorderRadius.circular(AppRadii.pill),
+                  ),
+                  child: Text(
+                    '${rows.length}',
+                    style: AppText.caption.copyWith(
+                      color: c.accentText,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpace.md),
+          if (rows.isEmpty)
+            Text(widget.empty, style: AppText.body.copyWith(color: c.muted))
+          else
+            for (final (i, r) in shown.indexed) ...[
+              if (i > 0) const SizedBox(height: AppSpace.sm),
+              r,
+            ],
+          if (rows.length > Defaults.todayBoxVisible)
+            Center(
+              child: TextLinkButton(
+                label: _all
+                    ? l10n.todayShowFewer
+                    : l10n.todayShowAll(rows.length),
+                onPressed: () => setState(() => _all = !_all),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 class _Card extends StatelessWidget {
-  const _Card({required this.card, required this.onStart, required this.onTap});
+  const _Card({
+    required this.card,
+    required this.today,
+    required this.onStart,
+    required this.onTap,
+  });
 
   final TodayCard card;
-  final VoidCallback onStart;
+  final DateTime today;
+
+  /// Null for reviews ahead and sources without tasks: no Start (D50).
+  final VoidCallback? onStart;
   final VoidCallback onTap;
 
   @override
@@ -409,12 +523,35 @@ class _Card extends StatelessWidget {
     final item = card.item;
     final info = item.info;
     final time = formatMinutes(l10n, item.minutes);
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    String ahead() {
+      final due = DateTime.fromMillisecondsSinceEpoch(item.dueAt!);
+      final days = DateTime(
+        due.year,
+        due.month,
+        due.day,
+      ).difference(DateTime(today.year, today.month, today.day)).inDays;
+      return days <= 1
+          ? l10n.todayAheadTomorrow(time)
+          : days > Defaults.todayAheadDateAfterDays
+          ? l10n.todayAheadDate(days, DateFormat('d MMM', locale).format(due))
+          : l10n.todayAheadDays(days, time);
+    }
+
     final kind = switch (item.kind) {
       TodayKind.overdue => l10n.todayKindOverdue(item.overdueDays, time),
       TodayKind.review => l10n.todayKindReview(time),
       TodayKind.finalReview => l10n.todayKindFinalReview(time),
-      TodayKind.firstRead => l10n.todayKindFirstRead(time),
-      TodayKind.explore => l10n.todayKindExplore(time),
+      TodayKind.firstRead =>
+        item.plannedToday
+            ? l10n.todayPlanned(l10n.todayKindFirstRead(time))
+            : l10n.todayKindFirstRead(time),
+      TodayKind.explore =>
+        item.plannedToday
+            ? l10n.todayPlanned(l10n.todayKindExplore(time))
+            : l10n.todayKindExplore(time),
+      TodayKind.ahead => ahead(),
+      TodayKind.untasked => l10n.todayUntasked(item.withoutTask),
     }.toUpperCase();
 
     final String title;
@@ -423,9 +560,10 @@ class _Card extends StatelessWidget {
       final source = item.source!;
       title = source.title;
       final at = item.position;
-      where = switch ((item.chapter, at)) {
-        (final chapter?, _) => l10n.readingContinue(chapter),
-        (_, final at?) => l10n.readingFrom(source.unitType.at(l10n, at)),
+      where = switch ((item.kind, item.chapter, at)) {
+        (TodayKind.untasked, _, _) => l10n.todayUntaskedHint,
+        (_, final chapter?, _) => l10n.readingContinue(chapter),
+        (_, _, final at?) => l10n.readingFrom(source.unitType.at(l10n, at)),
         _ => '',
       };
     } else {
@@ -449,11 +587,13 @@ class _Card extends StatelessWidget {
       kindColor: item.kind == TodayKind.overdue ? c.warningText : null,
       title: title,
       subtitle: where,
-      startLabel: l10n.sessionStart(title, switch (item.kind) {
-        TodayKind.firstRead => l10n.todayKindFirstReadWord,
-        TodayKind.explore => l10n.todayKindExploreWord,
-        _ => l10n.todayKindReviewWord,
-      }),
+      startLabel: onStart == null
+          ? null
+          : l10n.sessionStart(title, switch (item.kind) {
+              TodayKind.firstRead => l10n.todayKindFirstReadWord,
+              TodayKind.explore => l10n.todayKindExploreWord,
+              _ => l10n.todayKindReviewWord,
+            }),
       onStart: onStart,
       onTap: onTap,
     );

@@ -579,6 +579,24 @@ final class ReadingRepository extends EventSourcedRepository {
     );
   }
 
+  /// Minutes a chapter of source [id] takes, when it is read by chapter
+  /// (D49): calibrated from its first reads, else from its pages.
+  Future<double> minutesPerChapter(String id) async {
+    final p = await progress(id);
+    if (p == null) return Defaults.chapterMinutesDefault;
+    final unit = p.source.unitType;
+    final perUnit = await pace(
+      unit,
+      defaultPace: switch (unit) {
+        UnitType.page => Defaults.pacePageMin,
+        UnitType.minute => Defaults.paceVideoMinuteMin,
+        UnitType.question => Defaults.paceQuestionMin,
+        UnitType.item => Defaults.paceItemMin,
+      },
+    );
+    return p.minutesPerChapter(pagePace: perUnit);
+  }
+
   /// Minutes per unit for the "Up to page" guess (D30), from the latest
   /// saved sittings of sources measured in [unitType].
   Future<double> pace(UnitType unitType, {required double defaultPace}) async {

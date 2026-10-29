@@ -97,16 +97,26 @@ void main() {
         dayStart: DateTime(2026, 10, 28).toUtc().millisecondsSinceEpoch,
       );
       final todayMs = watch.elapsedMilliseconds;
+      // Today's three boxes (D50) read every task and source.
+      watch.reset();
+      final boxes = await today.boxes(
+        dayStart: DateTime(2026, 10, 28).toUtc().millisecondsSinceEpoch,
+        dayEnd: DateTime(2026, 10, 29).toUtc().millisecondsSinceEpoch,
+        today: '2026-10-28',
+      );
+      final boxesMs = watch.elapsedMilliseconds;
 
       // ignore: avoid_print
       print(
         'input ${inputMs}ms, one plan ${planMs}ms '
         '(${single.entries.length} entries), triage ${triageMs}ms in the '
         'background (${result.cuts.length} cuts), Today ${todayMs}ms '
-        '(${cards.length} cards)',
+        '(${cards.length} cards), boxes ${boxesMs}ms '
+        '(${boxes.due.length + boxes.fresh.length + boxes.ahead.length} rows)',
       );
       expect(planMs, lessThan(200 ~/ 3), reason: 'planner budget');
       expect(inputMs + todayMs, lessThan(1000 ~/ 3), reason: 'Today budget');
+      expect(boxesMs, lessThan(1000 ~/ 3), reason: 'Today boxes budget');
       expect(result.plan.entries, isNotEmpty);
     },
     timeout: const Timeout(Duration(minutes: 3)),

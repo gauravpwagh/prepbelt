@@ -130,6 +130,45 @@ void main() {
     expect(list.last.minutes, 30);
   });
 
+  test('three boxes (D50): every review due, overdue first; not started; '
+      'next reviews ahead, soonest first; paused tasks in none', () async {
+    final ids = await tasks();
+    clock.advance(const Duration(days: -10));
+    await reviews.record(
+      taskId: ids[0],
+      rating: Rating.good,
+      kind: ReviewKind.firstRead,
+    );
+    clock.advance(const Duration(days: 10));
+    // Read today: their first reviews are on later days.
+    await reviews.record(
+      taskId: ids[1],
+      rating: Rating.good,
+      kind: ReviewKind.firstRead,
+    );
+    await reviews.record(
+      taskId: ids[2],
+      rating: Rating.good,
+      kind: ReviewKind.firstRead,
+    );
+    await reviews.pause(ids[3]);
+
+    final now = clock.now();
+    final start = DateTime.utc(now.year, now.month, now.day);
+    final b = await today.boxes(
+      dayStart: start.millisecondsSinceEpoch,
+      dayEnd: start.add(const Duration(days: 1)).millisecondsSinceEpoch,
+      today: start.toIso8601String().substring(0, 10),
+    );
+    expect(b.due.map((i) => (i.kind, i.info!.task.id)), [
+      (TodayKind.overdue, ids[0]),
+    ]);
+    expect(b.fresh.map((i) => i.info!.task.id), [ids[4], ids[5]]);
+    expect(b.ahead.map((i) => i.info!.task.id).toSet(), {ids[1], ids[2]});
+    expect(b.ahead.first.dueAt! <= b.ahead.last.dueAt!, isTrue);
+    expect(b.hasPlan, isFalse);
+  });
+
   test('nothing due and no tasks gives an empty day', () async {
     expect(await items(), isEmpty);
   });

@@ -5,6 +5,7 @@ import '../../../core/time/clock.dart';
 import '../../../engines/game/streak.dart';
 import '../../exams/state/exam_providers.dart';
 import '../../exams/state/exam_view_providers.dart';
+import '../../planner/data/planner_repository.dart' show dateText;
 import '../../planner/state/planner_providers.dart';
 import '../../session/state/session_providers.dart';
 import '../../sources/state/reading_providers.dart';
@@ -12,7 +13,7 @@ import '../../tasks/data/review_repository.dart';
 import '../../tasks/state/task_providers.dart';
 import '../data/today_repository.dart';
 
-export '../data/today_repository.dart' show TodayItem, TodayKind;
+export '../data/today_repository.dart' show TodayBoxes, TodayItem, TodayKind;
 
 part 'today_providers.g.dart';
 
@@ -38,16 +39,30 @@ typedef TodayCard = ({TodayItem item, LevelDisplay display});
 final class TodayView {
   const TodayView({
     required this.today,
-    required this.cards,
     required this.streak,
     required this.hasTasks,
+    this.due = const [],
+    this.fresh = const [],
+    this.ahead = const [],
+    this.plannedMinutes = 0,
+    this.plannedFirstReads = 0,
+    this.hasPlan = false,
     this.exam,
     this.metrics,
   });
 
   /// The local calendar day.
   final DateTime today;
-  final List<TodayCard> cards;
+
+  /// The three boxes (D50): reviews due, not started, reviews ahead.
+  final List<TodayCard> due;
+  final List<TodayCard> fresh;
+  final List<TodayCard> ahead;
+
+  /// Today's plan, for the summary line.
+  final int plannedMinutes;
+  final int plannedFirstReads;
+  final bool hasPlan;
   final int streak;
 
   /// False before any task exists: Today then points to adding a source.
@@ -56,8 +71,6 @@ final class TodayView {
 
   /// The exam belt, readiness and projection, with an exam.
   final ExamMetrics? metrics;
-
-  int get totalMinutes => cards.fold(0, (sum, c) => sum + c.item.minutes);
 
   /// Days from today to the exam, or null without one.
   int? get daysToGo {
@@ -72,29 +85,21 @@ final class TodayView {
   }
 }
 
-/// Today's items: the plan's when there is an upcoming exam, otherwise
-/// what is due (D33).
+/// Today's three boxes (D50).
 @riverpod
-Stream<List<TodayItem>> todayItems(Ref ref) async* {
+Stream<TodayBoxes> todayBoxes(Ref ref) {
   final now = ref.watch(clockProvider).now().toLocal();
   final start = DateTime(now.year, now.month, now.day);
   final end = DateTime(now.year, now.month, now.day + 1);
-  final dayStart = start.toUtc().millisecondsSinceEpoch;
-  final repo = ref.watch(todayRepositoryProvider);
   // The stored plan shows at once; the planner keeps it current behind.
   ref.watch(plannerProvider);
-  final exam = await ref.watch(currentExamProvider.future);
-  if (exam == null) {
-    yield* repo.watch(
-      dayStart: dayStart,
-      dayEnd: end.toUtc().millisecondsSinceEpoch,
-    );
-    return;
-  }
-  yield* ref
-      .watch(plannerRepositoryProvider)
-      .watchDay(dayKey(now))
-      .asyncMap((items) => repo.fromPlan(items, dayStart: dayStart));
+  return ref
+      .watch(todayRepositoryProvider)
+      .watchBoxes(
+        dayStart: start.toUtc().millisecondsSinceEpoch,
+        dayEnd: end.toUtc().millisecondsSinceEpoch,
+        today: dateText(start),
+      );
 }
 
 @riverpod
@@ -113,7 +118,7 @@ Stream<int> streak(Ref ref) {
 @riverpod
 Future<TodayView> todayView(Ref ref) async {
   final clock = ref.watch(clockProvider);
-  final items = await ref.watch(todayItemsProvider.future);
+  final boxes = await ref.watch(todayBoxesProvider.future);
   final streak = await ref.watch(streakProvider.future);
   final exam = await ref.watch(currentExamProvider.future);
   final examView = exam == null
@@ -122,23 +127,23 @@ Future<TodayView> todayView(Ref ref) async {
   final tasks = await ref.watch(tasksProvider.future);
   final engine = await ref.read(reviewRepositoryProvider).loadEngine();
   final now = clock.now();
+  TodayCard card(TodayItem i) => (
+    item: i,
+    display: i.info == null
+        ? _notStarted
+        : engine.display(ReviewRepository.toReviewState(i.info!.state), now),
+  );
   return TodayView(
     today: now.toLocal(),
     streak: streak,
     exam: exam,
     metrics: examView?.metrics,
-    hasTasks: tasks.isNotEmpty,
-    cards: [
-      for (final i in items)
-        (
-          item: i,
-          display: i.info == null
-              ? _notStarted
-              : engine.display(
-                  ReviewRepository.toReviewState(i.info!.state),
-                  now,
-                ),
-        ),
-    ],
+    hasTasks: tasks.isNotEmpty || boxes.fresh.isNotEmpty,
+    due: [for (final i in boxes.due) card(i)],
+    fresh: [for (final i in boxes.fresh) card(i)],
+    ahead: [for (final i in boxes.ahead) card(i)],
+    plannedMinutes: boxes.plannedMinutes,
+    plannedFirstReads: boxes.plannedFirstReads,
+    hasPlan: boxes.hasPlan,
   );
 }

@@ -1112,6 +1112,100 @@
   "todayDoneBody": "Nothing else is due. Any task can be reviewed early from its page.",
   "todayLoadFailed": "Couldn't load today's training.",
   "todayRetry": "Try again",
+  "todayDueCount": "{count, plural, =0{No reviews due} =1{1 review due} other{{count} reviews due}}",
+  "@todayDueCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayFreshCount": "{count} not started",
+  "@todayFreshCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayPlannedReads": "{count, plural, =1{1 first read planned} other{{count} first reads planned}}",
+  "@todayPlannedReads": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayAbout": "about {time}",
+  "@todayAbout": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "todayBoxDue": "Reviews due",
+  "todayBoxDueEmpty": "No reviews due. You're clear today.",
+  "todayBoxFresh": "Not started",
+  "todayBoxFreshEmpty": "Every task has had its first read.",
+  "todayBoxAhead": "Reviews ahead",
+  "todayBoxAheadEmpty": "No reviews scheduled yet. They start after a first read.",
+  "todayShowAll": "Show all {count}",
+  "@todayShowAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayShowFewer": "Show fewer",
+  "todayPlanned": "Planned today · {kind}",
+  "@todayPlanned": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "todayAheadTomorrow": "Tomorrow · {time}",
+  "@todayAheadTomorrow": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "todayAheadDays": "In {days} days · {time}",
+  "@todayAheadDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "todayAheadDate": "In {days} days · {date}",
+  "@todayAheadDate": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "todayUntasked": "{count, plural, =1{1 chapter without a task} other{{count} chapters without tasks}}",
+  "@todayUntasked": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayUntaskedHint": "Open it to add tasks",
   "taskOverline": "TASK",
   "taskImportanceLine": "{importance} importance · {exam}",
   "@taskImportanceLine": {

@@ -108,8 +108,10 @@ void main() {
     await tester.tap(find.text('Done · back to Today'));
     await settle();
     expect(find.text("Today's training"), findsOneWidget);
-    expect(find.text('All done for today'), findsOneWidget);
-    expect(find.text('1'), findsOneWidget, reason: 'a 1 day streak');
+    // Nothing due now; the task's first review waits in Reviews ahead.
+    expect(find.text("No reviews due. You're clear today."), findsOneWidget);
+    expect(find.textContaining('TOMORROW'), findsOneWidget);
+    expect(find.text('day streak'), findsOneWidget, reason: 'a 1 day streak');
 
     final reviews = await tester.runAsync(
       () => t.db.select(t.db.reviews).get(),

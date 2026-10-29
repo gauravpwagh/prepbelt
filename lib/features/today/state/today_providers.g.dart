@@ -51,52 +51,48 @@ final class TodayRepositoryProvider
 
 String _$todayRepositoryHash() => r'4f8d72d3fa7825b6086015809027c240d57cb8f9';
 
-/// Today's items: the plan's when there is an upcoming exam, otherwise
-/// what is due (D33).
+/// Today's three boxes (D50).
 
-@ProviderFor(todayItems)
-final todayItemsProvider = TodayItemsProvider._();
+@ProviderFor(todayBoxes)
+final todayBoxesProvider = TodayBoxesProvider._();
 
-/// Today's items: the plan's when there is an upcoming exam, otherwise
-/// what is due (D33).
+/// Today's three boxes (D50).
 
-final class TodayItemsProvider
+final class TodayBoxesProvider
     extends
         $FunctionalProvider<
-          AsyncValue<List<TodayItem>>,
-          List<TodayItem>,
-          Stream<List<TodayItem>>
+          AsyncValue<TodayBoxes>,
+          TodayBoxes,
+          Stream<TodayBoxes>
         >
-    with $FutureModifier<List<TodayItem>>, $StreamProvider<List<TodayItem>> {
-  /// Today's items: the plan's when there is an upcoming exam, otherwise
-  /// what is due (D33).
-  TodayItemsProvider._()
+    with $FutureModifier<TodayBoxes>, $StreamProvider<TodayBoxes> {
+  /// Today's three boxes (D50).
+  TodayBoxesProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'todayItemsProvider',
+        name: r'todayBoxesProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$todayItemsHash();
+  String debugGetCreateSourceHash() => _$todayBoxesHash();
 
   @$internal
   @override
-  $StreamProviderElement<List<TodayItem>> $createElement(
-    $ProviderPointer pointer,
-  ) => $StreamProviderElement(pointer);
+  $StreamProviderElement<TodayBoxes> $createElement($ProviderPointer pointer) =>
+      $StreamProviderElement(pointer);
 
   @override
-  Stream<List<TodayItem>> create(Ref ref) {
-    return todayItems(ref);
+  Stream<TodayBoxes> create(Ref ref) {
+    return todayBoxes(ref);
   }
 }
 
-String _$todayItemsHash() => r'646f4686cdf19d20198365cc7bab39c8295ecf6f';
+String _$todayBoxesHash() => r'87d23a5a6e5a7ead3252433b1484360afae610b5';
 
 @ProviderFor(streak)
 final streakProvider = StreakProvider._();
@@ -167,4 +163,4 @@ final class TodayViewProvider
   }
 }
 
-String _$todayViewHash() => r'6fe3e7a08f78e8223221feca8ad546d5b409e27f';
+String _$todayViewHash() => r'498e3d9b8dbf42a417310a66fb03288ba52bd001';

@@ -1786,6 +1786,114 @@ abstract class AppLocalizations {
   /// **'Try again'**
   String get todayRetry;
 
+  /// No description provided for @todayDueCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No reviews due} =1{1 review due} other{{count} reviews due}}'**
+  String todayDueCount(int count);
+
+  /// No description provided for @todayFreshCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} not started'**
+  String todayFreshCount(int count);
+
+  /// No description provided for @todayPlannedReads.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 first read planned} other{{count} first reads planned}}'**
+  String todayPlannedReads(int count);
+
+  /// No description provided for @todayAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'about {time}'**
+  String todayAbout(String time);
+
+  /// No description provided for @todayBoxDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews due'**
+  String get todayBoxDue;
+
+  /// No description provided for @todayBoxDueEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews due. You\'re clear today.'**
+  String get todayBoxDueEmpty;
+
+  /// No description provided for @todayBoxFresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Not started'**
+  String get todayBoxFresh;
+
+  /// No description provided for @todayBoxFreshEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Every task has had its first read.'**
+  String get todayBoxFreshEmpty;
+
+  /// No description provided for @todayBoxAhead.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews ahead'**
+  String get todayBoxAhead;
+
+  /// No description provided for @todayBoxAheadEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews scheduled yet. They start after a first read.'**
+  String get todayBoxAheadEmpty;
+
+  /// No description provided for @todayShowAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all {count}'**
+  String todayShowAll(int count);
+
+  /// No description provided for @todayShowFewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Show fewer'**
+  String get todayShowFewer;
+
+  /// No description provided for @todayPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned today · {kind}'**
+  String todayPlanned(String kind);
+
+  /// No description provided for @todayAheadTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow · {time}'**
+  String todayAheadTomorrow(String time);
+
+  /// No description provided for @todayAheadDays.
+  ///
+  /// In en, this message translates to:
+  /// **'In {days} days · {time}'**
+  String todayAheadDays(int days, String time);
+
+  /// No description provided for @todayAheadDate.
+  ///
+  /// In en, this message translates to:
+  /// **'In {days} days · {date}'**
+  String todayAheadDate(int days, String date);
+
+  /// No description provided for @todayUntasked.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 chapter without a task} other{{count} chapters without tasks}}'**
+  String todayUntasked(int count);
+
+  /// No description provided for @todayUntaskedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Open it to add tasks'**
+  String get todayUntaskedHint;
+
   /// No description provided for @taskOverline.
   ///
   /// In en, this message translates to:

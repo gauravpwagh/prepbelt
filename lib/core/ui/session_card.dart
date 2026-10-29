@@ -32,8 +32,8 @@ class SessionCard extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  /// Accessible name of the Start button.
-  final String startLabel;
+  /// Accessible name of the Start button; null hides it (D50).
+  final String? startLabel;
   final VoidCallback? onStart;
 
   /// Opens the task, e.g. Task detail.
@@ -83,12 +83,14 @@ class SessionCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: AppSpace.lg),
-          StartButton(
-            semanticLabel: startLabel,
-            onPressed: onStart,
-            outlined: isNew,
-          ),
+          if (startLabel case final label?) ...[
+            const SizedBox(width: AppSpace.lg),
+            StartButton(
+              semanticLabel: label,
+              onPressed: onStart,
+              outlined: isNew,
+            ),
+          ],
         ],
       ),
     );

@@ -129,7 +129,7 @@ final class PlannerRepository extends EventSourcedRepository {
           chapterMinutes.containsKey(source.id)) {
         continue;
       }
-      chapterMinutes[source.id] = await _minutesPerChapter(source.id);
+      chapterMinutes[source.id] = await reading.minutesPerChapter(source.id);
     }
 
     final tasks = <PlanTask>[];
@@ -180,7 +180,7 @@ final class PlannerRepository extends EventSourcedRepository {
           subject: id,
           // Read by chapter, the units are chapters (D49).
           minutes: p!.byChapter
-              ? units * await _minutesPerChapter(id)
+              ? units * await reading.minutesPerChapter(id)
               : firstReadMinutes(
                   units: units,
                   unit: EffortUnit.values.byName(p.source.unitType.name),
@@ -315,24 +315,6 @@ final class PlannerRepository extends EventSourcedRepository {
       )
       .watch()
       .map((_) {});
-
-  /// Minutes a chapter of source [id] takes, when it is read by chapter
-  /// (D49): calibrated from its first reads, else from its pages.
-  Future<double> _minutesPerChapter(String id) async {
-    final p = await reading.progress(id);
-    if (p == null) return Defaults.chapterMinutesDefault;
-    final unit = p.source.unitType;
-    final pace = await reading.pace(
-      unit,
-      defaultPace: switch (unit) {
-        UnitType.page => Defaults.pacePageMin,
-        UnitType.minute => Defaults.paceVideoMinuteMin,
-        UnitType.question => Defaults.paceQuestionMin,
-        UnitType.item => Defaults.paceItemMin,
-      },
-    );
-    return p.minutesPerChapter(pagePace: pace);
-  }
 
   Future<int> _minutesDoneToday(DateTime today) async {
     final start = DateTime(today.year, today.month, today.day);

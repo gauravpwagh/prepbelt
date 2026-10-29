@@ -203,6 +203,7 @@ TodayView _todayView({List<TodayCard>? cards, bool hasTasks = true}) {
     ),
     TodayItem(
       kind: TodayKind.firstRead,
+      plannedToday: true,
       info: _task(
         't4',
         'Rotational motion',
@@ -213,6 +214,26 @@ TodayView _todayView({List<TodayCard>? cards, bool hasTasks = true}) {
       minutes: 45,
     ),
   ];
+  final ahead = [
+    for (final (i, days) in [1, 4, 18].indexed)
+      TodayItem(
+        kind: TodayKind.ahead,
+        info: _task(
+          'a$i',
+          ['Kinematics', 'Work and energy', 'Gravitation'][i],
+          source: _source('s5', 'HC Verma Vol 1'),
+          start: 40 + 20 * i,
+          end: 59 + 20 * i,
+          level: 3,
+          step: 1,
+          reps: 2,
+          dueAt: _nowMs + days * _day,
+        ),
+        minutes: 10,
+        dueAt: _nowMs + days * _day,
+      ),
+  ];
+  TodayCard card(TodayItem i) => (item: i, display: _display(i.info!));
   return TodayView(
     today: DateTime(2026, 10, 28),
     streak: 12,
@@ -236,8 +257,12 @@ TodayView _todayView({List<TodayCard>? cards, bool hasTasks = true}) {
       priority: 2,
       status: ExamStatus.upcoming,
     ),
-    cards:
-        cards ?? [for (final i in items) (item: i, display: _display(i.info!))],
+    due: cards ?? [for (final i in items.take(3)) card(i)],
+    fresh: cards ?? [for (final i in items.skip(3)) card(i)],
+    ahead: cards ?? [for (final i in ahead) card(i)],
+    plannedMinutes: 105,
+    plannedFirstReads: 1,
+    hasPlan: true,
   );
 }
 
