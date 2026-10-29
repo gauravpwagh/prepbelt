@@ -64,7 +64,8 @@ final class SystemReminderScheduler implements ReminderScheduler {
     }
     await _plugin.initialize(
       settings: const InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        // A white silhouette (res/drawable/ic_notification.xml).
+        android: AndroidInitializationSettings('ic_notification'),
         iOS: DarwinInitializationSettings(
           requestAlertPermission: false,
           requestBadgePermission: false,
