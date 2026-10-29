@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prepbelt/core/config/review_config.dart';
 import 'package:prepbelt/core/db/app_database.dart';
+import 'package:prepbelt/engines/exam/exam_metrics.dart';
 import 'package:prepbelt/engines/review/review_engine.dart';
 import 'package:prepbelt/features/session/state/session_providers.dart';
 import 'package:prepbelt/features/session/ui/session_screen.dart';
@@ -215,6 +216,14 @@ TodayView _todayView({List<TodayCard>? cards, bool hasTasks = true}) {
     today: DateTime(2026, 10, 28),
     streak: 12,
     hasTasks: hasTasks,
+    metrics: const ExamMetrics(
+      tier: 4,
+      projectedTier: 5,
+      readiness: 0.62,
+      atTarget: 24,
+      total: 38,
+      weakLinks: [],
+    ),
     exam: const Exam(
       id: 'e',
       createdAt: 0,

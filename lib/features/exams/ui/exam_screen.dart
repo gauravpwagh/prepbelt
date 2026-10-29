@@ -14,6 +14,7 @@ import '../../../theme/palettes/night_to_sun.dart';
 import '../../../theme/tokens/app_tokens.dart';
 import '../../sources/ui/source_labels.dart';
 import '../state/exam_view_providers.dart';
+import 'week_sheet.dart';
 
 /// The Exams tab: the upcoming exam, or a way to add one.
 class ExamsTab extends ConsumerWidget {
@@ -28,6 +29,9 @@ class ExamsTab extends ConsumerWidget {
         onOpenTask: (id) => context.push(Routes.task(id)),
         onRetry: () => ref.invalidate(examViewProvider(null)),
         triage: triageCallbacks(ref),
+        week: ref.watch(weekMinutesProvider).value,
+        onSaveWeek: (examId, week) =>
+            ref.read(examActionsProvider.notifier).setWeek(examId, week),
       ),
     ),
   );
@@ -49,6 +53,9 @@ class ExamScreen extends ConsumerWidget {
         onOpenTask: (id) => context.push(Routes.task(id)),
         onRetry: () => ref.invalidate(examViewProvider(examId)),
         triage: triageCallbacks(ref),
+        week: ref.watch(weekMinutesProvider).value,
+        onSaveWeek: (examId, week) =>
+            ref.read(examActionsProvider.notifier).setWeek(examId, week),
       ),
     ),
   );
@@ -63,11 +70,17 @@ class ExamBody extends StatelessWidget {
     required this.onRetry,
     this.onBack,
     this.triage,
+    this.week,
+    this.onSaveWeek,
     super.key,
   });
 
   final AsyncValue<ExamView?> view;
   final TriageCallbacks? triage;
+
+  /// Study minutes per weekday, Monday first.
+  final List<int>? week;
+  final void Function(String examId, List<int> week)? onSaveWeek;
   final VoidCallback? onBack;
   final VoidCallback onAdd;
   final ValueChanged<String> onOpenTask;
@@ -84,6 +97,19 @@ class ExamBody extends StatelessWidget {
           _Header(view: v, onBack: onBack),
           const SizedBox(height: AppSpace.lg),
           _Hero(view: v),
+          if (week != null) ...[
+            const SizedBox(height: AppSpace.lg),
+            _StudyTime(
+              week: week!,
+              onTap: onSaveWeek == null
+                  ? null
+                  : () => showWeekSheet(
+                      context,
+                      week: week!,
+                      onSave: (w) => onSaveWeek!(v.exam.id, w),
+                    ),
+            ),
+          ],
           if (!v.triage.isEmpty) ...[
             const SizedBox(height: AppSpace.lg),
             _Triage(view: v, actions: triage),
@@ -270,6 +296,64 @@ class _Hero extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// "Study time · Mon–Sat 1 h 45 min · Sun 4 h", opening the week editor.
+class _StudyTime extends StatelessWidget {
+  const _StudyTime({required this.week, required this.onTap});
+
+  final List<int> week;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final c = context.colors;
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    final summary = weekSummary(l10n, locale, week);
+    return Semantics(
+      button: onTap != null,
+      label: '${l10n.examStudyTime}, $summary',
+      excludeSemantics: true,
+      child: Material(
+        color: c.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.card),
+          side: BorderSide(color: c.line),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppRadii.card),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Row(
+              children: [
+                AppIconView(AppIcon.clock, color: c.muted, size: 18),
+                const SizedBox(width: AppSpace.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.examStudyTime,
+                        style: AppText.subtitle.copyWith(color: c.ink),
+                      ),
+                      Text(
+                        summary,
+                        style: AppText.caption.copyWith(color: c.muted),
+                      ),
+                    ],
+                  ),
+                ),
+                if (onTap != null)
+                  AppIconView(AppIcon.more, color: c.muted, size: 18),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

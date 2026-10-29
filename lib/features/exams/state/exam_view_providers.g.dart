@@ -141,6 +141,45 @@ final class ExamViewFamily extends $Family
   String toString() => r'examViewProvider';
 }
 
+/// Study minutes per weekday, Monday first.
+
+@ProviderFor(weekMinutes)
+final weekMinutesProvider = WeekMinutesProvider._();
+
+/// Study minutes per weekday, Monday first.
+
+final class WeekMinutesProvider
+    extends
+        $FunctionalProvider<AsyncValue<List<int>>, List<int>, Stream<List<int>>>
+    with $FutureModifier<List<int>>, $StreamProvider<List<int>> {
+  /// Study minutes per weekday, Monday first.
+  WeekMinutesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'weekMinutesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$weekMinutesHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<List<int>> $createElement($ProviderPointer pointer) =>
+      $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<int>> create(Ref ref) {
+    return weekMinutes(ref);
+  }
+}
+
+String _$weekMinutesHash() => r'65852cb94fd0e5a472e0036db0bc0864333b2556';
+
 /// Adds an exam with its task links and daily minutes (D38).
 
 @ProviderFor(ExamActions)
@@ -176,7 +215,7 @@ final class ExamActionsProvider extends $NotifierProvider<ExamActions, void> {
   }
 }
 
-String _$examActionsHash() => r'e6ab2700d47de8e1e66c6928f24951a8c6139270';
+String _$examActionsHash() => r'a9b2bdfc17fbaa8f12d9796cc53401cf233bac95';
 
 /// Adds an exam with its task links and daily minutes (D38).
 

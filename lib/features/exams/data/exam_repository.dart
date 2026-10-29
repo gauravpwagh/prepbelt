@@ -185,6 +185,41 @@ final class ExamRepository extends EventSourcedRepository {
     );
   }
 
+  /// Sets the study minutes of each weekday, Monday first.
+  Future<void> setWeek(String examId, List<int> minutes) async {
+    assert(minutes.length == 7, 'seven weekdays');
+    final week = await (db.select(
+      db.availabilities,
+    )..where((a) => a.deletedAt.isNull())).get();
+    await mutate<void>(
+      entity: entity,
+      entityId: examId,
+      op: EventOp.update,
+      data: {'action': 'setWeek', 'minutes': minutes},
+      body: (rec) async {
+        for (var day = 0; day < 7; day++) {
+          final row = week.where((a) => a.weekday == day).firstOrNull;
+          if (row == null) {
+            await rec.insert(
+              db.availabilities,
+              AvailabilitiesCompanion(
+                id: Value(rec.newId()),
+                weekday: Value(day),
+                minutes: Value(minutes[day]),
+              ),
+            );
+          } else if (row.minutes != minutes[day]) {
+            await rec.update(
+              db.availabilities,
+              row.id,
+              AvailabilitiesCompanion(minutes: Value(minutes[day])),
+            );
+          }
+        }
+      },
+    );
+  }
+
   /// Adds [extra] minutes to every weekday (triage step 5).
   Future<void> addDailyMinutes(String examId, int extra) async {
     final week = await (db.select(

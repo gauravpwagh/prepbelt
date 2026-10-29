@@ -1938,7 +1938,7 @@ abstract class AppLocalizations {
   /// No description provided for @addExamTimeHint.
   ///
   /// In en, this message translates to:
-  /// **'The same every day for now. Set each weekday in Settings.'**
+  /// **'The same every day for now. Set each weekday on the exam screen.'**
   String get addExamTimeHint;
 
   /// No description provided for @addExamTasks.
@@ -2126,6 +2126,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Review cuts in {step}'**
   String triageReview(String step);
+
+  /// No description provided for @examStudyTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Study time'**
+  String get examStudyTime;
+
+  /// No description provided for @weekEveryDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day · {time}'**
+  String weekEveryDay(String time);
+
+  /// No description provided for @weekOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get weekOff;
+
+  /// No description provided for @weekSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Study time each day'**
+  String get weekSheetTitle;
+
+  /// No description provided for @weekSheetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The plan uses these from today. A day off is planned around.'**
+  String get weekSheetHint;
+
+  /// No description provided for @weekSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get weekSave;
+
+  /// No description provided for @weekLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Less time on {day}'**
+  String weekLess(String day);
+
+  /// No description provided for @weekMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More time on {day}'**
+  String weekMore(String day);
+
+  /// No description provided for @todayReady.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% ready'**
+  String todayReady(int percent);
+
+  /// No description provided for @todayOnTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'On track for {belt} by exam day'**
+  String todayOnTrack(String belt);
 }
 
 class _AppLocalizationsDelegate

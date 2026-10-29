@@ -14,7 +14,7 @@ Sets the one exam of 1.0: its name and date, and how long the student can study 
    - **"Exam date":** a field-styled button showing "Sat 10 Jan 2027". Tapping it opens the platform date picker, which starts tomorrow. A 12 px muted line below reads "73 days from today".
 3. **Study time card:**
    - "Time each day" with a − / + stepper (15-minute steps, 15 min to 8 h, default 1 h 30 min).
-   - A 12 px muted line below: "The same every day for now. Set each weekday in Settings."
+   - A 12 px muted line below: "The same every day for now. Set each weekday on the exam screen."
 4. **What happens** (12 px muted text under the cards): "Your 12 tasks will count toward this exam as Medium. Set importance in each source's survey."
 5. **Bottom:** the primary button "Add exam", disabled until the name and date are valid.
 

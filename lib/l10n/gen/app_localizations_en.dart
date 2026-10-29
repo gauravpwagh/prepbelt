@@ -1339,7 +1339,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addExamTimeHint =>
-      'The same every day for now. Set each weekday in Settings.';
+      'The same every day for now. Set each weekday on the exam screen.';
 
   @override
   String addExamTasks(int count) {
@@ -1502,5 +1502,46 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String triageReview(String step) {
     return 'Review cuts in $step';
+  }
+
+  @override
+  String get examStudyTime => 'Study time';
+
+  @override
+  String weekEveryDay(String time) {
+    return 'Every day · $time';
+  }
+
+  @override
+  String get weekOff => 'Off';
+
+  @override
+  String get weekSheetTitle => 'Study time each day';
+
+  @override
+  String get weekSheetHint =>
+      'The plan uses these from today. A day off is planned around.';
+
+  @override
+  String get weekSave => 'Save';
+
+  @override
+  String weekLess(String day) {
+    return 'Less time on $day';
+  }
+
+  @override
+  String weekMore(String day) {
+    return 'More time on $day';
+  }
+
+  @override
+  String todayReady(int percent) {
+    return '$percent% ready';
+  }
+
+  @override
+  String todayOnTrack(String belt) {
+    return 'On track for $belt by exam day';
   }
 }

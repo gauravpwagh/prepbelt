@@ -55,6 +55,18 @@ final class ExamViewRepository {
         .watch();
   }
 
+  /// Study minutes per weekday, Monday first; [fallback] where unset.
+  Stream<List<int>> watchWeek(int fallback) =>
+      (db.select(
+        db.availabilities,
+      )..where((a) => a.deletedAt.isNull())).watch().map((rows) {
+        final week = List.filled(7, fallback);
+        for (final r in rows) {
+          week[r.weekday] = r.minutes;
+        }
+        return week;
+      });
+
   /// Planned items from [date] (`YYYY-MM-DD`) on, for "next step" and
   /// today's minutes.
   Stream<List<PlanItem>> watchPlanFrom(String date) =>

@@ -1172,7 +1172,7 @@
     }
   },
   "addExamTime": "Time each day",
-  "addExamTimeHint": "The same every day for now. Set each weekday in Settings.",
+  "addExamTimeHint": "The same every day for now. Set each weekday on the exam screen.",
   "addExamTasks": "{count, plural, =0{Tasks you add will count toward this exam.} =1{Your 1 task will count toward this exam as Medium. Set importance in each source's survey.} other{Your {count} tasks will count toward this exam as Medium. Set importance in each source's survey.}}",
   "@addExamTasks": {
     "placeholders": {
@@ -1298,6 +1298,51 @@
   "@triageReview": {
     "placeholders": {
       "step": {
+        "type": "String"
+      }
+    }
+  },
+  "examStudyTime": "Study time",
+  "weekEveryDay": "Every day · {time}",
+  "@weekEveryDay": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "weekOff": "Off",
+  "weekSheetTitle": "Study time each day",
+  "weekSheetHint": "The plan uses these from today. A day off is planned around.",
+  "weekSave": "Save",
+  "weekLess": "Less time on {day}",
+  "@weekLess": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "weekMore": "More time on {day}",
+  "@weekMore": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "todayReady": "{percent}% ready",
+  "@todayReady": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "todayOnTrack": "On track for {belt} by exam day",
+  "@todayOnTrack": {
+    "placeholders": {
+      "belt": {
         "type": "String"
       }
     }

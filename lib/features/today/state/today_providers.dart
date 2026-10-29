@@ -5,6 +5,7 @@ import '../../../core/providers/core_providers.dart';
 import '../../../core/time/clock.dart';
 import '../../../engines/game/streak.dart';
 import '../../exams/state/exam_providers.dart';
+import '../../exams/state/exam_view_providers.dart';
 import '../../planner/state/planner_providers.dart';
 import '../../session/state/session_providers.dart';
 import '../../sources/state/reading_providers.dart';
@@ -42,6 +43,7 @@ final class TodayView {
     required this.streak,
     required this.hasTasks,
     this.exam,
+    this.metrics,
   });
 
   /// The local calendar day.
@@ -52,6 +54,9 @@ final class TodayView {
   /// False before any task exists: Today then points to adding a source.
   final bool hasTasks;
   final Exam? exam;
+
+  /// The exam belt, readiness and projection, with an exam.
+  final ExamMetrics? metrics;
 
   int get totalMinutes => cards.fold(0, (sum, c) => sum + c.item.minutes);
 
@@ -110,6 +115,9 @@ Future<TodayView> todayView(Ref ref) async {
   final items = await ref.watch(todayItemsProvider.future);
   final streak = await ref.watch(streakProvider.future);
   final exam = await ref.watch(currentExamProvider.future);
+  final examView = exam == null
+      ? null
+      : await ref.watch(examViewProvider(null).future);
   final tasks = await ref.watch(tasksProvider.future);
   final engine = await ref.read(reviewRepositoryProvider).loadEngine();
   final now = clock.now();
@@ -117,6 +125,7 @@ Future<TodayView> todayView(Ref ref) async {
     today: now.toLocal(),
     streak: streak,
     exam: exam,
+    metrics: examView?.metrics,
     hasTasks: tasks.isNotEmpty,
     cards: [
       for (final i in items)

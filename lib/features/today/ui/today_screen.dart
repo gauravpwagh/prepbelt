@@ -275,6 +275,11 @@ class _ExamCard extends StatelessWidget {
       locale,
     ).format(DateTime.parse(exam.date));
     final days = view.daysToGo!.clamp(0, 99999);
+    final m = view.metrics;
+    final levels = context.levels;
+    String beltName(int level) => level == 0
+        ? l10n.beltNotStarted
+        : l10n.beltName(levels.levelName(l10n, level));
     return Material(
       color: c.hero,
       borderRadius: BorderRadius.circular(AppRadii.hero),
@@ -286,18 +291,90 @@ class _ExamCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                l10n.todayExamLine(exam.name, date),
-                style: AppText.caption.copyWith(
-                  color: c.heroSubtle,
-                  fontWeight: FontWeight.w600,
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.todayExamLine(exam.name, date),
+                          style: AppText.caption.copyWith(
+                            color: c.heroSubtle,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpace.xxs),
+                        Text(
+                          l10n.todayDaysToGo(days),
+                          style: AppText.heroTitle.copyWith(color: c.heroText),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (m != null) ...[
+                    const SizedBox(width: AppSpace.md),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        levels.badge(
+                          context,
+                          LevelBadgeData(
+                            level: m.tier,
+                            stripes: 2,
+                            size: BadgeSize.medium,
+                            showCaption: false,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpace.xs),
+                        Text(
+                          beltName(m.tier),
+                          style: AppText.caption.copyWith(
+                            color: c.heroText,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+              if (m != null) ...[
+                const SizedBox(height: AppSpace.lg),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(AppRadii.pill),
+                  child: LinearProgressIndicator(
+                    value: m.readiness,
+                    minHeight: 8,
+                    color: c.readiness,
+                    backgroundColor: c.heroTrack,
+                    semanticsLabel: l10n.todayReady(
+                      (m.readiness * 100).round(),
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppSpace.xxs),
-              Text(
-                l10n.todayDaysToGo(days),
-                style: AppText.heroTitle.copyWith(color: c.heroText),
-              ),
+                const SizedBox(height: AppSpace.sm),
+                SizedBox(
+                  width: double.infinity,
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    spacing: AppSpace.md,
+                    children: [
+                      Text(
+                        l10n.todayReady((m.readiness * 100).round()),
+                        style: AppText.caption.copyWith(color: c.heroMuted),
+                      ),
+                      if (m.projectedTier > 0)
+                        Text(
+                          l10n.todayOnTrack(
+                            levels.levelName(l10n, m.projectedTier),
+                          ),
+                          style: AppText.caption.copyWith(color: c.heroMuted),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         ),

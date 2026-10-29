@@ -302,6 +302,12 @@ final class StreamGroupLite<T> {
   Stream<T> get stream => _controller.stream;
 }
 
+/// Study minutes per weekday, Monday first.
+@riverpod
+Stream<List<int>> weekMinutes(Ref ref) => ref
+    .watch(examViewRepositoryProvider)
+    .watchWeek(Defaults.defaultDailyMinutes);
+
 /// Adds an exam with its task links and daily minutes (D38).
 @Riverpod(keepAlive: true)
 class ExamActions extends _$ExamActions {
@@ -355,6 +361,11 @@ class ExamActions extends _$ExamActions {
 
   Future<void> drop(String examId, List<String> taskIds) async {
     await ref.read(examRepositoryProvider).dropTasks(examId, taskIds);
+    await ref.read(plannerProvider.notifier).replanNow();
+  }
+
+  Future<void> setWeek(String examId, List<int> minutes) async {
+    await ref.read(examRepositoryProvider).setWeek(examId, minutes);
     await ref.read(plannerProvider.notifier).replanNow();
   }
 

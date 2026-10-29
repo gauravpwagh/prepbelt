@@ -19,6 +19,8 @@ Future<void> showActionSheet(
   required List<SheetAction> actions,
 }) => showModalBottomSheet<void>(
   context: context,
+  // Over the whole screen, nav bar included.
+  useRootNavigator: true,
   backgroundColor: context.colors.surface,
   showDragHandle: true,
   shape: const RoundedRectangleBorder(

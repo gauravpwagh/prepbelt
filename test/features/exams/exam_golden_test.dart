@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:prepbelt/core/db/app_database.dart';
 import 'package:prepbelt/engines/exam/exam_metrics.dart';
 import 'package:prepbelt/features/exams/state/exam_view_providers.dart';
@@ -96,6 +97,8 @@ Widget exam(AsyncValue<ExamView?> v, {bool back = true}) => Scaffold(
     onAdd: () {},
     onOpenTask: (_) {},
     onRetry: () {},
+    week: const [105, 105, 105, 105, 105, 105, 240],
+    onSaveWeek: (_, _) {},
   ),
 );
 
@@ -136,6 +139,7 @@ const _needs = TriageView(
 );
 
 void main() {
+  setUpAll(() => initializeDateFormatting('en'));
   goldenBoth('exam_390', () => exam(AsyncData(_view())), height: 844);
   goldenBoth(
     'exam_triage_cuts',
