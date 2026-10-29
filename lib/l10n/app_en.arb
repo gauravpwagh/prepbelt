@@ -358,6 +358,7 @@
   },
   "addSourceUseBookmarks": "Use these",
   "addSourceNoBookmarks": "This PDF has no bookmarks we can read.",
+  "addSourceFileFailed": "Couldn't open this file. Choose the PDF again.",
   "addSourceDuplicate": "Already added as {title}",
   "@addSourceDuplicate": {
     "placeholders": {

@@ -48,7 +48,7 @@ final class AddSourceControllerProvider
 }
 
 String _$addSourceControllerHash() =>
-    r'b71876246f30276d8bae185d3def4b81a75ee02a';
+    r'31ad9e8ba97289adfa4fa7bd0e4ce305706939b4';
 
 /// Builds a new source: type, details and chapter split, then saves it
 /// with its file and chunks as one undoable operation.

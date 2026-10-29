@@ -13,6 +13,7 @@ import '../features/sources/ui/sources_screen.dart';
 import '../features/survey/ui/survey_screen.dart';
 import '../features/today/ui/today_screen.dart';
 import '../l10n/gen/app_localizations.dart';
+import '../platform/share_in/share_in.dart';
 import 'routes.dart';
 
 export 'routes.dart';
@@ -81,7 +82,11 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
           ),
         ],
       ),
-      GoRoute(path: '/sources/new', builder: (_, _) => const AddSourceScreen()),
+      GoRoute(
+        path: '/sources/new',
+        builder: (_, state) =>
+            AddSourceScreen(shared: state.extra as SharedItem?),
+      ),
       GoRoute(
         path: '/sources/:id',
         builder: (_, state) =>

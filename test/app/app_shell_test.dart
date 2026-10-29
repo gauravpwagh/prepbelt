@@ -9,8 +9,10 @@ import 'package:prepbelt/core/providers/core_providers.dart';
 import 'package:prepbelt/core/time/clock.dart';
 import 'package:prepbelt/features/settings/data/settings_repository.dart';
 import 'package:prepbelt/features/settings/ui/settings_screen.dart';
+import 'package:prepbelt/features/sources/state/source_providers.dart';
 import 'package:prepbelt/features/tasks/data/task_repository.dart';
 import 'package:prepbelt/features/tasks/state/task_providers.dart';
+import 'package:prepbelt/platform/share_in/share_in.dart';
 
 import '../support/pump.dart';
 import '../support/test_db.dart';
@@ -30,6 +32,7 @@ void main() {
           clockProvider.overrideWithValue(clock),
           appDatabaseProvider.overrideWithValue(db),
           writeContextProvider.overrideWithValue(ctx!),
+          shareInboxProvider.overrideWithValue(const NoShareInbox()),
         ],
         child: const PrepBeltApp(),
       ),

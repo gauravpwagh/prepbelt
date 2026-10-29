@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,14 +11,18 @@ import '../../../core/ui/buttons.dart';
 import '../../../core/ui/chips.dart';
 import '../../../core/ui/fields.dart';
 import '../../../l10n/gen/app_localizations.dart';
+import '../../../platform/share_in/share_in.dart';
 import '../../../theme/tokens/app_tokens.dart';
 import '../state/add_source_controller.dart';
 import 'source_labels.dart';
 
 /// Add source (design/notes/add-source.md): type, details, then a chapter
-/// split, saved as one undoable operation.
+/// split, saved as one undoable operation. Opens pre-filled with
+/// [shared] when a PDF or link was shared into the app.
 class AddSourceScreen extends ConsumerStatefulWidget {
-  const AddSourceScreen({super.key});
+  const AddSourceScreen({this.shared, super.key});
+
+  final SharedItem? shared;
 
   @override
   ConsumerState<AddSourceScreen> createState() => _AddSourceScreenState();
@@ -30,6 +36,17 @@ class _AddSourceScreenState extends ConsumerState<AddSourceScreen> {
 
   AddSourceController get _ctl =>
       ref.read(addSourceControllerProvider.notifier);
+
+  @override
+  void initState() {
+    super.initState();
+    final shared = widget.shared;
+    if (shared != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_ctl.useShared(shared));
+      });
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -61,6 +78,7 @@ class _AddSourceScreenState extends ConsumerState<AddSourceScreen> {
     // Keep fields in step with values the controller fills in (a PDF's
     // name and page count).
     _sync(_title, state.title);
+    _sync(_link, state.link);
     if (state.type == SourceType.pdf) {
       _sync(_units, state.totalUnits?.toString() ?? _units.text);
     }
@@ -159,6 +177,10 @@ class AddSourceBody extends StatelessWidget {
                     title: l10n.addSourceDetails,
                     children: _details(context),
                   ),
+                  if (state.fileFailed) ...[
+                    const SizedBox(height: AppSpace.lg),
+                    WarningCard(message: l10n.addSourceFileFailed),
+                  ],
                   if (state.duplicateTitle != null) ...[
                     const SizedBox(height: AppSpace.lg),
                     WarningCard(

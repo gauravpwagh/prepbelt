@@ -124,6 +124,7 @@ test/  integration_test/
 - Android: intent filters for `application/pdf` and `text/plain` (links).
 - iOS: a Share Extension target as receive_sharing_intent describes, passing files through an App Group.
 - Read the initial shared item on cold start and listen to the stream while running; route to Add source pre-filled and copy the file into app storage.
+- The package is vendored with Android fixes (D32, `third_party/receive_sharing_intent/PATCHES.md`). `lib/platform/share_in/` turns a share into a PDF, a link or nothing usable; `lib/app/share_receiver.dart` opens Add source.
 
 **PDF outline**
 

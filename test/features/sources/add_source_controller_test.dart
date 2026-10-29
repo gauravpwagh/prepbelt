@@ -10,6 +10,7 @@ import 'package:prepbelt/features/sources/state/source_providers.dart';
 import 'package:prepbelt/platform/files/file_picking.dart';
 import 'package:prepbelt/platform/files/file_store.dart';
 import 'package:prepbelt/platform/pdf_outline/pdf_outline.dart';
+import 'package:prepbelt/platform/share_in/share_in.dart';
 
 import '../../support/test_db.dart';
 
@@ -179,4 +180,48 @@ void main() {
     expect((source.type, source.totalUnits), (SourceType.book, 80));
     expect(await db.select(db.sourceFiles).get(), isEmpty);
   });
+  test('a shared PDF or link fills the form and preselects its type', () async {
+    final (:c, db: _) = open(info: outline);
+    final ctl = c.read(addSourceControllerProvider.notifier);
+    await ctl.useShared(
+      SharedPdf(PickedFile(path: pdf.path, name: 'NCERT.pdf', bytes: 13)),
+    );
+    var s = c.read(addSourceControllerProvider);
+    expect(
+      (s.type, s.title, s.mode, s.canSave),
+      (SourceType.pdf, 'NCERT', SplitMode.bookmarks, true),
+    );
+
+    final (c: c2, db: _) = open();
+    await c2
+        .read(addSourceControllerProvider.notifier)
+        .useShared(const SharedLink('https://youtu.be/x9', title: 'One shot'));
+    s = c2.read(addSourceControllerProvider);
+    expect(
+      (s.type, s.link, s.title, s.canSave),
+      (SourceType.link, 'https://youtu.be/x9', 'One shot', true),
+    );
+  });
+  test(
+    'a file that cannot be read shows an error, not endless reading',
+    () async {
+      final (:c, db: _) = open(info: outline);
+      await c
+          .read(addSourceControllerProvider.notifier)
+          .useShared(
+            SharedPdf(
+              PickedFile(
+                path: '${tmp.path}/gone.pdf',
+                name: 'gone.pdf',
+                bytes: 1,
+              ),
+            ),
+          );
+      final s = c.read(addSourceControllerProvider);
+      expect(
+        (s.fileFailed, s.readingPdf, s.pdf, s.canSave),
+        (true, false, null, false),
+      );
+    },
+  );
 }

@@ -28,6 +28,9 @@ dependencies:
   riverpod_annotation: 4.0.2
   url_launcher: 6.3.2
   uuid: 4.6.0
+  # Patched copy: third_party/receive_sharing_intent/PATCHES.md
+  receive_sharing_intent:
+    path: third_party/receive_sharing_intent
 
 dev_dependencies:
   flutter_test:

@@ -481,6 +481,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addSourceNoBookmarks => 'This PDF has no bookmarks we can read.';
 
   @override
+  String get addSourceFileFailed =>
+      'Couldn\'t open this file. Choose the PDF again.';
+
+  @override
   String addSourceDuplicate(String title) {
     return 'Already added as $title';
   }

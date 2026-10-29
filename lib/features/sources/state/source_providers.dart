@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart' show Value;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -7,6 +8,7 @@ import '../../../core/providers/core_providers.dart';
 import '../../../platform/files/file_picking.dart';
 import '../../../platform/files/file_store.dart';
 import '../../../platform/pdf_outline/pdf_outline.dart';
+import '../../../platform/share_in/share_in.dart';
 import '../data/source_repository.dart';
 
 export '../data/source_repository.dart' show SourceSummary;
@@ -42,6 +44,11 @@ PdfPicker pdfPicker(Ref ref) => const SystemPdfPicker();
 
 @Riverpod(keepAlive: true)
 PdfOutlineReader pdfOutlineReader(Ref ref) => const PdfOutlineReader();
+
+/// PDFs and links shared from other apps. Tests override it.
+@Riverpod(keepAlive: true)
+ShareInbox shareInbox(Ref ref) =>
+    kIsWeb ? const NoShareInbox() : const SystemShareInbox();
 
 /// Rename, remove and undo from the Sources list.
 @riverpod

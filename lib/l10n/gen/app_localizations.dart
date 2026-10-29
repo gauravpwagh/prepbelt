@@ -784,6 +784,12 @@ abstract class AppLocalizations {
   /// **'This PDF has no bookmarks we can read.'**
   String get addSourceNoBookmarks;
 
+  /// No description provided for @addSourceFileFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open this file. Choose the PDF again.'**
+  String get addSourceFileFailed;
+
   /// No description provided for @addSourceDuplicate.
   ///
   /// In en, this message translates to:

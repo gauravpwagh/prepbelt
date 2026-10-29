@@ -338,6 +338,52 @@ final class PdfOutlineReaderProvider
 
 String _$pdfOutlineReaderHash() => r'ee6eb56ffa0cc28f6408642f8fa81a44da4775f6';
 
+/// PDFs and links shared from other apps. Tests override it.
+
+@ProviderFor(shareInbox)
+final shareInboxProvider = ShareInboxProvider._();
+
+/// PDFs and links shared from other apps. Tests override it.
+
+final class ShareInboxProvider
+    extends $FunctionalProvider<ShareInbox, ShareInbox, ShareInbox>
+    with $Provider<ShareInbox> {
+  /// PDFs and links shared from other apps. Tests override it.
+  ShareInboxProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'shareInboxProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$shareInboxHash();
+
+  @$internal
+  @override
+  $ProviderElement<ShareInbox> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ShareInbox create(Ref ref) {
+    return shareInbox(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ShareInbox value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ShareInbox>(value),
+    );
+  }
+}
+
+String _$shareInboxHash() => r'712fd639543e05289cb9a973c1d7624798dde941';
+
 /// Rename, remove and undo from the Sources list.
 
 @ProviderFor(SourceActions)

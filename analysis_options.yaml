@@ -15,6 +15,8 @@ analyzer:
     - "**/*.drift.dart"
     - "lib/l10n/gen/**"
     - "test/drift/generated/**"
+    # Vendored packages keep their upstream style.
+    - "third_party/**"
 
 linter:
   rules:

@@ -10,7 +10,9 @@ import 'package:prepbelt/core/providers/core_providers.dart';
 import 'package:prepbelt/features/sources/data/chapter_split.dart';
 import 'package:prepbelt/features/sources/data/source_repository.dart';
 import 'package:prepbelt/features/sources/state/reading_providers.dart';
+import 'package:prepbelt/features/sources/state/source_providers.dart';
 import 'package:prepbelt/platform/open_external/source_opener.dart';
+import 'package:prepbelt/platform/share_in/share_in.dart';
 
 import '../../support/test_db.dart';
 
@@ -66,6 +68,7 @@ void main() {
           appDatabaseProvider.overrideWithValue(t.db),
           writeContextProvider.overrideWithValue(t.ctx),
           sourceOpenerProvider.overrideWithValue(opener),
+          shareInboxProvider.overrideWithValue(const NoShareInbox()),
           routerProvider.overrideWithValue(
             buildRouter(initialLocation: Routes.sourceChapters(book!.id)),
           ),

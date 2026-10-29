@@ -6,8 +6,10 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/config/defaults.dart';
 import '../../../core/db/enums.dart';
 import '../../../engines/planner/estimate.dart';
+import '../../../platform/files/file_picking.dart';
 import '../../../platform/files/file_store.dart';
 import '../../../platform/pdf_outline/pdf_outline.dart';
+import '../../../platform/share_in/share_in.dart';
 import '../data/chapter_split.dart';
 import 'source_providers.dart';
 
@@ -68,6 +70,7 @@ final class AddSourceState {
     this.duplicateTitle,
     this.bookmarksFound = false,
     this.pdfUnreadable = false,
+    this.fileFailed = false,
     this.mode = SplitMode.one,
     this.pasteText = '',
     this.splitSize = Defaults.splitSizePages,
@@ -94,6 +97,9 @@ final class AddSourceState {
 
   /// The PDF could not be opened, or has no bookmarks we can read.
   final bool pdfUnreadable;
+
+  /// The chosen or shared file could not be read at all.
+  final bool fileFailed;
 
   final SplitMode mode;
   final String pasteText;
@@ -147,6 +153,7 @@ class AddSourceController extends _$AddSourceController {
   String? _duplicateId;
   String? _duplicateTitle;
   bool _unreadable = false;
+  bool _fileFailed = false;
   List<ChunkDraft> _bookmarks = const [];
   SplitMode _mode = SplitMode.one;
   String _paste = '';
@@ -230,6 +237,26 @@ class AddSourceController extends _$AddSourceController {
   Future<void> pickPdf() async {
     final picked = await ref.read(pdfPickerProvider).pickPdf();
     if (picked == null) return;
+    await _usePdf(picked);
+  }
+
+  /// Fills the form from something shared into the app: a PDF or a link
+  /// preselects its type (design/notes/add-source.md).
+  Future<void> useShared(SharedItem item) async {
+    switch (item) {
+      case SharedPdf(:final file):
+        setType(SourceType.pdf);
+        await _usePdf(file);
+      case SharedLink(:final url, :final title):
+        setType(SourceType.link);
+        _link = url;
+        if (title != null && _title.trim().isEmpty) _title = title;
+        _emit();
+      case SharedOther():
+    }
+  }
+
+  Future<void> _usePdf(PickedFile picked) async {
     _clearPdf();
     _pdf = PdfSummary(name: picked.name, bytes: picked.bytes);
     _pdfPath = picked.path;
@@ -237,7 +264,16 @@ class AddSourceController extends _$AddSourceController {
     _emit();
 
     final store = await ref.read(fileStoreProvider.future);
-    final sha = await store.hash(File(picked.path));
+    final String sha;
+    try {
+      sha = await store.hash(File(picked.path));
+    } on FileSystemException {
+      _clearPdf();
+      _reading = false;
+      _fileFailed = true;
+      _emit();
+      return;
+    }
     final duplicate = await ref
         .read(sourceRepositoryProvider)
         .findByFileHash(sha);
@@ -311,6 +347,7 @@ class AddSourceController extends _$AddSourceController {
   }
 
   void _clearPdf() {
+    _fileFailed = false;
     _pdf = null;
     _pdfPath = null;
     _sha = null;
@@ -393,6 +430,7 @@ class AddSourceController extends _$AddSourceController {
       duplicateTitle: _duplicateTitle,
       bookmarksFound: _bookmarks.isNotEmpty,
       pdfUnreadable: _unreadable,
+      fileFailed: _fileFailed,
       mode: _mode,
       pasteText: _paste,
       splitSize: _size,
