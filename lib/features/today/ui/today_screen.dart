@@ -76,6 +76,7 @@ class TodayScreen extends ConsumerWidget {
         onOpenExam: (id) => context.push(Routes.exam(id)),
         onAddSource: () => context.push(Routes.newSource),
         onRetry: () => ref.invalidate(todayViewProvider),
+        onSettings: () => context.push(Routes.settings),
       ),
     ),
   );
@@ -92,10 +93,12 @@ class TodayBody extends StatelessWidget {
     required this.onOpenExam,
     required this.onAddSource,
     required this.onRetry,
+    this.onSettings,
     super.key,
   });
 
   final AsyncValue<TodayView> view;
+  final VoidCallback? onSettings;
   final ValueChanged<String> onStart;
 
   /// Starts a reading sitting on a source (a "continue reading" item).
@@ -112,7 +115,7 @@ class TodayBody extends StatelessWidget {
     final c = context.colors;
     final v = view.value;
     final children = <Widget>[
-      _Header(view: v),
+      _Header(view: v, onSettings: onSettings),
       const SizedBox(height: AppSpace.xl),
     ];
     switch (view) {
@@ -187,9 +190,10 @@ class TodayBody extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.view});
+  const _Header({required this.view, this.onSettings});
 
   final TodayView? view;
+  final VoidCallback? onSettings;
 
   @override
   Widget build(BuildContext context) {
@@ -247,6 +251,14 @@ class _Header extends StatelessWidget {
                   ),
                 ),
               ),
+            if (onSettings != null) ...[
+              const SizedBox(width: AppSpace.sm),
+              RoundIconButton(
+                icon: AppIcon.settings,
+                semanticLabel: l10n.settingsOpen,
+                onPressed: onSettings,
+              ),
+            ],
           ],
         ),
         const SizedBox(height: AppSpace.xxs),

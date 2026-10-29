@@ -1518,5 +1518,53 @@
       }
     }
   },
-  "onboardFailed": "Couldn't save. Try again."
+  "onboardFailed": "Couldn't save. Try again.",
+  "settingsStudy": "STUDY",
+  "settingsReminder": "REMINDER",
+  "settingsLook": "LOOK",
+  "settingsData": "YOUR DATA",
+  "settingsAbout": "ABOUT",
+  "settingsDebug": "DEBUG",
+  "settingsReminderOn": "Daily reminder",
+  "settingsReminderOnHint": "One a day, only if you haven't studied yet",
+  "settingsReminderTime": "Time",
+  "settingsTheme": "Belt theme",
+  "settingsThemeDojo": "Dojo",
+  "settingsThemeHint": "Gems arrives in a later version.",
+  "settingsExport": "Export a backup",
+  "settingsExportHint": "One file with everything, sources included",
+  "settingsRestore": "Restore from a backup",
+  "settingsRestoreHint": "Replaces what is on this phone",
+  "settingsDiagnostics": "Export diagnostics",
+  "settingsDiagnosticsHint": "For testers: app version, recent changes, plan summary. No file contents",
+  "settingsAboutText": "PrepBelt {version} · Works offline. Nothing leaves your phone unless you export it.",
+  "@settingsAboutText": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsOpen": "Settings",
+  "backupSaved": "Backup saved",
+  "backupFailed": "Couldn't save the backup.",
+  "backupNotABackup": "This isn't a PrepBelt backup.",
+  "backupTooNew": "This backup is from a newer PrepBelt. Update the app first.",
+  "restoreConfirmTitle": "Replace everything?",
+  "restoreConfirmBody": "Replace everything on this phone with the backup from {date}? This can't be undone.",
+  "@restoreConfirmBody": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "restoreConfirm": "Replace",
+  "restoreReadyTitle": "Backup ready",
+  "restoreReadyAndroid": "Restart PrepBelt to finish restoring.",
+  "restoreReadyIos": "Close PrepBelt and open it again to finish restoring.",
+  "restoreRestart": "Restart now",
+  "restoreLater": "Later",
+  "diagnosticsSaved": "Diagnostics saved",
+  "onboardRestore": "Restore a backup"
 }

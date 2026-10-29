@@ -10,6 +10,7 @@ import '../../../core/ui/fields.dart';
 import '../../../core/ui/value_stepper.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../theme/tokens/app_tokens.dart';
+import '../../settings/ui/settings_screen.dart';
 import '../../sources/ui/source_labels.dart';
 import '../state/onboarding_providers.dart';
 
@@ -71,6 +72,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         }),
         onAddExam: () => context.go(Routes.newExam),
         onSkip: () => context.go(Routes.today),
+        onRestore: () => restoreBackup(context, ref),
       ),
     ),
   );
@@ -87,6 +89,7 @@ class OnboardingBody extends StatelessWidget {
     required this.onReminder,
     required this.onAddExam,
     required this.onSkip,
+    this.onRestore,
     this.busy = false,
     this.failed = false,
     super.key,
@@ -103,6 +106,9 @@ class OnboardingBody extends StatelessWidget {
   final ValueChanged<bool> onReminder;
   final VoidCallback onAddExam;
   final VoidCallback onSkip;
+
+  /// "Restore a backup" on the first step.
+  final VoidCallback? onRestore;
 
   static const _step = 15;
   static const _max = 8 * 60;
@@ -191,6 +197,13 @@ class OnboardingBody extends StatelessWidget {
             label: l10n.onboardContinue,
             onPressed: busy ? null : onContinue,
           ),
+          if (onRestore != null)
+            Align(
+              child: TextLinkButton(
+                label: l10n.onboardRestore,
+                onPressed: busy ? null : onRestore,
+              ),
+            ),
         ];
       case 1:
         content = [

@@ -168,13 +168,24 @@ void main() {
   });
 
   testWidgets('settings shows the debug rebuild action', (tester) async {
+    tester.view
+      ..physicalSize = const Size(390, 1400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     final ctx = await tester.runAsync(() => createWriteContext(db, clock));
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [writeContextProvider.overrideWithValue(ctx!)],
+        overrides: [
+          clockProvider.overrideWithValue(clock),
+          appDatabaseProvider.overrideWithValue(db),
+          writeContextProvider.overrideWithValue(ctx!),
+        ],
         child: themed(const SettingsScreen(showDebugActions: true)),
       ),
     );
+    await settle(tester);
     expect(find.text('Rebuild mastery from reviews'), findsOneWidget);
+    expect(find.text('Export a backup'), findsOneWidget);
+    await unmount(tester);
   });
 }

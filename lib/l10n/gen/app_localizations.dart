@@ -2582,6 +2582,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t save. Try again.'**
   String get onboardFailed;
+
+  /// No description provided for @settingsStudy.
+  ///
+  /// In en, this message translates to:
+  /// **'STUDY'**
+  String get settingsStudy;
+
+  /// No description provided for @settingsReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'REMINDER'**
+  String get settingsReminder;
+
+  /// No description provided for @settingsLook.
+  ///
+  /// In en, this message translates to:
+  /// **'LOOK'**
+  String get settingsLook;
+
+  /// No description provided for @settingsData.
+  ///
+  /// In en, this message translates to:
+  /// **'YOUR DATA'**
+  String get settingsData;
+
+  /// No description provided for @settingsAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'ABOUT'**
+  String get settingsAbout;
+
+  /// No description provided for @settingsDebug.
+  ///
+  /// In en, this message translates to:
+  /// **'DEBUG'**
+  String get settingsDebug;
+
+  /// No description provided for @settingsReminderOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminder'**
+  String get settingsReminderOn;
+
+  /// No description provided for @settingsReminderOnHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One a day, only if you haven\'t studied yet'**
+  String get settingsReminderOnHint;
+
+  /// No description provided for @settingsReminderTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get settingsReminderTime;
+
+  /// No description provided for @settingsTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Belt theme'**
+  String get settingsTheme;
+
+  /// No description provided for @settingsThemeDojo.
+  ///
+  /// In en, this message translates to:
+  /// **'Dojo'**
+  String get settingsThemeDojo;
+
+  /// No description provided for @settingsThemeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Gems arrives in a later version.'**
+  String get settingsThemeHint;
+
+  /// No description provided for @settingsExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export a backup'**
+  String get settingsExport;
+
+  /// No description provided for @settingsExportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One file with everything, sources included'**
+  String get settingsExportHint;
+
+  /// No description provided for @settingsRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from a backup'**
+  String get settingsRestore;
+
+  /// No description provided for @settingsRestoreHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Replaces what is on this phone'**
+  String get settingsRestoreHint;
+
+  /// No description provided for @settingsDiagnostics.
+  ///
+  /// In en, this message translates to:
+  /// **'Export diagnostics'**
+  String get settingsDiagnostics;
+
+  /// No description provided for @settingsDiagnosticsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For testers: app version, recent changes, plan summary. No file contents'**
+  String get settingsDiagnosticsHint;
+
+  /// No description provided for @settingsAboutText.
+  ///
+  /// In en, this message translates to:
+  /// **'PrepBelt {version} · Works offline. Nothing leaves your phone unless you export it.'**
+  String settingsAboutText(String version);
+
+  /// No description provided for @settingsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsOpen;
+
+  /// No description provided for @backupSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup saved'**
+  String get backupSaved;
+
+  /// No description provided for @backupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save the backup.'**
+  String get backupFailed;
+
+  /// No description provided for @backupNotABackup.
+  ///
+  /// In en, this message translates to:
+  /// **'This isn\'t a PrepBelt backup.'**
+  String get backupNotABackup;
+
+  /// No description provided for @backupTooNew.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup is from a newer PrepBelt. Update the app first.'**
+  String get backupTooNew;
+
+  /// No description provided for @restoreConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace everything?'**
+  String get restoreConfirmTitle;
+
+  /// No description provided for @restoreConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace everything on this phone with the backup from {date}? This can\'t be undone.'**
+  String restoreConfirmBody(String date);
+
+  /// No description provided for @restoreConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get restoreConfirm;
+
+  /// No description provided for @restoreReadyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup ready'**
+  String get restoreReadyTitle;
+
+  /// No description provided for @restoreReadyAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart PrepBelt to finish restoring.'**
+  String get restoreReadyAndroid;
+
+  /// No description provided for @restoreReadyIos.
+  ///
+  /// In en, this message translates to:
+  /// **'Close PrepBelt and open it again to finish restoring.'**
+  String get restoreReadyIos;
+
+  /// No description provided for @restoreRestart.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart now'**
+  String get restoreRestart;
+
+  /// No description provided for @restoreLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get restoreLater;
+
+  /// No description provided for @diagnosticsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostics saved'**
+  String get diagnosticsSaved;
+
+  /// No description provided for @onboardRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore a backup'**
+  String get onboardRestore;
 }
 
 class _AppLocalizationsDelegate

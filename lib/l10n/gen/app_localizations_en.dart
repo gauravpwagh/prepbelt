@@ -1791,4 +1791,114 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardFailed => 'Couldn\'t save. Try again.';
+
+  @override
+  String get settingsStudy => 'STUDY';
+
+  @override
+  String get settingsReminder => 'REMINDER';
+
+  @override
+  String get settingsLook => 'LOOK';
+
+  @override
+  String get settingsData => 'YOUR DATA';
+
+  @override
+  String get settingsAbout => 'ABOUT';
+
+  @override
+  String get settingsDebug => 'DEBUG';
+
+  @override
+  String get settingsReminderOn => 'Daily reminder';
+
+  @override
+  String get settingsReminderOnHint =>
+      'One a day, only if you haven\'t studied yet';
+
+  @override
+  String get settingsReminderTime => 'Time';
+
+  @override
+  String get settingsTheme => 'Belt theme';
+
+  @override
+  String get settingsThemeDojo => 'Dojo';
+
+  @override
+  String get settingsThemeHint => 'Gems arrives in a later version.';
+
+  @override
+  String get settingsExport => 'Export a backup';
+
+  @override
+  String get settingsExportHint => 'One file with everything, sources included';
+
+  @override
+  String get settingsRestore => 'Restore from a backup';
+
+  @override
+  String get settingsRestoreHint => 'Replaces what is on this phone';
+
+  @override
+  String get settingsDiagnostics => 'Export diagnostics';
+
+  @override
+  String get settingsDiagnosticsHint =>
+      'For testers: app version, recent changes, plan summary. No file contents';
+
+  @override
+  String settingsAboutText(String version) {
+    return 'PrepBelt $version · Works offline. Nothing leaves your phone unless you export it.';
+  }
+
+  @override
+  String get settingsOpen => 'Settings';
+
+  @override
+  String get backupSaved => 'Backup saved';
+
+  @override
+  String get backupFailed => 'Couldn\'t save the backup.';
+
+  @override
+  String get backupNotABackup => 'This isn\'t a PrepBelt backup.';
+
+  @override
+  String get backupTooNew =>
+      'This backup is from a newer PrepBelt. Update the app first.';
+
+  @override
+  String get restoreConfirmTitle => 'Replace everything?';
+
+  @override
+  String restoreConfirmBody(String date) {
+    return 'Replace everything on this phone with the backup from $date? This can\'t be undone.';
+  }
+
+  @override
+  String get restoreConfirm => 'Replace';
+
+  @override
+  String get restoreReadyTitle => 'Backup ready';
+
+  @override
+  String get restoreReadyAndroid => 'Restart PrepBelt to finish restoring.';
+
+  @override
+  String get restoreReadyIos =>
+      'Close PrepBelt and open it again to finish restoring.';
+
+  @override
+  String get restoreRestart => 'Restart now';
+
+  @override
+  String get restoreLater => 'Later';
+
+  @override
+  String get diagnosticsSaved => 'Diagnostics saved';
+
+  @override
+  String get onboardRestore => 'Restore a backup';
 }

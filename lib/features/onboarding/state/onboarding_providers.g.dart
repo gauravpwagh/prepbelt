@@ -46,7 +46,7 @@ final class OnboardingProvider extends $NotifierProvider<Onboarding, void> {
   }
 }
 
-String _$onboardingHash() => r'cfd162e841aa3f15a06749ae309b9a50c0529df8';
+String _$onboardingHash() => r'91945e75f7023040a16edd03c14e7b3b511b0b53';
 
 /// First launch (design/notes/first-launch.md). Kept alive: its steps run
 /// across screens.
