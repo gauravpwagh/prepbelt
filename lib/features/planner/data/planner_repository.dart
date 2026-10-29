@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:drift/drift.dart';
 
 import '../../../core/config/defaults.dart';
@@ -6,6 +8,7 @@ import '../../../core/db/event_log.dart';
 import '../../../engines/planner/estimate.dart';
 import '../../../engines/planner/planner.dart';
 import '../../../engines/planner/triage.dart';
+import '../../../engines/review/review_engine.dart';
 import '../../session/data/session_repository.dart';
 import '../../sources/data/reading_repository.dart';
 import '../../tasks/data/review_repository.dart';
@@ -87,30 +90,52 @@ final class PlannerRepository extends EventSourcedRepository {
             ))
             .get();
 
+    // Every part of every task, and every survey, in two queries.
+    final partRows =
+        await (db.select(db.taskChunks).join([
+                innerJoin(
+                  db.chunks,
+                  db.chunks.id.equalsExp(db.taskChunks.chunkId),
+                ),
+                innerJoin(
+                  db.sources,
+                  db.sources.id.equalsExp(db.chunks.sourceId),
+                ),
+              ])
+              ..where(
+                db.taskChunks.deletedAt.isNull() &
+                    db.sources.deletedAt.isNull(),
+              )
+              ..orderBy([OrderingTerm.asc(db.taskChunks.order)]))
+            .get();
+    final partsOf = <String, List<TaskPart>>{};
+    for (final r in partRows) {
+      final link = r.readTable(db.taskChunks);
+      (partsOf[link.taskId] ??= []).add((
+        chunk: r.readTable(db.chunks),
+        source: r.readTable(db.sources),
+        link: link,
+      ));
+    }
+    final surveys = {
+      for (final s in await db.select(db.chunkSurveys).get()) s.chunkId: s,
+    };
+
     final tasks = <PlanTask>[];
     final sourceIds = <String>{};
     for (final r in rows) {
       final state = r.readTable(db.taskStates);
-      final SessionTask info;
-      try {
-        info = await sessions.load(state.taskId);
-      } on Object {
-        continue;
-      }
       final link = links[state.taskId];
       if (link?.dropped ?? false) continue;
+      final parts = partsOf[state.taskId] ?? const <TaskPart>[];
       final importance = switch (link?.importance) {
         Importance.high => PlanImportance.high,
         Importance.low => PlanImportance.low,
         _ => PlanImportance.medium,
       };
-      final read = await sessions.firstReadEstimate(info);
-      final first = info.parts.isEmpty ? null : info.parts.first;
-      final survey = first == null
-          ? null
-          : await (db.select(db.chunkSurveys)
-                  ..where((s) => s.chunkId.equals(first.chunk.id)))
-                .getSingleOrNull();
+      final read = SessionRepository.estimateFirstRead(parts, surveys);
+      final first = parts.isEmpty ? null : parts.first;
+      final survey = first == null ? null : surveys[first.chunk.id];
       if (first != null) sourceIds.add(first.source.id);
       tasks.add(
         PlanTask(
@@ -119,7 +144,7 @@ final class PlannerRepository extends EventSourcedRepository {
           importance: importance,
           planned: engine.plannedReviewsFor(link?.targetLevel),
           firstReadMinutes: read < 1 ? 15 : read,
-          reviewMinutes: (step) => reviewMinutes(read, firstReview: step == 0),
+          reviewMinutes: _reviewMinutesOf(read),
           difficulty: survey?.difficulty ?? 2,
           subject: first?.source.id ?? '',
           sourceKey: first?.source.id ?? '',
@@ -165,9 +190,11 @@ final class PlannerRepository extends EventSourcedRepository {
   Future<TriageResult?> replan() async {
     final exam = await upcomingExam();
     final input = await this.input();
+    final engine = await reviews.loadEngine();
+    // Off the UI thread: a tight plan runs triage's search many times.
     final triaged = input == null
         ? null
-        : triage(input, await reviews.loadEngine());
+        : await _triageInBackground(input, engine);
     final result = triaged?.plan;
     final today = dateText(dayKey(ctx.clock.now().toLocal()));
     await mutate<void>(
@@ -233,7 +260,9 @@ final class PlannerRepository extends EventSourcedRepository {
   /// Triage as it would be with [taskId] kept in full (nothing written).
   Future<TriageResult?> previewKeep(String taskId) async {
     final input = await this.input(alsoKeep: {taskId});
-    return input == null ? null : triage(input, await reviews.loadEngine());
+    if (input == null) return null;
+    final engine = await reviews.loadEngine();
+    return _triageInBackground(input, engine);
   }
 
   /// Today's plan items in order, re-read whenever the plan changes.
@@ -297,3 +326,15 @@ final class PlannerRepository extends EventSourcedRepository {
     return (row.read(max) ?? 0) + 1;
   }
 }
+
+/// Triage in a background isolate. Top level, so the closure sent there
+/// holds only the input and the engine (never the open database).
+Future<TriageResult> _triageInBackground(
+  PlannerInput input,
+  ReviewEngine engine,
+) => Isolate.run(() => triage(input, engine));
+
+/// A task's review lengths from its first-read estimate; top level so the
+/// closure carries only [read] to the planner's isolate.
+int Function(int step) _reviewMinutesOf(double read) =>
+    (step) => reviewMinutes(read, firstReview: step == 0);

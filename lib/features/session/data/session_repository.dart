@@ -284,14 +284,29 @@ final class SessionRepository extends EventSourcedRepository {
 
   /// The first-read estimate of a task's chapters, from their surveys.
   Future<double> firstReadEstimate(SessionTask info) async {
+    final surveys = {
+      for (final s
+          in await (db.select(db.chunkSurveys)..where(
+                (s) => s.chunkId.isIn([for (final p in info.parts) p.chunk.id]),
+              ))
+              .get())
+        s.chunkId: s,
+    };
+    return estimateFirstRead(info.parts, surveys);
+  }
+
+  /// The first-read estimate of [parts] from their chapters' surveys
+  /// (unsurveyed chapters count as Medium and New).
+  static double estimateFirstRead(
+    Iterable<TaskPart> parts,
+    Map<String, ChunkSurvey> surveys,
+  ) {
     var total = 0.0;
-    for (final p in info.parts) {
+    for (final p in parts) {
       final start = p.link.startUnit ?? p.chunk.startUnit;
       final end = p.link.endUnit ?? p.chunk.endUnit;
       if (start == null || end == null) continue;
-      final survey = await (db.select(
-        db.chunkSurveys,
-      )..where((s) => s.chunkId.equals(p.chunk.id))).getSingleOrNull();
+      final survey = surveys[p.chunk.id];
       total += firstReadMinutes(
         units: end - start + 1,
         unit: EffortUnit.values.byName(p.source.unitType.name),

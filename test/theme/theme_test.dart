@@ -38,6 +38,17 @@ void main() {
         expect(contrast(c.heroText, c.hero), greaterThanOrEqualTo(4.5));
         expect(contrast(c.heroMuted, c.hero), greaterThanOrEqualTo(4.5));
         expect(contrast(c.warningText, c.warningBg), greaterThanOrEqualTo(4.5));
+        // The split part cards (mockup 5).
+        for (final (text, fill) in [
+          (c.partAText, c.partABg),
+          (c.partBText, c.partBBg),
+          (c.ink, c.partABg),
+          (c.ink, c.partBBg),
+          (c.muted, c.partABg),
+          (c.muted, c.partBBg),
+        ]) {
+          expect(contrast(text, fill), greaterThanOrEqualTo(4.5));
+        }
       });
     }
 

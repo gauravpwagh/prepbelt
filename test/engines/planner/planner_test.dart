@@ -223,6 +223,32 @@ void main() {
       }
     });
 
+    test('when it fits, every planned task gets a final review before '
+        'the exam (docs/03, "Done means")', () {
+      final roomy = PlannerInput(
+        today: _today,
+        examDay: _exam,
+        weekdayMinutes: const [180, 180, 180, 180, 180, 180, 300],
+        tasks: input.tasks,
+      );
+      final r = plan(roomy, _engine);
+      expect(r.fits, isTrue);
+      final planned = {
+        for (final e in r.entries)
+          if (e.taskId != null) e.taskId!,
+      };
+      final finals = {
+        for (final e in r.entries)
+          if (e.kind == PlanKind.finalReview) e.taskId!,
+      };
+      expect(planned.difference(finals), isEmpty);
+      for (final e in r.entries) {
+        if (e.kind == PlanKind.finalReview) {
+          expect(e.day.isBefore(_exam), isTrue);
+        }
+      }
+    });
+
     test('the same input gives the same plan', () {
       final again = plan(input, _engine);
       expect(

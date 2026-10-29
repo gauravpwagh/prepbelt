@@ -82,8 +82,10 @@ Stream<List<TodayItem>> todayItems(Ref ref) async* {
   final end = DateTime(now.year, now.month, now.day + 1);
   final dayStart = start.toUtc().millisecondsSinceEpoch;
   final repo = ref.watch(todayRepositoryProvider);
-  final planned = await ref.watch(plannerProvider.future);
-  if (planned == null) {
+  // The stored plan shows at once; the planner keeps it current behind.
+  ref.watch(plannerProvider);
+  final exam = await ref.watch(currentExamProvider.future);
+  if (exam == null) {
     yield* repo.watch(
       dayStart: dayStart,
       dayEnd: end.toUtc().millisecondsSinceEpoch,

@@ -64,7 +64,8 @@ class PillChip extends StatelessWidget {
         selected: selected,
         onPressed: onPressed,
         radius: AppRadii.pill,
-        minHeight: 40,
+        // 44, not the mockup's 40: touch targets are at least 44 px.
+        minHeight: 44,
         padding: 14,
         background: selected ? c.ink : c.surface,
         foreground: selected ? c.surface : c.ink,

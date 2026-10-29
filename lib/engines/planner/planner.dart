@@ -316,8 +316,9 @@ PlanResult plan(PlannerInput input, ReviewEngine engine) {
   // before.
   DateTime onOrBefore(DateTime d) => d.isAfter(lastDay) ? lastDay : d;
 
-  bool finalStep(PlanTask t, ReviewState s) =>
-      s.step + 1 >= t.reviews && s.dim == 0;
+  // The review that completes the last step is the final one, a retry
+  // after a Forgot included.
+  bool finalStep(PlanTask t, ReviewState s) => s.step + 1 >= t.reviews;
 
   /// The final review's window as days: (earliest, latest).
   (DateTime, DateTime) window(PlanTask t) {

@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show BooleanExpressionOperators;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prepbelt/core/config/review_config.dart';
 import 'package:prepbelt/core/db/app_database.dart';
@@ -167,5 +168,26 @@ void main() {
       () => redefine.split(taskId, after: 228, titleA: 'A', titleB: 'B'),
       throwsA(isA<InvalidOperationError>()),
     );
+  });
+
+  test('every redefinition can be undone: scope and pause too', () async {
+    final range = (await sessions.load(taskId)).range;
+    await redefine.setScope(taskId, start: 212, end: 226);
+    expect((await redefine.undoable(taskId))?.action, 'scope');
+    await redefine.undo(taskId);
+    expect((await sessions.load(taskId)).range, range);
+
+    final added = await redefine.setScope(taskId, start: 205, end: 228);
+    await redefine.undo(taskId);
+    expect((await sessions.load(taskId)).range, range);
+    final live = await (db.select(
+      db.tasks,
+    )..where((t) => t.id.equals(added.single) & t.deletedAt.isNull())).get();
+    expect(live, isEmpty, reason: 'the added task is gone');
+
+    await reviews.pause(taskId);
+    expect((await redefine.undoable(taskId))?.action, 'pause');
+    await redefine.undo(taskId);
+    expect((await stateOf(taskId)).pausedAt, isNull);
   });
 }

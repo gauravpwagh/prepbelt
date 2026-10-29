@@ -106,6 +106,14 @@ final _noop = RedefineCallbacks(
   cancel: () {},
 );
 
+/// The sheet's content alone.
+Widget body(RedefineMode mode, {RedefineView? view}) => RedefineSheetBody(
+  view: view ?? _view(),
+  nowMs: _now.millisecondsSinceEpoch,
+  callbacks: _noop,
+  initialMode: mode,
+);
+
 Widget sheet(RedefineMode mode, {RedefineView? view}) => Scaffold(
   backgroundColor: const Color(0xFF5B6072),
   body: Align(

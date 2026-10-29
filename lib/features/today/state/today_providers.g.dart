@@ -96,7 +96,7 @@ final class TodayItemsProvider
   }
 }
 
-String _$todayItemsHash() => r'95f14f7e10be4b62ada02db10b6698c60a6fc81b';
+String _$todayItemsHash() => r'646f4686cdf19d20198365cc7bab39c8295ecf6f';
 
 @ProviderFor(streak)
 final streakProvider = StreakProvider._();

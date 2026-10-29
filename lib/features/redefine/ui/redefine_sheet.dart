@@ -676,6 +676,8 @@ class _SplitState extends State<_Split> {
               isDense: true,
               border: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(vertical: 6),
+              // A 44 px touch target, though the field looks like text.
+              constraints: BoxConstraints(minHeight: 44),
             ),
           ),
           Text(
