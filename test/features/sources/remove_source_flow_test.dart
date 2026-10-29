@@ -95,6 +95,23 @@ void main() {
     expect(find.text('HC Verma'), findsOneWidget);
     expect(await tasks(), 2);
 
+    // From the source's own screen: back to the list once removed.
+    await tester.tap(find.text('HC Verma'));
+    await settle();
+    await tester.tap(
+      find.byWidgetPredicate(
+        (w) => w is RoundIconButton && w.semanticLabel == 'Source options',
+      ),
+    );
+    await settle();
+    await tester.tap(find.text('Remove'));
+    await settle();
+    await tester.tap(find.widgetWithText(TextLinkButton, 'Remove'));
+    await settle();
+    expect(find.text('Sources'), findsWidgets);
+    expect(find.text('HC Verma'), findsNothing);
+    expect(await tasks(), 0);
+
     await tester.pumpWidget(const SizedBox());
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 60)),

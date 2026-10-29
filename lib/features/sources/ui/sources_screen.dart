@@ -4,9 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
-import '../../../core/result/result.dart';
 import '../../../core/ui/app_icons.dart';
-import '../../../core/ui/bottom_sheet.dart';
 import '../../../core/ui/buttons.dart';
 import '../../../core/ui/fields.dart';
 import '../../../l10n/gen/app_localizations.dart';
@@ -14,6 +12,7 @@ import '../../../theme/level_theme.dart';
 import '../../../theme/tokens/app_tokens.dart';
 import '../state/source_providers.dart';
 import 'source_labels.dart';
+import 'source_menu.dart';
 
 /// Sources list (design/notes/sources-list.md): every source with its
 /// survey progress. A tap opens its chapters; "Survey" opens the survey.
@@ -22,115 +21,16 @@ class SourcesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
     final summaries = ref.watch(sourceSummariesProvider);
-    final actions = ref.read(sourceActionsProvider.notifier);
-
-    Future<void> remove(SourceSummary s) async {
-      final messenger = ScaffoldMessenger.of(context);
-      final tasks = await actions.taskCount(s.source.id);
-      if (!context.mounted) return;
-      final c = context.colors;
-      final ok = await showDialog<bool>(
-        context: context,
-        builder: (dialog) => AlertDialog(
-          backgroundColor: c.surface,
-          title: Text(
-            l10n.sourceRemoveTitle(s.source.title),
-            style: AppText.section.copyWith(color: c.ink),
-          ),
-          content: Text(
-            l10n.sourceRemoveBody(tasks),
-            style: AppText.body.copyWith(color: c.ink),
-          ),
-          actions: [
-            TextLinkButton(
-              label: l10n.redefineCancel,
-              onPressed: () => Navigator.of(dialog).pop(false),
-            ),
-            TextLinkButton(
-              label: l10n.sourceRemove,
-              onPressed: () => Navigator.of(dialog).pop(true),
-            ),
-          ],
-        ),
-      );
-      if (!(ok ?? false)) return;
-      try {
-        await actions.remove(s.source.id);
-      } on InvalidOperationError {
-        messenger
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(l10n.sourceRemoveBusy)));
-        return;
-      }
-      messenger
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(l10n.sourceRemoved(s.source.title)),
-            action: SnackBarAction(
-              label: l10n.undo,
-              onPressed: () => actions.undo(s.source.id),
-            ),
-          ),
-        );
-    }
-
     return SourcesBody(
       summaries: summaries,
       onOpen: (s) => context.push(Routes.sourceChapters(s.source.id)),
       onSurvey: (s) => context.push(Routes.survey(s.source.id)),
       onAdd: () => context.push(Routes.newSource),
       onRetry: () => ref.invalidate(sourceSummariesProvider),
-      onMore: (s) => showActionSheet(
-        context,
-        title: s.source.title,
-        actions: [
-          SheetAction(l10n.sourceRename, () async {
-            final title = await _askTitle(context, s.source.title);
-            if (title != null) await actions.rename(s.source.id, title);
-          }),
-          SheetAction(l10n.sourceRemove, () => remove(s), destructive: true),
-        ],
-      ),
+      onMore: (s) =>
+          showSourceMenu(context, ref, id: s.source.id, title: s.source.title),
     );
-  }
-
-  static Future<String?> _askTitle(BuildContext context, String current) {
-    final controller = TextEditingController(text: current);
-    return showDialog<String>(
-      context: context,
-      builder: (dialog) {
-        final l10n = AppLocalizations.of(dialog);
-        final c = dialog.colors;
-        return AlertDialog(
-          backgroundColor: c.surface,
-          title: Text(
-            l10n.sourceRename,
-            style: AppText.section.copyWith(color: c.ink),
-          ),
-          content: LabeledField(
-            label: l10n.addSourceTitle,
-            controller: controller,
-            onChanged: (_) {},
-          ),
-          actions: [
-            TextLinkButton(
-              label: l10n.cancel,
-              onPressed: () => Navigator.of(dialog).pop(),
-            ),
-            TextLinkButton(
-              label: l10n.save,
-              onPressed: () {
-                final t = controller.text.trim();
-                Navigator.of(dialog).pop(t.isEmpty ? null : t);
-              },
-            ),
-          ],
-        );
-      },
-    ).whenComplete(controller.dispose);
   }
 }
 

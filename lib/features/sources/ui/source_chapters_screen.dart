@@ -14,6 +14,7 @@ import '../../../theme/tokens/app_tokens.dart';
 import '../state/reading_providers.dart';
 import 'add_task_sheet.dart';
 import 'source_labels.dart';
+import 'source_menu.dart';
 
 /// Source chapters (design/notes/source-chapters.md): read as you go,
 /// survey if you like, and turn chapters into tasks.
@@ -94,6 +95,13 @@ class SourceChaptersScreen extends ConsumerWidget {
         onRead: read,
         onFinish: () => context.push(Routes.reading),
         onSetFinished: setFinished,
+        onMore: (v) => showSourceMenu(
+          context,
+          ref,
+          id: sourceId,
+          title: v.source.title,
+          onRemoved: () => context.pop(),
+        ),
         onSurvey: () => context.push(Routes.survey(sourceId)),
         onCreateAll: createAll,
         onAddTask: addTask,
@@ -114,6 +122,7 @@ class SourceChaptersBody extends StatelessWidget {
     required this.onFinish,
     required this.onSurvey,
     this.onSetFinished,
+    this.onMore,
     required this.onCreateAll,
     required this.onAddTask,
     required this.onOpenTask,
@@ -128,6 +137,9 @@ class SourceChaptersBody extends StatelessWidget {
 
   /// "Done with this source" (true) or reopening it (D47).
   final void Function(SourceChaptersView view, bool finished)? onSetFinished;
+
+  /// Rename and Remove (D48); null hides the button.
+  final ValueChanged<SourceChaptersView>? onMore;
   final VoidCallback onSurvey;
   final ValueChanged<SourceChaptersView> onCreateAll;
   final void Function(SourceChaptersView view, int index) onAddTask;
@@ -188,7 +200,11 @@ class SourceChaptersBody extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
         children: [
-          _TopBar(view: v, onBack: onBack),
+          _TopBar(
+            view: v,
+            onBack: onBack,
+            onMore: v == null || onMore == null ? null : () => onMore!(v),
+          ),
           const SizedBox(height: AppSpace.xl),
           ...children,
         ],
@@ -198,10 +214,11 @@ class SourceChaptersBody extends StatelessWidget {
 }
 
 class _TopBar extends StatelessWidget {
-  const _TopBar({required this.view, required this.onBack});
+  const _TopBar({required this.view, required this.onBack, this.onMore});
 
   final SourceChaptersView? view;
   final VoidCallback onBack;
+  final VoidCallback? onMore;
 
   @override
   Widget build(BuildContext context) {
@@ -241,6 +258,14 @@ class _TopBar extends StatelessWidget {
               ],
             ),
           ),
+        if (onMore != null) ...[
+          const SizedBox(width: AppSpace.sm),
+          RoundIconButton(
+            icon: AppIcon.more,
+            semanticLabel: l10n.sourceMenu,
+            onPressed: onMore,
+          ),
+        ],
       ],
     );
   }
