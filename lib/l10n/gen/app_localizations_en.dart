@@ -816,4 +816,378 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addTaskAdded => 'Task added';
+
+  @override
+  String get sessionReviewTitle => 'Review session';
+
+  @override
+  String get sessionFirstReadTitle => 'First read';
+
+  @override
+  String get sessionWelcomeBack => 'Welcome back';
+
+  @override
+  String get sessionWhereStop => 'Where did you stop?';
+
+  @override
+  String get sessionFinishedRange => 'Finished the whole range';
+
+  @override
+  String sessionLeftForNext(String left) {
+    return '$left left for next time';
+  }
+
+  @override
+  String get sessionOpenAgain => 'Open the source again';
+
+  @override
+  String get sessionHowWell => 'How well could you recall it?';
+
+  @override
+  String get sessionHowFirstRead => 'How did the first read go?';
+
+  @override
+  String get sessionFirstReadHint =>
+      'A first read earns White whatever you choose.';
+
+  @override
+  String get rateForgot => 'Forgot';
+
+  @override
+  String get rateHard => 'Hard';
+
+  @override
+  String get rateGood => 'Good';
+
+  @override
+  String get rateEasy => 'Easy';
+
+  @override
+  String get sessionBackTomorrow => 'Back tomorrow';
+
+  @override
+  String sessionNextInDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Next in $days days',
+      one: 'Next tomorrow',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sessionNoMoreReviews => 'No more reviews planned';
+
+  @override
+  String sessionEarned(String belt) {
+    return '$belt earned';
+  }
+
+  @override
+  String sessionPromoted(String belt) {
+    return 'Promoted to $belt';
+  }
+
+  @override
+  String sessionStripeLost(String belt) {
+    return '$belt, one stripe lost';
+  }
+
+  @override
+  String sessionFading(String belt) {
+    return '$belt is fading';
+  }
+
+  @override
+  String sessionXpAgainTomorrow(int xp) {
+    return '+$xp XP · again tomorrow';
+  }
+
+  @override
+  String sessionXpNext(int xp, int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: '1 day',
+    );
+    return '+$xp XP · next review in $_temp0';
+  }
+
+  @override
+  String sessionXpDone(int xp) {
+    return '+$xp XP · all planned reviews done';
+  }
+
+  @override
+  String get sessionPickRating => 'Pick a rating to finish';
+
+  @override
+  String get sessionDone => 'Done · back to Today';
+
+  @override
+  String get sessionClosed => 'This session is already closed.';
+
+  @override
+  String get sessionBackToToday => 'Back to Today';
+
+  @override
+  String get sessionLeave => 'Leave without rating';
+
+  @override
+  String get sessionSaveFailed => 'Couldn\'t save. Try again.';
+
+  @override
+  String get sessionLoadFailed => 'Couldn\'t load this session.';
+
+  @override
+  String get sessionOpenFirst => 'Finish your open session first.';
+
+  @override
+  String get sessionNotOpened =>
+      'Session started. Study it anywhere, then come back to rate it.';
+
+  @override
+  String sessionRatingSemantics(String rating, String next) {
+    return '$rating, $next';
+  }
+
+  @override
+  String todayStreak(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'day streak',
+      one: 'day streak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String todayStreakSemantics(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days day streak',
+      one: '1 day streak',
+      zero: 'No streak yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String todayExamLine(String name, String date) {
+    return '$name · $date';
+  }
+
+  @override
+  String todayDaysToGo(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days to go',
+      one: '1 day to go',
+      zero: 'Exam day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String todaySessions(int count, String time) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sessions · $time',
+      one: '1 session · $time',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String todayKindReview(String time) {
+    return 'REVIEW · $time';
+  }
+
+  @override
+  String todayKindOverdue(int days, String time) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'OVERDUE $days DAYS · $time',
+      one: 'OVERDUE 1 DAY · $time',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String todayKindFirstRead(String time) {
+    return 'FIRST READ · $time';
+  }
+
+  @override
+  String get todayKindReviewWord => 'review';
+
+  @override
+  String get todayKindFirstReadWord => 'first read';
+
+  @override
+  String get todayEmptyTitle => 'Nothing to train yet';
+
+  @override
+  String get todayEmptyBody =>
+      'Add a PDF, book, video or link, then turn its chapters into tasks.';
+
+  @override
+  String get todayAddSource => 'Add a source';
+
+  @override
+  String get todayDoneTitle => 'All done for today';
+
+  @override
+  String get todayDoneBody =>
+      'Nothing else is due. Any task can be reviewed early from its page.';
+
+  @override
+  String get todayLoadFailed => 'Couldn\'t load today\'s training.';
+
+  @override
+  String get todayRetry => 'Try again';
+
+  @override
+  String get taskOverline => 'TASK';
+
+  @override
+  String taskImportanceLine(String importance, String exam) {
+    return '$importance importance · $exam';
+  }
+
+  @override
+  String taskLevelLine(int level) {
+    return 'Level $level of 7';
+  }
+
+  @override
+  String taskLevelTargetLine(int level, String target) {
+    return 'Level $level of 7 · target $target';
+  }
+
+  @override
+  String taskSteps(int done, int planned) {
+    return '$done of $planned reviews done';
+  }
+
+  @override
+  String get taskDueToday => 'Review due today';
+
+  @override
+  String taskOverdue(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Overdue $days days · the belt is fading',
+      one: 'Overdue 1 day · the belt is fading',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskNextOn(String date, int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Next review $date · in $days days',
+      one: 'Next review $date · tomorrow',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskNotStartedLine(String time) {
+    return 'Not started · first read about $time';
+  }
+
+  @override
+  String get taskAllDone =>
+      'All reviews done · review any time to keep it fresh';
+
+  @override
+  String taskPausedSince(String date) {
+    return 'Paused since $date';
+  }
+
+  @override
+  String get taskStartReview => 'Start review';
+
+  @override
+  String get taskReviewEarly => 'Review early';
+
+  @override
+  String get taskReviewEarlyHint => 'Counts like any review.';
+
+  @override
+  String get taskStartFirstRead => 'Start first read';
+
+  @override
+  String get taskCovers => 'Covers';
+
+  @override
+  String get taskHistory => 'History';
+
+  @override
+  String get taskNoReviews => 'No reviews yet. The first read earns White.';
+
+  @override
+  String get taskKindFirstRead => 'First read';
+
+  @override
+  String taskKindReview(int n) {
+    return 'Review $n';
+  }
+
+  @override
+  String get taskKindRetry => 'Retry';
+
+  @override
+  String taskPromotedTo(String belt) {
+    return '→ $belt';
+  }
+
+  @override
+  String taskPromotedSemantics(String belt) {
+    return 'promoted to $belt';
+  }
+
+  @override
+  String taskHistorySemantics(
+    String date,
+    String kind,
+    String rating,
+    String time,
+  ) {
+    return '$date, $kind, rated $rating, $time';
+  }
+
+  @override
+  String taskShowAll(int count) {
+    return 'Show all $count';
+  }
+
+  @override
+  String get taskRemoved => 'This task was removed.';
+
+  @override
+  String get taskBack => 'Back';
+
+  @override
+  String get taskLoadFailed => 'Couldn\'t load this task.';
+
+  @override
+  String get reminderTitle => 'Today\'s training is ready';
+
+  @override
+  String get reminderBody => 'A few minutes keeps your belts bright.';
+
+  @override
+  String get reminderChannel => 'Daily reminder';
 }

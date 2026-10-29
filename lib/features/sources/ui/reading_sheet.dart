@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/ui/app_icons.dart';
 import '../../../core/ui/buttons.dart';
 import '../../../core/ui/chips.dart';
+import '../../../core/ui/value_stepper.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../theme/tokens/app_tokens.dart';
 import '../state/reading_providers.dart';
@@ -203,8 +203,10 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
           ),
           const SizedBox(height: AppSpace.xl),
           label(l10n.readingTimeLabel),
-          _Stepper(
+          ValueStepper(
             value: formatMinutes(l10n, _minutes),
+            lessLabel: l10n.readingLess,
+            moreLabel: l10n.readingMore,
             onLess: _minutes > _step
                 ? () => _setMinutes(_minutes - _step)
                 : null,
@@ -212,8 +214,10 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
           ),
           const SizedBox(height: AppSpace.xl),
           label(l10n.readingUpTo),
-          _Stepper(
+          ValueStepper(
             value: unit.at(l10n, _endUnit),
+            lessLabel: l10n.readingLess,
+            moreLabel: l10n.readingMore,
             onLess: _endUnit > _r.startUnit
                 ? () => _setEnd(_endUnit - 1)
                 : null,
@@ -283,52 +287,6 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
               label: l10n.readingDidntRead,
               onPressed: _saving ? null : widget.onDiscard,
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// A value between − and + buttons, each a 44 px target.
-class _Stepper extends StatelessWidget {
-  const _Stepper({required this.value, this.onLess, this.onMore});
-
-  final String value;
-  final VoidCallback? onLess;
-  final VoidCallback? onMore;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final c = context.colors;
-    return Container(
-      decoration: BoxDecoration(
-        color: c.ground,
-        borderRadius: BorderRadius.circular(AppRadii.chip),
-        border: Border.all(color: c.chipBorder),
-      ),
-      child: Row(
-        children: [
-          RoundIconButton(
-            icon: AppIcon.minus,
-            semanticLabel: l10n.readingLess,
-            onPressed: onLess,
-          ),
-          Expanded(
-            child: Semantics(
-              liveRegion: true,
-              child: Text(
-                value,
-                textAlign: TextAlign.center,
-                style: AppText.cardTitle.copyWith(color: c.ink, fontSize: 17),
-              ),
-            ),
-          ),
-          RoundIconButton(
-            icon: AppIcon.add,
-            semanticLabel: l10n.readingMore,
-            onPressed: onMore,
           ),
         ],
       ),

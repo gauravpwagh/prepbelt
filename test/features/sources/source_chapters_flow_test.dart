@@ -11,6 +11,8 @@ import 'package:prepbelt/features/sources/data/chapter_split.dart';
 import 'package:prepbelt/features/sources/data/source_repository.dart';
 import 'package:prepbelt/features/sources/state/reading_providers.dart';
 import 'package:prepbelt/features/sources/state/source_providers.dart';
+import 'package:prepbelt/features/today/state/reminder_providers.dart';
+import 'package:prepbelt/platform/notifications/reminder_scheduler.dart';
 import 'package:prepbelt/platform/open_external/source_opener.dart';
 import 'package:prepbelt/platform/share_in/share_in.dart';
 
@@ -69,6 +71,7 @@ void main() {
           writeContextProvider.overrideWithValue(t.ctx),
           sourceOpenerProvider.overrideWithValue(opener),
           shareInboxProvider.overrideWithValue(const NoShareInbox()),
+          reminderSchedulerProvider.overrideWithValue(const NoReminders()),
           routerProvider.overrideWithValue(
             buildRouter(initialLocation: Routes.sourceChapters(book!.id)),
           ),

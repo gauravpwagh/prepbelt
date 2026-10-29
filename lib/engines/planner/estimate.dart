@@ -43,3 +43,16 @@ int readingSessions(
   double minutes, {
   EffortConfig config = const EffortConfig(),
 }) => max(1, (minutes / config.maxReadingSession).ceil());
+
+/// A review's estimate (docs/04-planner-spec.md): the first review is
+/// [EffortConfig.firstReviewShare] of the first read, later ones
+/// [EffortConfig.laterReviewShare], clamped to the review bounds.
+int reviewMinutes(
+  double firstRead, {
+  required bool firstReview,
+  EffortConfig config = const EffortConfig(),
+}) =>
+    (firstRead *
+            (firstReview ? config.firstReviewShare : config.laterReviewShare))
+        .round()
+        .clamp(config.reviewMinMinutes, config.reviewMaxMinutes);

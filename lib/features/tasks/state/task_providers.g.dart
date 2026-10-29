@@ -96,6 +96,44 @@ final class ReviewRepositoryProvider
 
 String _$reviewRepositoryHash() => r'be2ca335c6de1e1fd7a532919d9480a9ff35694f';
 
+@ProviderFor(tasks)
+final tasksProvider = TasksProvider._();
+
+final class TasksProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Task>>,
+          List<Task>,
+          Stream<List<Task>>
+        >
+    with $FutureModifier<List<Task>>, $StreamProvider<List<Task>> {
+  TasksProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'tasksProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$tasksHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<List<Task>> $createElement($ProviderPointer pointer) =>
+      $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<Task>> create(Ref ref) {
+    return tasks(ref);
+  }
+}
+
+String _$tasksHash() => r'3c3aa0652f5472483100266354826932ace5e082';
+
 @ProviderFor(task)
 final taskProvider = TaskFamily._();
 

@@ -135,6 +135,10 @@ abstract final class Defaults {
   /// An unreturned session closes as unfinished after this long.
   static const int activeSessionTimeoutHours = 6;
 
+  /// Until the planner exists (milestone 5), Today offers at most this
+  /// many not-started tasks as first reads.
+  static const int todayFirstReadsWithoutPlan = 2;
+
   // ------------------------------------------------- Reading as you go (D27)
 
   /// Time away longer than this pre-fills as this many minutes.
@@ -162,6 +166,13 @@ abstract final class Defaults {
   /// promotion, so 10 x Good (3) + 10.
   static const int xpPromotionBonus = 10;
 
+  /// Daily reminder time (local), until Settings lets the student pick.
+  static const String reminderTime = '19:00';
+
+  /// Reminders are scheduled this many days ahead, so they keep coming
+  /// for a while even if the app is not opened.
+  static const int reminderDaysAhead = 7;
+
   /// Activity grid intensity buckets.
   static const int activityGridBuckets = 5;
 }
@@ -179,7 +190,15 @@ abstract final class SettingKeys {
   static const deviceId = 'app.deviceId';
   static const theme = 'ui.theme';
   static const gridPalette = 'ui.gridPalette';
+
+  /// Daily reminder time as "HH:mm", local.
   static const reminderTime = 'ui.reminderTime';
+
+  /// False turns the daily reminder off.
+  static const reminderEnabled = 'ui.reminderEnabled';
+
+  /// Set once the notification permission has been asked for.
+  static const reminderAsked = 'ui.reminderAsked';
   static const studentName = 'profile.name';
   static const onboarded = 'profile.onboarded';
 

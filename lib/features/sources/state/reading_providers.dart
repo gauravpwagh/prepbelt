@@ -182,20 +182,9 @@ class ReadingActions extends _$ReadingActions {
   /// PrepBelt.
   Future<StartResult> start(String sourceId) async {
     await _repo.start(sourceId);
-    final source = await ref
-        .read(sourceRepositoryProvider)
-        .watch(sourceId)
-        .first;
-    final stored = await ref.read(sourceRepositoryProvider).fileOf(sourceId);
-    final opener = ref.read(sourceOpenerProvider);
-    final opened = stored != null
-        ? await opener.open(
-            file: (await ref.read(
-              fileStoreProvider.future,
-            )).resolve(stored.localPath),
-          )
-        : await opener.open(uri: source?.uri);
-    return opened ? StartResult.opened : StartResult.notOpened;
+    return await openSource(ref, sourceId)
+        ? StartResult.opened
+        : StartResult.notOpened;
   }
 
   Future<SavePlan> preview(OpenReading r, int endUnit) =>
@@ -237,4 +226,18 @@ class ReadingActions extends _$ReadingActions {
       ref.read(surveyActionsProvider.notifier).finish(sourceId, examId: examId);
 
   Future<void> undo(String sourceId) => _repo.undo(sourceId);
+}
+
+/// Opens a source in its own app: its stored file, else its link. False
+/// when there is nothing to open (a paper book) or no app could open it.
+Future<bool> openSource(Ref ref, String sourceId) async {
+  final sources = ref.read(sourceRepositoryProvider);
+  final source = await sources.watch(sourceId).first;
+  final stored = await sources.fileOf(sourceId);
+  final opener = ref.read(sourceOpenerProvider);
+  if (stored != null) {
+    final store = await ref.read(fileStoreProvider.future);
+    return opener.open(file: store.resolve(stored.localPath));
+  }
+  return opener.open(uri: source?.uri);
 }

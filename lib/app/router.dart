@@ -5,12 +5,14 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../core/ui/bottom_sheet.dart';
 import '../core/ui/nav_bar.dart';
 import '../core/ui/placeholder_screen.dart';
+import '../features/session/ui/session_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
 import '../features/sources/ui/add_source_screen.dart';
 import '../features/sources/ui/reading_sheet.dart';
 import '../features/sources/ui/source_chapters_screen.dart';
 import '../features/sources/ui/sources_screen.dart';
 import '../features/survey/ui/survey_screen.dart';
+import '../features/tasks/ui/task_detail_screen.dart';
 import '../features/today/ui/today_screen.dart';
 import '../l10n/gen/app_localizations.dart';
 import '../platform/share_in/share_in.dart';
@@ -108,11 +110,13 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
       ),
       GoRoute(
         path: '/session/:taskId',
-        builder: (_, _) => placeholder((l) => l.screenSession),
+        builder: (_, state) =>
+            SessionScreen(taskId: state.pathParameters['taskId']!),
       ),
       GoRoute(
         path: '/tasks/:id',
-        builder: (_, _) => placeholder((l) => l.screenTask),
+        builder: (_, state) =>
+            TaskDetailScreen(taskId: state.pathParameters['id']!),
         routes: [
           GoRoute(
             path: 'redefine',

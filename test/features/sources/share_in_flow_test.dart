@@ -8,6 +8,8 @@ import 'package:prepbelt/app/router.dart';
 import 'package:prepbelt/core/db/app_database.dart';
 import 'package:prepbelt/core/providers/core_providers.dart';
 import 'package:prepbelt/features/sources/state/source_providers.dart';
+import 'package:prepbelt/features/today/state/reminder_providers.dart';
+import 'package:prepbelt/platform/notifications/reminder_scheduler.dart';
 import 'package:prepbelt/platform/share_in/share_in.dart';
 
 import '../../support/test_db.dart';
@@ -60,6 +62,7 @@ void main() {
           appDatabaseProvider.overrideWithValue(t.db),
           writeContextProvider.overrideWithValue(t.ctx),
           shareInboxProvider.overrideWithValue(inbox),
+          reminderSchedulerProvider.overrideWithValue(const NoReminders()),
           routerProvider.overrideWithValue(buildRouter()),
         ],
         child: const PrepBeltApp(),

@@ -1239,6 +1239,503 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Task added'**
   String get addTaskAdded;
+
+  /// No description provided for @sessionReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review session'**
+  String get sessionReviewTitle;
+
+  /// No description provided for @sessionFirstReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'First read'**
+  String get sessionFirstReadTitle;
+
+  /// No description provided for @sessionWelcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get sessionWelcomeBack;
+
+  /// No description provided for @sessionWhereStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Where did you stop?'**
+  String get sessionWhereStop;
+
+  /// No description provided for @sessionFinishedRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished the whole range'**
+  String get sessionFinishedRange;
+
+  /// No description provided for @sessionLeftForNext.
+  ///
+  /// In en, this message translates to:
+  /// **'{left} left for next time'**
+  String sessionLeftForNext(String left);
+
+  /// No description provided for @sessionOpenAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the source again'**
+  String get sessionOpenAgain;
+
+  /// No description provided for @sessionHowWell.
+  ///
+  /// In en, this message translates to:
+  /// **'How well could you recall it?'**
+  String get sessionHowWell;
+
+  /// No description provided for @sessionHowFirstRead.
+  ///
+  /// In en, this message translates to:
+  /// **'How did the first read go?'**
+  String get sessionHowFirstRead;
+
+  /// No description provided for @sessionFirstReadHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A first read earns White whatever you choose.'**
+  String get sessionFirstReadHint;
+
+  /// No description provided for @rateForgot.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot'**
+  String get rateForgot;
+
+  /// No description provided for @rateHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard'**
+  String get rateHard;
+
+  /// No description provided for @rateGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get rateGood;
+
+  /// No description provided for @rateEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy'**
+  String get rateEasy;
+
+  /// No description provided for @sessionBackTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Back tomorrow'**
+  String get sessionBackTomorrow;
+
+  /// No description provided for @sessionNextInDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Next tomorrow} other{Next in {days} days}}'**
+  String sessionNextInDays(int days);
+
+  /// No description provided for @sessionNoMoreReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'No more reviews planned'**
+  String get sessionNoMoreReviews;
+
+  /// No description provided for @sessionEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'{belt} earned'**
+  String sessionEarned(String belt);
+
+  /// No description provided for @sessionPromoted.
+  ///
+  /// In en, this message translates to:
+  /// **'Promoted to {belt}'**
+  String sessionPromoted(String belt);
+
+  /// No description provided for @sessionStripeLost.
+  ///
+  /// In en, this message translates to:
+  /// **'{belt}, one stripe lost'**
+  String sessionStripeLost(String belt);
+
+  /// No description provided for @sessionFading.
+  ///
+  /// In en, this message translates to:
+  /// **'{belt} is fading'**
+  String sessionFading(String belt);
+
+  /// No description provided for @sessionXpAgainTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'+{xp} XP · again tomorrow'**
+  String sessionXpAgainTomorrow(int xp);
+
+  /// No description provided for @sessionXpNext.
+  ///
+  /// In en, this message translates to:
+  /// **'+{xp} XP · next review in {days, plural, =1{1 day} other{{days} days}}'**
+  String sessionXpNext(int xp, int days);
+
+  /// No description provided for @sessionXpDone.
+  ///
+  /// In en, this message translates to:
+  /// **'+{xp} XP · all planned reviews done'**
+  String sessionXpDone(int xp);
+
+  /// No description provided for @sessionPickRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a rating to finish'**
+  String get sessionPickRating;
+
+  /// No description provided for @sessionDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done · back to Today'**
+  String get sessionDone;
+
+  /// No description provided for @sessionClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'This session is already closed.'**
+  String get sessionClosed;
+
+  /// No description provided for @sessionBackToToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Today'**
+  String get sessionBackToToday;
+
+  /// No description provided for @sessionLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave without rating'**
+  String get sessionLeave;
+
+  /// No description provided for @sessionSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save. Try again.'**
+  String get sessionSaveFailed;
+
+  /// No description provided for @sessionLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this session.'**
+  String get sessionLoadFailed;
+
+  /// No description provided for @sessionOpenFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish your open session first.'**
+  String get sessionOpenFirst;
+
+  /// No description provided for @sessionNotOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'Session started. Study it anywhere, then come back to rate it.'**
+  String get sessionNotOpened;
+
+  /// No description provided for @sessionRatingSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{rating}, {next}'**
+  String sessionRatingSemantics(String rating, String next);
+
+  /// No description provided for @todayStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{day streak} other{day streak}}'**
+  String todayStreak(int days);
+
+  /// No description provided for @todayStreakSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =0{No streak yet} =1{1 day streak} other{{days} day streak}}'**
+  String todayStreakSemantics(int days);
+
+  /// No description provided for @todayExamLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · {date}'**
+  String todayExamLine(String name, String date);
+
+  /// No description provided for @todayDaysToGo.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =0{Exam day} =1{1 day to go} other{{days} days to go}}'**
+  String todayDaysToGo(int days);
+
+  /// No description provided for @todaySessions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 session · {time}} other{{count} sessions · {time}}}'**
+  String todaySessions(int count, String time);
+
+  /// No description provided for @todayKindReview.
+  ///
+  /// In en, this message translates to:
+  /// **'REVIEW · {time}'**
+  String todayKindReview(String time);
+
+  /// No description provided for @todayKindOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{OVERDUE 1 DAY · {time}} other{OVERDUE {days} DAYS · {time}}}'**
+  String todayKindOverdue(int days, String time);
+
+  /// No description provided for @todayKindFirstRead.
+  ///
+  /// In en, this message translates to:
+  /// **'FIRST READ · {time}'**
+  String todayKindFirstRead(String time);
+
+  /// No description provided for @todayKindReviewWord.
+  ///
+  /// In en, this message translates to:
+  /// **'review'**
+  String get todayKindReviewWord;
+
+  /// No description provided for @todayKindFirstReadWord.
+  ///
+  /// In en, this message translates to:
+  /// **'first read'**
+  String get todayKindFirstReadWord;
+
+  /// No description provided for @todayEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to train yet'**
+  String get todayEmptyTitle;
+
+  /// No description provided for @todayEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a PDF, book, video or link, then turn its chapters into tasks.'**
+  String get todayEmptyBody;
+
+  /// No description provided for @todayAddSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a source'**
+  String get todayAddSource;
+
+  /// No description provided for @todayDoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All done for today'**
+  String get todayDoneTitle;
+
+  /// No description provided for @todayDoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing else is due. Any task can be reviewed early from its page.'**
+  String get todayDoneBody;
+
+  /// No description provided for @todayLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load today\'s training.'**
+  String get todayLoadFailed;
+
+  /// No description provided for @todayRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get todayRetry;
+
+  /// No description provided for @taskOverline.
+  ///
+  /// In en, this message translates to:
+  /// **'TASK'**
+  String get taskOverline;
+
+  /// No description provided for @taskImportanceLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{importance} importance · {exam}'**
+  String taskImportanceLine(String importance, String exam);
+
+  /// No description provided for @taskLevelLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level} of 7'**
+  String taskLevelLine(int level);
+
+  /// No description provided for @taskLevelTargetLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level} of 7 · target {target}'**
+  String taskLevelTargetLine(int level, String target);
+
+  /// No description provided for @taskSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {planned} reviews done'**
+  String taskSteps(int done, int planned);
+
+  /// No description provided for @taskDueToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Review due today'**
+  String get taskDueToday;
+
+  /// No description provided for @taskOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Overdue 1 day · the belt is fading} other{Overdue {days} days · the belt is fading}}'**
+  String taskOverdue(int days);
+
+  /// No description provided for @taskNextOn.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Next review {date} · tomorrow} other{Next review {date} · in {days} days}}'**
+  String taskNextOn(String date, int days);
+
+  /// No description provided for @taskNotStartedLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Not started · first read about {time}'**
+  String taskNotStartedLine(String time);
+
+  /// No description provided for @taskAllDone.
+  ///
+  /// In en, this message translates to:
+  /// **'All reviews done · review any time to keep it fresh'**
+  String get taskAllDone;
+
+  /// No description provided for @taskPausedSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused since {date}'**
+  String taskPausedSince(String date);
+
+  /// No description provided for @taskStartReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Start review'**
+  String get taskStartReview;
+
+  /// No description provided for @taskReviewEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'Review early'**
+  String get taskReviewEarly;
+
+  /// No description provided for @taskReviewEarlyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Counts like any review.'**
+  String get taskReviewEarlyHint;
+
+  /// No description provided for @taskStartFirstRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Start first read'**
+  String get taskStartFirstRead;
+
+  /// No description provided for @taskCovers.
+  ///
+  /// In en, this message translates to:
+  /// **'Covers'**
+  String get taskCovers;
+
+  /// No description provided for @taskHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get taskHistory;
+
+  /// No description provided for @taskNoReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews yet. The first read earns White.'**
+  String get taskNoReviews;
+
+  /// No description provided for @taskKindFirstRead.
+  ///
+  /// In en, this message translates to:
+  /// **'First read'**
+  String get taskKindFirstRead;
+
+  /// No description provided for @taskKindReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review {n}'**
+  String taskKindReview(int n);
+
+  /// No description provided for @taskKindRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get taskKindRetry;
+
+  /// No description provided for @taskPromotedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'→ {belt}'**
+  String taskPromotedTo(String belt);
+
+  /// No description provided for @taskPromotedSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'promoted to {belt}'**
+  String taskPromotedSemantics(String belt);
+
+  /// No description provided for @taskHistorySemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}, {kind}, rated {rating}, {time}'**
+  String taskHistorySemantics(
+    String date,
+    String kind,
+    String rating,
+    String time,
+  );
+
+  /// No description provided for @taskShowAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all {count}'**
+  String taskShowAll(int count);
+
+  /// No description provided for @taskRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'This task was removed.'**
+  String get taskRemoved;
+
+  /// No description provided for @taskBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get taskBack;
+
+  /// No description provided for @taskLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this task.'**
+  String get taskLoadFailed;
+
+  /// No description provided for @reminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s training is ready'**
+  String get reminderTitle;
+
+  /// No description provided for @reminderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A few minutes keeps your belts bright.'**
+  String get reminderBody;
+
+  /// No description provided for @reminderChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminder'**
+  String get reminderChannel;
 }
 
 class _AppLocalizationsDelegate

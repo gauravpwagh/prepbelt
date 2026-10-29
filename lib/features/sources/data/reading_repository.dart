@@ -348,6 +348,10 @@ final class ReadingRepository extends EventSourcedRepository {
     if (await openSession() != null) {
       throw const InvalidOperationError('Finish the open reading first');
     }
+    if (await (db.select(db.activeSessions)..limit(1)).getSingleOrNull() !=
+        null) {
+      throw const InvalidOperationError('Finish the open review first');
+    }
     final p = await progress(sourceId);
     if (p == null) throw NotFoundError('source $sourceId');
     final from = p.position;

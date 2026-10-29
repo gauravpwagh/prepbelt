@@ -24,6 +24,10 @@ ReviewRepository reviewRepository(Ref ref) => ReviewRepository(
 );
 
 @riverpod
+Stream<List<Task>> tasks(Ref ref) =>
+    ref.watch(taskRepositoryProvider).watchAll();
+
+@riverpod
 Stream<Task?> task(Ref ref, String id) =>
     ref.watch(taskRepositoryProvider).watch(id);
 

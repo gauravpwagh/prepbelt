@@ -18,6 +18,7 @@ class SessionCard extends StatelessWidget {
     required this.startLabel,
     required this.onStart,
     this.kindColor,
+    this.onTap,
     super.key,
   });
 
@@ -35,6 +36,9 @@ class SessionCard extends StatelessWidget {
   final String startLabel;
   final VoidCallback? onStart;
 
+  /// Opens the task, e.g. Task detail.
+  final VoidCallback? onTap;
+
   bool get isNew => badge.level == 0;
 
   @override
@@ -48,8 +52,9 @@ class SessionCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
       child: Row(
         children: [
-          SizedBox(
-            width: 40,
+          // At least 40 px, wider when large text makes "fading" wider.
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 40),
             child: Center(child: levels.badge(context, badge)),
           ),
           const SizedBox(width: AppSpace.lg),
@@ -89,6 +94,12 @@ class SessionCard extends StatelessWidget {
     );
 
     final radius = BorderRadius.circular(AppRadii.card);
+    final tappable = onTap == null
+        ? content
+        : Material(
+            type: MaterialType.transparency,
+            child: InkWell(borderRadius: radius, onTap: onTap, child: content),
+          );
     if (!isNew) {
       return DecoratedBox(
         decoration: BoxDecoration(
@@ -96,14 +107,14 @@ class SessionCard extends StatelessWidget {
           borderRadius: radius,
           border: Border.all(color: c.line),
         ),
-        child: content,
+        child: tappable,
       );
     }
     return CustomPaint(
       painter: _DashedBorderPainter(color: c.lineDashed, radius: AppRadii.card),
       child: DecoratedBox(
         decoration: BoxDecoration(color: c.surface, borderRadius: radius),
-        child: content,
+        child: tappable,
       ),
     );
   }

@@ -26,6 +26,8 @@ enum AppIcon {
   play(['M8 5v14l11-7z'], filled: true),
   back(['M15 5l-7 7 7 7']),
   close(['M6 6l12 12M18 6L6 18']),
+  clock(['M12 5a8 8 0 1 0 0 16a8 8 0 1 0 0-16z', 'M12 9v4l3 2M9 2h6']),
+  more(['M12 6h.01M12 12h.01M12 18h.01'], strokeWidth: 3),
   minus(['M5 12h14'], strokeWidth: 2.4),
   check(['M5 12.5l4.5 4.5L19 7.5']),
   pdf(['M6 3h8l4 4v14H6z', 'M14 3v4h4', 'M9 13h6M9 17h4']),

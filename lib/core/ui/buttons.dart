@@ -127,6 +127,8 @@ class StartButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     return Semantics(
+      // Its own node, so a tappable card around it keeps both actions.
+      container: true,
       button: true,
       label: semanticLabel,
       excludeSemantics: true,

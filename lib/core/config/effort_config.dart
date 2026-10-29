@@ -11,6 +11,10 @@ final class EffortConfig {
     this.difficultyFactors = Defaults.difficultyFactors,
     this.familiarityFactors = Defaults.familiarityFactors,
     this.maxReadingSession = Defaults.maxReadingSessionMinutes,
+    this.firstReviewShare = Defaults.firstReviewShare,
+    this.laterReviewShare = Defaults.laterReviewShare,
+    this.reviewMinMinutes = Defaults.reviewMinMinutes,
+    this.reviewMaxMinutes = Defaults.reviewMaxMinutes,
   });
 
   final double pacePage;
@@ -24,4 +28,10 @@ final class EffortConfig {
   /// New, Seen it, Comfortable.
   final List<double> familiarityFactors;
   final int maxReadingSession;
+
+  /// A review's length as a share of the first read, then clamped.
+  final double firstReviewShare;
+  final double laterReviewShare;
+  final int reviewMinMinutes;
+  final int reviewMaxMinutes;
 }

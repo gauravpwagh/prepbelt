@@ -4,9 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n/gen/app_localizations.dart';
 import '../theme/app_theme.dart';
-import 'reading_return.dart';
 import 'router.dart';
 import 'share_receiver.dart';
+import 'source_return.dart';
 
 class PrepBeltApp extends ConsumerWidget {
   const PrepBeltApp({super.key});
@@ -26,6 +26,6 @@ class PrepBeltApp extends ConsumerWidget {
     supportedLocales: AppLocalizations.supportedLocales,
     routerConfig: ref.watch(routerProvider),
     builder: (context, child) =>
-        ReadingReturn(child: ShareReceiver(child: child!)),
+        SourceReturn(child: ShareReceiver(child: child!)),
   );
 }

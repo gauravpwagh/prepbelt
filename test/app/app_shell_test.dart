@@ -12,6 +12,8 @@ import 'package:prepbelt/features/settings/ui/settings_screen.dart';
 import 'package:prepbelt/features/sources/state/source_providers.dart';
 import 'package:prepbelt/features/tasks/data/task_repository.dart';
 import 'package:prepbelt/features/tasks/state/task_providers.dart';
+import 'package:prepbelt/features/today/state/reminder_providers.dart';
+import 'package:prepbelt/platform/notifications/reminder_scheduler.dart';
 import 'package:prepbelt/platform/share_in/share_in.dart';
 
 import '../support/pump.dart';
@@ -24,6 +26,25 @@ void main() {
   setUp(() => db = openTestDatabase());
   tearDown(() => db.close());
 
+  /// Lets Drift streams deliver (they run on real async), then settles.
+  Future<void> settle(WidgetTester tester) async {
+    for (var i = 0; i < 3; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pumpAndSettle();
+    }
+  }
+
+  /// Drift streams close with a zero timer; flush it before teardown.
+  Future<void> unmount(WidgetTester tester) async {
+    await tester.pumpWidget(const SizedBox());
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 50)),
+    );
+    await tester.pump(const Duration(seconds: 1));
+  }
+
   Future<void> launch(WidgetTester tester) async {
     final ctx = await tester.runAsync(() => createWriteContext(db, clock));
     await tester.pumpWidget(
@@ -33,39 +54,36 @@ void main() {
           appDatabaseProvider.overrideWithValue(db),
           writeContextProvider.overrideWithValue(ctx!),
           shareInboxProvider.overrideWithValue(const NoShareInbox()),
+          reminderSchedulerProvider.overrideWithValue(const NoReminders()),
         ],
         child: const PrepBeltApp(),
       ),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
   }
 
-  testWidgets('launches to the placeholder Today screen', (tester) async {
+  testWidgets('launches to Today, which points to adding a source', (
+    tester,
+  ) async {
     await launch(tester);
     expect(find.text("Today's training"), findsOneWidget);
     expect(find.text('Wednesday, 28 Oct'), findsOneWidget);
+    expect(find.text('Nothing to train yet'), findsOneWidget);
     for (final tab in ['Today', 'Exams', 'Sources', 'Progress']) {
       expect(find.bySemanticsLabel(tab), findsOneWidget);
     }
+    await unmount(tester);
   });
 
   testWidgets('bottom navigation switches tabs', (tester) async {
     await launch(tester);
     await tester.tap(find.bySemanticsLabel('Sources'));
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 50)),
-    );
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text('No sources yet'), findsOneWidget);
     await tester.tap(find.bySemanticsLabel('Quick add'));
     await tester.pumpAndSettle();
     expect(find.text('Add source'), findsOneWidget);
-    // Drift streams close with a zero timer; flush it before teardown.
-    await tester.pumpWidget(const SizedBox());
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 50)),
-    );
-    await tester.pump(const Duration(seconds: 1));
+    await unmount(tester);
   });
 
   testWidgets('nav bar meets touch-target and label guidelines', (
@@ -74,6 +92,7 @@ void main() {
     await launch(tester);
     await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
     await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+    await unmount(tester);
   });
 
   test('bootstrap creates the device id once and logs it', () async {

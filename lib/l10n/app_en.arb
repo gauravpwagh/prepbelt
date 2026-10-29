@@ -721,5 +721,340 @@
   "addTaskYes": "Yes",
   "addTaskYesHint": "Starts at White with its first review scheduled.",
   "addTaskCreate": "Create",
-  "addTaskAdded": "Task added"
+  "addTaskAdded": "Task added",
+  "sessionReviewTitle": "Review session",
+  "sessionFirstReadTitle": "First read",
+  "sessionWelcomeBack": "Welcome back",
+  "sessionWhereStop": "Where did you stop?",
+  "sessionFinishedRange": "Finished the whole range",
+  "sessionLeftForNext": "{left} left for next time",
+  "@sessionLeftForNext": {
+    "placeholders": {
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionOpenAgain": "Open the source again",
+  "sessionHowWell": "How well could you recall it?",
+  "sessionHowFirstRead": "How did the first read go?",
+  "sessionFirstReadHint": "A first read earns White whatever you choose.",
+  "rateForgot": "Forgot",
+  "rateHard": "Hard",
+  "rateGood": "Good",
+  "rateEasy": "Easy",
+  "sessionBackTomorrow": "Back tomorrow",
+  "sessionNextInDays": "{days, plural, =1{Next tomorrow} other{Next in {days} days}}",
+  "@sessionNextInDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionNoMoreReviews": "No more reviews planned",
+  "sessionEarned": "{belt} earned",
+  "@sessionEarned": {
+    "placeholders": {
+      "belt": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionPromoted": "Promoted to {belt}",
+  "@sessionPromoted": {
+    "placeholders": {
+      "belt": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionStripeLost": "{belt}, one stripe lost",
+  "@sessionStripeLost": {
+    "placeholders": {
+      "belt": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionFading": "{belt} is fading",
+  "@sessionFading": {
+    "placeholders": {
+      "belt": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionXpAgainTomorrow": "+{xp} XP · again tomorrow",
+  "@sessionXpAgainTomorrow": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionXpNext": "+{xp} XP · next review in {days, plural, =1{1 day} other{{days} days}}",
+  "@sessionXpNext": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionXpDone": "+{xp} XP · all planned reviews done",
+  "@sessionXpDone": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionPickRating": "Pick a rating to finish",
+  "sessionDone": "Done · back to Today",
+  "sessionClosed": "This session is already closed.",
+  "sessionBackToToday": "Back to Today",
+  "sessionLeave": "Leave without rating",
+  "sessionSaveFailed": "Couldn't save. Try again.",
+  "sessionLoadFailed": "Couldn't load this session.",
+  "sessionOpenFirst": "Finish your open session first.",
+  "sessionNotOpened": "Session started. Study it anywhere, then come back to rate it.",
+  "sessionRatingSemantics": "{rating}, {next}",
+  "@sessionRatingSemantics": {
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      },
+      "next": {
+        "type": "String"
+      }
+    }
+  },
+  "todayStreak": "{days, plural, =1{day streak} other{day streak}}",
+  "@todayStreak": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "todayStreakSemantics": "{days, plural, =0{No streak yet} =1{1 day streak} other{{days} day streak}}",
+  "@todayStreakSemantics": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "todayExamLine": "{name} · {date}",
+  "@todayExamLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "todayDaysToGo": "{days, plural, =0{Exam day} =1{1 day to go} other{{days} days to go}}",
+  "@todayDaysToGo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "todaySessions": "{count, plural, =1{1 session · {time}} other{{count} sessions · {time}}}",
+  "@todaySessions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "todayKindReview": "REVIEW · {time}",
+  "@todayKindReview": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "todayKindOverdue": "{days, plural, =1{OVERDUE 1 DAY · {time}} other{OVERDUE {days} DAYS · {time}}}",
+  "@todayKindOverdue": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "todayKindFirstRead": "FIRST READ · {time}",
+  "@todayKindFirstRead": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "todayKindReviewWord": "review",
+  "todayKindFirstReadWord": "first read",
+  "todayEmptyTitle": "Nothing to train yet",
+  "todayEmptyBody": "Add a PDF, book, video or link, then turn its chapters into tasks.",
+  "todayAddSource": "Add a source",
+  "todayDoneTitle": "All done for today",
+  "todayDoneBody": "Nothing else is due. Any task can be reviewed early from its page.",
+  "todayLoadFailed": "Couldn't load today's training.",
+  "todayRetry": "Try again",
+  "taskOverline": "TASK",
+  "taskImportanceLine": "{importance} importance · {exam}",
+  "@taskImportanceLine": {
+    "placeholders": {
+      "importance": {
+        "type": "String"
+      },
+      "exam": {
+        "type": "String"
+      }
+    }
+  },
+  "taskLevelLine": "Level {level} of 7",
+  "@taskLevelLine": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "taskLevelTargetLine": "Level {level} of 7 · target {target}",
+  "@taskLevelTargetLine": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "taskSteps": "{done} of {planned} reviews done",
+  "@taskSteps": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "planned": {
+        "type": "int"
+      }
+    }
+  },
+  "taskDueToday": "Review due today",
+  "taskOverdue": "{days, plural, =1{Overdue 1 day · the belt is fading} other{Overdue {days} days · the belt is fading}}",
+  "@taskOverdue": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "taskNextOn": "{days, plural, =1{Next review {date} · tomorrow} other{Next review {date} · in {days} days}}",
+  "@taskNextOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "taskNotStartedLine": "Not started · first read about {time}",
+  "@taskNotStartedLine": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "taskAllDone": "All reviews done · review any time to keep it fresh",
+  "taskPausedSince": "Paused since {date}",
+  "@taskPausedSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "taskStartReview": "Start review",
+  "taskReviewEarly": "Review early",
+  "taskReviewEarlyHint": "Counts like any review.",
+  "taskStartFirstRead": "Start first read",
+  "taskCovers": "Covers",
+  "taskHistory": "History",
+  "taskNoReviews": "No reviews yet. The first read earns White.",
+  "taskKindFirstRead": "First read",
+  "taskKindReview": "Review {n}",
+  "@taskKindReview": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "taskKindRetry": "Retry",
+  "taskPromotedTo": "→ {belt}",
+  "@taskPromotedTo": {
+    "placeholders": {
+      "belt": {
+        "type": "String"
+      }
+    }
+  },
+  "taskPromotedSemantics": "promoted to {belt}",
+  "@taskPromotedSemantics": {
+    "placeholders": {
+      "belt": {
+        "type": "String"
+      }
+    }
+  },
+  "taskHistorySemantics": "{date}, {kind}, rated {rating}, {time}",
+  "@taskHistorySemantics": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "kind": {
+        "type": "String"
+      },
+      "rating": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "taskShowAll": "Show all {count}",
+  "@taskShowAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "taskRemoved": "This task was removed.",
+  "taskBack": "Back",
+  "taskLoadFailed": "Couldn't load this task.",
+  "reminderTitle": "Today's training is ready",
+  "reminderBody": "A few minutes keeps your belts bright.",
+  "reminderChannel": "Daily reminder"
 }
