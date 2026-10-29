@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../../core/config/defaults.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/db/event_log.dart';
 import '../../../core/result/result.dart';
@@ -116,6 +117,104 @@ final class ExamRepository extends EventSourcedRepository {
           }
         }
         return exam;
+      },
+    );
+  }
+
+  /// Triage choices on one task of the exam: [keep] plans it in full
+  /// (restores a cut); [dropped] takes it out of the plan (step 5).
+  Future<void> setTriage(
+    String examId,
+    String taskId, {
+    bool? keep,
+    bool? dropped,
+  }) async {
+    final link =
+        await (db.select(db.examTasks)..where(
+              (l) =>
+                  l.examId.equals(examId) &
+                  l.taskId.equals(taskId) &
+                  l.deletedAt.isNull(),
+            ))
+            .getSingle();
+    await mutate<void>(
+      entity: entity,
+      entityId: examId,
+      op: EventOp.update,
+      data: {
+        'action': 'triage',
+        'taskId': taskId,
+        'keep': keep,
+        'dropped': dropped,
+      },
+      body: (rec) => rec.update(
+        db.examTasks,
+        link.id,
+        ExamTasksCompanion(
+          triageKeep: keep == null ? const Value.absent() : Value(keep),
+          dropped: dropped == null ? const Value.absent() : Value(dropped),
+        ),
+      ),
+    );
+  }
+
+  /// Drops several tasks from the plan at once (triage step 5).
+  Future<void> dropTasks(String examId, List<String> taskIds) async {
+    final links =
+        await (db.select(db.examTasks)..where(
+              (l) =>
+                  l.examId.equals(examId) &
+                  l.taskId.isIn(taskIds) &
+                  l.deletedAt.isNull(),
+            ))
+            .get();
+    await mutate<void>(
+      entity: entity,
+      entityId: examId,
+      op: EventOp.update,
+      data: {'action': 'dropTasks', 'count': links.length},
+      body: (rec) async {
+        for (final l in links) {
+          await rec.update(
+            db.examTasks,
+            l.id,
+            const ExamTasksCompanion(dropped: Value(true)),
+          );
+        }
+      },
+    );
+  }
+
+  /// Adds [extra] minutes to every weekday (triage step 5).
+  Future<void> addDailyMinutes(String examId, int extra) async {
+    final week = await (db.select(
+      db.availabilities,
+    )..where((a) => a.deletedAt.isNull())).get();
+    await mutate<void>(
+      entity: entity,
+      entityId: examId,
+      op: EventOp.update,
+      data: {'action': 'addDailyMinutes', 'extra': extra},
+      body: (rec) async {
+        for (var day = 0; day < 7; day++) {
+          final row = week.where((a) => a.weekday == day).firstOrNull;
+          if (row == null) {
+            await rec.insert(
+              db.availabilities,
+              AvailabilitiesCompanion(
+                id: Value(rec.newId()),
+                weekday: Value(day),
+                minutes: Value(Defaults.defaultDailyMinutes + extra),
+              ),
+            );
+          } else {
+            await rec.update(
+              db.availabilities,
+              row.id,
+              AvailabilitiesCompanion(minutes: Value(row.minutes + extra)),
+            );
+          }
+        }
       },
     );
   }

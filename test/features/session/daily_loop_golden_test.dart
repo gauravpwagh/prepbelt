@@ -278,6 +278,8 @@ TaskDetailView _detail(SessionTask t, List<Review> log) => TaskDetailView(
       importance: Importance.high,
       targetLevel: 7,
       importanceOverridden: false,
+      triageKeep: false,
+      dropped: false,
     ),
   ),
   display: _display(t),

@@ -1976,6 +1976,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More time'**
   String get addExamMore;
+
+  /// No description provided for @triageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan trimmed to fit'**
+  String get triageTitle;
+
+  /// No description provided for @triageBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The least important work was cut first. Keep any task in full and the plan cuts something else.'**
+  String get triageBody;
+
+  /// No description provided for @triageStepDropFinalLow.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Final review dropped · 1 Low task} other{Final review dropped · {count} Low tasks}}'**
+  String triageStepDropFinalLow(int count);
+
+  /// No description provided for @triageStepLowToYellow.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Aim for Yellow · 1 Low task} other{Aim for Yellow · {count} Low tasks}}'**
+  String triageStepLowToYellow(int count);
+
+  /// No description provided for @triageStepSkim.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Skim instead of read · 1 easy Low task} other{Skim instead of read · {count} easy Low tasks}}'**
+  String triageStepSkim(int count);
+
+  /// No description provided for @triageStepLowerMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{One belt lower · 1 Medium task} other{One belt lower · {count} Medium tasks}}'**
+  String triageStepLowerMedium(int count);
+
+  /// No description provided for @triageDroppedRow.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Dropped by you · 1 task} other{Dropped by you · {count} tasks}}'**
+  String triageDroppedRow(int count);
+
+  /// No description provided for @triageKeepAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep {title} in full'**
+  String triageKeepAction(String title);
+
+  /// No description provided for @triageRestoreAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore {title}'**
+  String triageRestoreAction(String title);
+
+  /// No description provided for @triageDropAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop {title}'**
+  String triageDropAction(String title);
+
+  /// No description provided for @triageKeepTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep {title} in full?'**
+  String triageKeepTitle(String title);
+
+  /// No description provided for @triageKeepNext.
+  ///
+  /// In en, this message translates to:
+  /// **'To make room, the plan also cuts:'**
+  String get triageKeepNext;
+
+  /// No description provided for @triageKeepNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing else needs to change.'**
+  String get triageKeepNothing;
+
+  /// No description provided for @triageKeepConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it'**
+  String get triageKeepConfirm;
+
+  /// No description provided for @triageCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get triageCancel;
+
+  /// No description provided for @triageNeedsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Still doesn\'t fit'**
+  String get triageNeedsTitle;
+
+  /// No description provided for @triageNeedsReduced.
+  ///
+  /// In en, this message translates to:
+  /// **'About {minutes} more minutes a day keeps this reduced plan.'**
+  String triageNeedsReduced(int minutes);
+
+  /// No description provided for @triageNeedsFull.
+  ///
+  /// In en, this message translates to:
+  /// **'About {minutes} more keeps everything.'**
+  String triageNeedsFull(int minutes);
+
+  /// No description provided for @triageNeedsNoTime.
+  ///
+  /// In en, this message translates to:
+  /// **'More time alone can\'t fit it. Drop some tasks, or accept a lower belt.'**
+  String get triageNeedsNoTime;
+
+  /// No description provided for @triageAddMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {minutes} min a day'**
+  String triageAddMinutes(int minutes);
+
+  /// No description provided for @triageDrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop tasks'**
+  String get triageDrop;
+
+  /// No description provided for @triageDropTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop a task from the plan'**
+  String get triageDropTitle;
+
+  /// No description provided for @triageAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept a lower belt'**
+  String get triageAccept;
+
+  /// No description provided for @triageAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduced plan accepted. You can still add time or drop tasks.'**
+  String get triageAccepted;
+
+  /// No description provided for @triageReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review cuts in {step}'**
+  String triageReview(String step);
 }
 
 class _AppLocalizationsDelegate

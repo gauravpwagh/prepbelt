@@ -208,6 +208,12 @@ class ExamTasks extends Table with SyncColumns {
   BoolColumn get importanceOverridden =>
       boolean().withDefault(const Constant(false))();
 
+  /// The student restored a triage cut: plan this task in full.
+  BoolColumn get triageKeep => boolean().withDefault(const Constant(false))();
+
+  /// The student dropped this task from the plan (triage step 5).
+  BoolColumn get dropped => boolean().withDefault(const Constant(false))();
+
   @override
   List<Set<Column<Object>>> get uniqueKeys => [
     {examId, taskId},

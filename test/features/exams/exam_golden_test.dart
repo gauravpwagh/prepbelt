@@ -39,7 +39,7 @@ PlanItem _next(String taskId, String date) => PlanItem(
   order: 0,
 );
 
-ExamView _view({bool fits = true}) {
+ExamView _view({bool fits = true, TriageView triage = const TriageView()}) {
   final today = DateTime(2026, 10, 28);
   final first = DateTime.utc(2026, 8, 10); // a Monday, 12 weeks back
   // A believable rhythm: most weekdays, longer Sundays, a gap in week 5.
@@ -54,6 +54,7 @@ ExamView _view({bool fits = true}) {
     exam: _exam,
     today: today,
     planFits: fits,
+    triage: triage,
     todayMinutes: 105,
     metrics: const ExamMetrics(
       tier: 4,
@@ -113,8 +114,39 @@ Widget addExam({String name = 'JEE Main', DateTime? date}) => Scaffold(
   ),
 );
 
+const _cuts = TriageView(
+  cuts: [
+    (step: TriageStep.dropFinalLow, taskId: 'l1', title: 'Polymers'),
+    (step: TriageStep.dropFinalLow, taskId: 'l2', title: 'Biomolecules'),
+    (step: TriageStep.dropFinalLow, taskId: 'l3', title: 'Surface chemistry'),
+    (step: TriageStep.lowerMedium, taskId: 'm1', title: 'Electrostatics'),
+  ],
+  dropped: [(step: null, taskId: 'm9', title: 'Wave optics')],
+);
+
+const _needs = TriageView(
+  cuts: [
+    (step: TriageStep.dropFinalLow, taskId: 'l1', title: 'Polymers'),
+    (step: TriageStep.lowToYellow, taskId: 'l1', title: 'Polymers'),
+    (step: TriageStep.lowerMedium, taskId: 'm1', title: 'Electrostatics'),
+  ],
+  needsStudent: true,
+  extraForReduced: 18,
+  extraForFull: 36,
+);
+
 void main() {
   goldenBoth('exam_390', () => exam(AsyncData(_view())), height: 844);
+  goldenBoth(
+    'exam_triage_cuts',
+    () => exam(AsyncData(_view(triage: _cuts))),
+    height: 1100,
+  );
+  goldenBoth(
+    'exam_triage_needs_student',
+    () => exam(AsyncData(_view(fits: false, triage: _needs))),
+    height: 1200,
+  );
   goldenBoth(
     'exam_360_tight',
     () => exam(AsyncData(_view(fits: false))),

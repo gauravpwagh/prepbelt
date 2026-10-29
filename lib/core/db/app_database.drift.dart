@@ -10454,6 +10454,36 @@ class $ExamTasksTable extends ExamTasks
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _triageKeepMeta = const VerificationMeta(
+    'triageKeep',
+  );
+  @override
+  late final GeneratedColumn<bool> triageKeep = GeneratedColumn<bool>(
+    'triage_keep',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("triage_keep" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _droppedMeta = const VerificationMeta(
+    'dropped',
+  );
+  @override
+  late final GeneratedColumn<bool> dropped = GeneratedColumn<bool>(
+    'dropped',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("dropped" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -10467,6 +10497,8 @@ class $ExamTasksTable extends ExamTasks
     importance,
     targetLevel,
     importanceOverridden,
+    triageKeep,
+    dropped,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -10559,6 +10591,18 @@ class $ExamTasksTable extends ExamTasks
         ),
       );
     }
+    if (data.containsKey('triage_keep')) {
+      context.handle(
+        _triageKeepMeta,
+        triageKeep.isAcceptableOrUnknown(data['triage_keep']!, _triageKeepMeta),
+      );
+    }
+    if (data.containsKey('dropped')) {
+      context.handle(
+        _droppedMeta,
+        dropped.isAcceptableOrUnknown(data['dropped']!, _droppedMeta),
+      );
+    }
     return context;
   }
 
@@ -10618,6 +10662,14 @@ class $ExamTasksTable extends ExamTasks
         DriftSqlType.bool,
         data['${effectivePrefix}importance_overridden'],
       )!,
+      triageKeep: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}triage_keep'],
+      )!,
+      dropped: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}dropped'],
+      )!,
     );
   }
 
@@ -10645,6 +10697,12 @@ class ExamTask extends DataClass implements Insertable<ExamTask> {
   final Importance importance;
   final int targetLevel;
   final bool importanceOverridden;
+
+  /// The student restored a triage cut: plan this task in full.
+  final bool triageKeep;
+
+  /// The student dropped this task from the plan (triage step 5).
+  final bool dropped;
   const ExamTask({
     required this.id,
     required this.createdAt,
@@ -10657,6 +10715,8 @@ class ExamTask extends DataClass implements Insertable<ExamTask> {
     required this.importance,
     required this.targetLevel,
     required this.importanceOverridden,
+    required this.triageKeep,
+    required this.dropped,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -10678,6 +10738,8 @@ class ExamTask extends DataClass implements Insertable<ExamTask> {
     }
     map['target_level'] = Variable<int>(targetLevel);
     map['importance_overridden'] = Variable<bool>(importanceOverridden);
+    map['triage_keep'] = Variable<bool>(triageKeep);
+    map['dropped'] = Variable<bool>(dropped);
     return map;
   }
 
@@ -10696,6 +10758,8 @@ class ExamTask extends DataClass implements Insertable<ExamTask> {
       importance: Value(importance),
       targetLevel: Value(targetLevel),
       importanceOverridden: Value(importanceOverridden),
+      triageKeep: Value(triageKeep),
+      dropped: Value(dropped),
     );
   }
 
@@ -10720,6 +10784,8 @@ class ExamTask extends DataClass implements Insertable<ExamTask> {
       importanceOverridden: serializer.fromJson<bool>(
         json['importanceOverridden'],
       ),
+      triageKeep: serializer.fromJson<bool>(json['triageKeep']),
+      dropped: serializer.fromJson<bool>(json['dropped']),
     );
   }
   @override
@@ -10739,6 +10805,8 @@ class ExamTask extends DataClass implements Insertable<ExamTask> {
       ),
       'targetLevel': serializer.toJson<int>(targetLevel),
       'importanceOverridden': serializer.toJson<bool>(importanceOverridden),
+      'triageKeep': serializer.toJson<bool>(triageKeep),
+      'dropped': serializer.toJson<bool>(dropped),
     };
   }
 
@@ -10754,6 +10822,8 @@ class ExamTask extends DataClass implements Insertable<ExamTask> {
     Importance? importance,
     int? targetLevel,
     bool? importanceOverridden,
+    bool? triageKeep,
+    bool? dropped,
   }) => ExamTask(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -10766,6 +10836,8 @@ class ExamTask extends DataClass implements Insertable<ExamTask> {
     importance: importance ?? this.importance,
     targetLevel: targetLevel ?? this.targetLevel,
     importanceOverridden: importanceOverridden ?? this.importanceOverridden,
+    triageKeep: triageKeep ?? this.triageKeep,
+    dropped: dropped ?? this.dropped,
   );
   ExamTask copyWithCompanion(ExamTasksCompanion data) {
     return ExamTask(
@@ -10786,6 +10858,10 @@ class ExamTask extends DataClass implements Insertable<ExamTask> {
       importanceOverridden: data.importanceOverridden.present
           ? data.importanceOverridden.value
           : this.importanceOverridden,
+      triageKeep: data.triageKeep.present
+          ? data.triageKeep.value
+          : this.triageKeep,
+      dropped: data.dropped.present ? data.dropped.value : this.dropped,
     );
   }
 
@@ -10802,7 +10878,9 @@ class ExamTask extends DataClass implements Insertable<ExamTask> {
           ..write('taskId: $taskId, ')
           ..write('importance: $importance, ')
           ..write('targetLevel: $targetLevel, ')
-          ..write('importanceOverridden: $importanceOverridden')
+          ..write('importanceOverridden: $importanceOverridden, ')
+          ..write('triageKeep: $triageKeep, ')
+          ..write('dropped: $dropped')
           ..write(')'))
         .toString();
   }
@@ -10820,6 +10898,8 @@ class ExamTask extends DataClass implements Insertable<ExamTask> {
     importance,
     targetLevel,
     importanceOverridden,
+    triageKeep,
+    dropped,
   );
   @override
   bool operator ==(Object other) =>
@@ -10835,7 +10915,9 @@ class ExamTask extends DataClass implements Insertable<ExamTask> {
           other.taskId == this.taskId &&
           other.importance == this.importance &&
           other.targetLevel == this.targetLevel &&
-          other.importanceOverridden == this.importanceOverridden);
+          other.importanceOverridden == this.importanceOverridden &&
+          other.triageKeep == this.triageKeep &&
+          other.dropped == this.dropped);
 }
 
 class ExamTasksCompanion extends UpdateCompanion<ExamTask> {
@@ -10850,6 +10932,8 @@ class ExamTasksCompanion extends UpdateCompanion<ExamTask> {
   final Value<Importance> importance;
   final Value<int> targetLevel;
   final Value<bool> importanceOverridden;
+  final Value<bool> triageKeep;
+  final Value<bool> dropped;
   final Value<int> rowid;
   const ExamTasksCompanion({
     this.id = const Value.absent(),
@@ -10863,6 +10947,8 @@ class ExamTasksCompanion extends UpdateCompanion<ExamTask> {
     this.importance = const Value.absent(),
     this.targetLevel = const Value.absent(),
     this.importanceOverridden = const Value.absent(),
+    this.triageKeep = const Value.absent(),
+    this.dropped = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ExamTasksCompanion.insert({
@@ -10877,6 +10963,8 @@ class ExamTasksCompanion extends UpdateCompanion<ExamTask> {
     required Importance importance,
     required int targetLevel,
     this.importanceOverridden = const Value.absent(),
+    this.triageKeep = const Value.absent(),
+    this.dropped = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -10899,6 +10987,8 @@ class ExamTasksCompanion extends UpdateCompanion<ExamTask> {
     Expression<String>? importance,
     Expression<int>? targetLevel,
     Expression<bool>? importanceOverridden,
+    Expression<bool>? triageKeep,
+    Expression<bool>? dropped,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -10914,6 +11004,8 @@ class ExamTasksCompanion extends UpdateCompanion<ExamTask> {
       if (targetLevel != null) 'target_level': targetLevel,
       if (importanceOverridden != null)
         'importance_overridden': importanceOverridden,
+      if (triageKeep != null) 'triage_keep': triageKeep,
+      if (dropped != null) 'dropped': dropped,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -10930,6 +11022,8 @@ class ExamTasksCompanion extends UpdateCompanion<ExamTask> {
     Value<Importance>? importance,
     Value<int>? targetLevel,
     Value<bool>? importanceOverridden,
+    Value<bool>? triageKeep,
+    Value<bool>? dropped,
     Value<int>? rowid,
   }) {
     return ExamTasksCompanion(
@@ -10944,6 +11038,8 @@ class ExamTasksCompanion extends UpdateCompanion<ExamTask> {
       importance: importance ?? this.importance,
       targetLevel: targetLevel ?? this.targetLevel,
       importanceOverridden: importanceOverridden ?? this.importanceOverridden,
+      triageKeep: triageKeep ?? this.triageKeep,
+      dropped: dropped ?? this.dropped,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -10986,6 +11082,12 @@ class ExamTasksCompanion extends UpdateCompanion<ExamTask> {
     if (importanceOverridden.present) {
       map['importance_overridden'] = Variable<bool>(importanceOverridden.value);
     }
+    if (triageKeep.present) {
+      map['triage_keep'] = Variable<bool>(triageKeep.value);
+    }
+    if (dropped.present) {
+      map['dropped'] = Variable<bool>(dropped.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -11006,6 +11108,8 @@ class ExamTasksCompanion extends UpdateCompanion<ExamTask> {
           ..write('importance: $importance, ')
           ..write('targetLevel: $targetLevel, ')
           ..write('importanceOverridden: $importanceOverridden, ')
+          ..write('triageKeep: $triageKeep, ')
+          ..write('dropped: $dropped, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -26832,6 +26936,8 @@ typedef $$ExamTasksTableCreateCompanionBuilder =
       required Importance importance,
       required int targetLevel,
       Value<bool> importanceOverridden,
+      Value<bool> triageKeep,
+      Value<bool> dropped,
       Value<int> rowid,
     });
 typedef $$ExamTasksTableUpdateCompanionBuilder =
@@ -26847,6 +26953,8 @@ typedef $$ExamTasksTableUpdateCompanionBuilder =
       Value<Importance> importance,
       Value<int> targetLevel,
       Value<bool> importanceOverridden,
+      Value<bool> triageKeep,
+      Value<bool> dropped,
       Value<int> rowid,
     });
 
@@ -26943,6 +27051,16 @@ class $$ExamTasksTableFilterComposer
 
   ColumnFilters<bool> get importanceOverridden => $composableBuilder(
     column: $table.importanceOverridden,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get triageKeep => $composableBuilder(
+    column: $table.triageKeep,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get dropped => $composableBuilder(
+    column: $table.dropped,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -27047,6 +27165,16 @@ class $$ExamTasksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get triageKeep => $composableBuilder(
+    column: $table.triageKeep,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get dropped => $composableBuilder(
+    column: $table.dropped,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$ExamsTableOrderingComposer get examId {
     final $$ExamsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -27137,6 +27265,14 @@ class $$ExamTasksTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<bool> get triageKeep => $composableBuilder(
+    column: $table.triageKeep,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get dropped =>
+      $composableBuilder(column: $table.dropped, builder: (column) => column);
+
   $$ExamsTableAnnotationComposer get examId {
     final $$ExamsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -27223,6 +27359,8 @@ class $$ExamTasksTableTableManager
                 Value<Importance> importance = const Value.absent(),
                 Value<int> targetLevel = const Value.absent(),
                 Value<bool> importanceOverridden = const Value.absent(),
+                Value<bool> triageKeep = const Value.absent(),
+                Value<bool> dropped = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExamTasksCompanion(
                 id: id,
@@ -27236,6 +27374,8 @@ class $$ExamTasksTableTableManager
                 importance: importance,
                 targetLevel: targetLevel,
                 importanceOverridden: importanceOverridden,
+                triageKeep: triageKeep,
+                dropped: dropped,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -27251,6 +27391,8 @@ class $$ExamTasksTableTableManager
                 required Importance importance,
                 required int targetLevel,
                 Value<bool> importanceOverridden = const Value.absent(),
+                Value<bool> triageKeep = const Value.absent(),
+                Value<bool> dropped = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExamTasksCompanion.insert(
                 id: id,
@@ -27264,6 +27406,8 @@ class $$ExamTasksTableTableManager
                 importance: importance,
                 targetLevel: targetLevel,
                 importanceOverridden: importanceOverridden,
+                triageKeep: triageKeep,
+                dropped: dropped,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

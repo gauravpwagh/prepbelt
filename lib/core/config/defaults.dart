@@ -205,6 +205,9 @@ abstract final class SettingKeys {
 
   /// Set once the notification permission has been asked for.
   static const reminderAsked = 'ui.reminderAsked';
+
+  /// The exam whose reduced plan the student accepted (triage step 5).
+  static const triageAccepted = 'plan.triageAccepted';
   static const studentName = 'profile.name';
   static const onboarded = 'profile.onboarded';
 

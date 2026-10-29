@@ -5,6 +5,7 @@ import '../../../core/db/app_database.dart';
 import '../../../core/db/event_log.dart';
 import '../../../engines/planner/estimate.dart';
 import '../../../engines/planner/planner.dart';
+import '../../../engines/planner/triage.dart';
 import '../../session/data/session_repository.dart';
 import '../../sources/data/reading_repository.dart';
 import '../../tasks/data/review_repository.dart';
@@ -44,7 +45,9 @@ final class PlannerRepository extends EventSourcedRepository {
           .getSingleOrNull();
 
   /// The planner's input for today, or null without an upcoming exam.
-  Future<PlannerInput?> input() async {
+  /// [alsoKeep] marks extra tasks as kept, for "what would keeping this
+  /// task cut instead?".
+  Future<PlannerInput?> input({Set<String> alsoKeep = const {}}) async {
     final exam = await upcomingExam();
     if (exam == null) return null;
     final today = dayKey(ctx.clock.now().toLocal());
@@ -95,6 +98,7 @@ final class PlannerRepository extends EventSourcedRepository {
         continue;
       }
       final link = links[state.taskId];
+      if (link?.dropped ?? false) continue;
       final importance = switch (link?.importance) {
         Importance.high => PlanImportance.high,
         Importance.low => PlanImportance.low,
@@ -120,6 +124,7 @@ final class PlannerRepository extends EventSourcedRepository {
           subject: first?.source.id ?? '',
           sourceKey: first?.source.id ?? '',
           sourceOrder: first?.chunk.startUnit ?? 0,
+          keep: (link?.triageKeep ?? false) || alsoKeep.contains(state.taskId),
         ),
       );
     }
@@ -157,12 +162,13 @@ final class PlannerRepository extends EventSourcedRepository {
 
   /// Plans from today and stores it. Returns the result, or null without
   /// an upcoming exam (then any planned rows from today on are cleared).
-  Future<PlanResult?> replan() async {
+  Future<TriageResult?> replan() async {
     final exam = await upcomingExam();
     final input = await this.input();
-    final result = input == null
+    final triaged = input == null
         ? null
-        : plan(input, await reviews.loadEngine());
+        : triage(input, await reviews.loadEngine());
+    final result = triaged?.plan;
     final today = dateText(dayKey(ctx.clock.now().toLocal()));
     await mutate<void>(
       entity: entity,
@@ -172,6 +178,7 @@ final class PlannerRepository extends EventSourcedRepository {
         'action': 'replan',
         'items': result?.entries.length ?? 0,
         'fits': result?.fits,
+        'cuts': triaged?.cuts.length ?? 0,
       },
       body: (rec) async {
         // Missed sessions on earlier days become "moved".
@@ -220,7 +227,13 @@ final class PlannerRepository extends EventSourcedRepository {
         });
       },
     );
-    return result;
+    return triaged;
+  }
+
+  /// Triage as it would be with [taskId] kept in full (nothing written).
+  Future<TriageResult?> previewKeep(String taskId) async {
+    final input = await this.input(alsoKeep: {taskId});
+    return input == null ? null : triage(input, await reviews.loadEngine());
   }
 
   /// Today's plan items in order, re-read whenever the plan changes.

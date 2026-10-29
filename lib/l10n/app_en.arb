@@ -1185,5 +1185,121 @@
   "addExamSave": "Add exam",
   "addExamFailed": "Couldn't save. Try again.",
   "addExamLess": "Less time",
-  "addExamMore": "More time"
+  "addExamMore": "More time",
+  "triageTitle": "Plan trimmed to fit",
+  "triageBody": "The least important work was cut first. Keep any task in full and the plan cuts something else.",
+  "triageStepDropFinalLow": "{count, plural, =1{Final review dropped · 1 Low task} other{Final review dropped · {count} Low tasks}}",
+  "@triageStepDropFinalLow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "triageStepLowToYellow": "{count, plural, =1{Aim for Yellow · 1 Low task} other{Aim for Yellow · {count} Low tasks}}",
+  "@triageStepLowToYellow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "triageStepSkim": "{count, plural, =1{Skim instead of read · 1 easy Low task} other{Skim instead of read · {count} easy Low tasks}}",
+  "@triageStepSkim": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "triageStepLowerMedium": "{count, plural, =1{One belt lower · 1 Medium task} other{One belt lower · {count} Medium tasks}}",
+  "@triageStepLowerMedium": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "triageDroppedRow": "{count, plural, =1{Dropped by you · 1 task} other{Dropped by you · {count} tasks}}",
+  "@triageDroppedRow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "triageKeepAction": "Keep {title} in full",
+  "@triageKeepAction": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "triageRestoreAction": "Restore {title}",
+  "@triageRestoreAction": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "triageDropAction": "Drop {title}",
+  "@triageDropAction": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "triageKeepTitle": "Keep {title} in full?",
+  "@triageKeepTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "triageKeepNext": "To make room, the plan also cuts:",
+  "triageKeepNothing": "Nothing else needs to change.",
+  "triageKeepConfirm": "Keep it",
+  "triageCancel": "Cancel",
+  "triageNeedsTitle": "Still doesn't fit",
+  "triageNeedsReduced": "About {minutes} more minutes a day keeps this reduced plan.",
+  "@triageNeedsReduced": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "triageNeedsFull": "About {minutes} more keeps everything.",
+  "@triageNeedsFull": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "triageNeedsNoTime": "More time alone can't fit it. Drop some tasks, or accept a lower belt.",
+  "triageAddMinutes": "Add {minutes} min a day",
+  "@triageAddMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "triageDrop": "Drop tasks",
+  "triageDropTitle": "Drop a task from the plan",
+  "triageAccept": "Accept a lower belt",
+  "triageAccepted": "Reduced plan accepted. You can still add time or drop tasks.",
+  "triageReview": "Review cuts in {step}",
+  "@triageReview": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  }
 }

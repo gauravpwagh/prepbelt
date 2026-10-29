@@ -69,7 +69,7 @@ final plannerProvider = PlannerProvider._();
 /// availability), and on [replanNow] (app resume, a new day). State is the
 /// latest result, null without an upcoming exam.
 final class PlannerProvider
-    extends $AsyncNotifierProvider<Planner, PlanResult?> {
+    extends $AsyncNotifierProvider<Planner, TriageResult?> {
   /// Keeps the plan current: replans [Defaults.plannerDebounceMs] after any
   /// planner input changes (a review, a survey answer, a task, the exam,
   /// availability), and on [replanNow] (app resume, a new day). State is the
@@ -93,24 +93,24 @@ final class PlannerProvider
   Planner create() => Planner();
 }
 
-String _$plannerHash() => r'2e26c751420be80d6641af49ab4c6a98614808e4';
+String _$plannerHash() => r'94ce57114a48af485be4d90856dc28379766d04e';
 
 /// Keeps the plan current: replans [Defaults.plannerDebounceMs] after any
 /// planner input changes (a review, a survey answer, a task, the exam,
 /// availability), and on [replanNow] (app resume, a new day). State is the
 /// latest result, null without an upcoming exam.
 
-abstract class _$Planner extends $AsyncNotifier<PlanResult?> {
-  FutureOr<PlanResult?> build();
+abstract class _$Planner extends $AsyncNotifier<TriageResult?> {
+  FutureOr<TriageResult?> build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<AsyncValue<PlanResult?>, PlanResult?>;
+    final ref = this.ref as $Ref<AsyncValue<TriageResult?>, TriageResult?>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<AsyncValue<PlanResult?>, PlanResult?>,
-              AsyncValue<PlanResult?>,
+              AnyNotifier<AsyncValue<TriageResult?>, TriageResult?>,
+              AsyncValue<TriageResult?>,
               Object?,
               Object?
             >;

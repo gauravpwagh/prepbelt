@@ -10,11 +10,13 @@ import '../../../engines/exam/exam_metrics.dart';
 import '../../../engines/planner/planner.dart';
 import '../../planner/data/planner_repository.dart' show dateText;
 import '../../planner/state/planner_providers.dart';
+import '../../settings/state/settings_providers.dart';
 import '../../sources/data/task_writer.dart';
 import '../data/exam_view_repository.dart';
 import 'exam_providers.dart';
 
 export '../../../engines/exam/exam_metrics.dart' show ExamMetrics;
+export '../../../engines/planner/triage.dart' show TriageStep;
 
 part 'exam_view_providers.g.dart';
 
@@ -42,6 +44,42 @@ final class WeakLink {
 /// One day of the activity grid.
 typedef ActivityDay = ({DateTime day, int minutes, int bucket});
 
+/// A task the plan cut, or the student dropped.
+typedef PlanCut = ({TriageStep? step, String taskId, String title});
+
+/// A task the student could drop at triage step 5.
+typedef Droppable = ({String taskId, String title, Importance importance});
+
+/// What triage did to fit the plan (docs/04-planner-spec.md, "Triage").
+final class TriageView {
+  const TriageView({
+    this.cuts = const [],
+    this.dropped = const [],
+    this.droppable = const [],
+    this.needsStudent = false,
+    this.extraForReduced,
+    this.extraForFull,
+    this.accepted = false,
+  });
+
+  /// Automatic cuts, in step order.
+  final List<PlanCut> cuts;
+
+  /// Tasks the student dropped (step 5); each can be restored.
+  final List<PlanCut> dropped;
+
+  /// Medium and High tasks the student could drop.
+  final List<Droppable> droppable;
+  final bool needsStudent;
+  final int? extraForReduced;
+  final int? extraForFull;
+
+  /// The student accepted the reduced plan.
+  final bool accepted;
+
+  bool get isEmpty => cuts.isEmpty && dropped.isEmpty && !needsStudent;
+}
+
 /// Everything the Exam screen shows.
 final class ExamView {
   const ExamView({
@@ -52,6 +90,7 @@ final class ExamView {
     required this.weakLinks,
     required this.activity,
     this.planFits = true,
+    this.triage = const TriageView(),
   });
 
   final Exam exam;
@@ -68,8 +107,9 @@ final class ExamView {
   /// first, through today.
   final List<ActivityDay> activity;
 
-  /// False when the plan cannot fit everything (triage, milestone 5).
+  /// False when the plan cannot fit everything, even after triage.
   final bool planFits;
+  final TriageView triage;
 
   int get daysLeft =>
       dayKey(DateTime.parse(exam.date)).difference(dayKey(today)).inDays;
@@ -89,6 +129,8 @@ Stream<ExamView?> examView(Ref ref, String? examId) async* {
     return;
   }
   final plan = await ref.watch(plannerProvider.future);
+  final settings = await ref.watch(settingsProvider.future);
+  final accepted = settings[SettingKeys.triageAccepted] == exam.id;
   final now = clock.now().toLocal();
   final today = dayKey(now);
   const weeks = Defaults.activityGridWeeks;
@@ -112,14 +154,18 @@ Stream<ExamView?> examView(Ref ref, String? examId) async* {
   List<PlanItem>? p;
   ExamView? build() {
     if (t == null || s == null || p == null) return null;
-    final metrics = examMetrics([
+    final active = [
       for (final r in t!)
+        if (!r.link.dropped) r,
+    ];
+    final metrics = examMetrics([
+      for (final r in active)
         ExamTaskLevel(
           id: r.task.id,
           importance: PlanImportance.values[r.link.importance.index],
           target: r.link.targetLevel,
           level: r.state.level,
-          projected: plan?.projectedLevel[r.task.id] ?? r.state.level,
+          projected: plan?.plan.projectedLevel[r.task.id] ?? r.state.level,
         ),
     ]);
     final titles = {for (final r in t!) r.task.id: r.task.title};
@@ -135,6 +181,31 @@ Stream<ExamView?> examView(Ref ref, String? examId) async* {
       today: now,
       metrics: metrics,
       planFits: plan?.fits ?? true,
+      triage: TriageView(
+        cuts: [
+          for (final c in plan?.cuts ?? const <TriageCut>[])
+            if (titles[c.taskId] != null)
+              (step: c.step, taskId: c.taskId, title: titles[c.taskId]!),
+        ],
+        dropped: [
+          for (final r in t!)
+            if (r.link.dropped)
+              (step: null, taskId: r.task.id, title: r.task.title),
+        ],
+        droppable: [
+          for (final r in active)
+            if (r.link.importance != Importance.low)
+              (
+                taskId: r.task.id,
+                title: r.task.title,
+                importance: r.link.importance,
+              ),
+        ],
+        needsStudent: plan?.needsStudent ?? false,
+        extraForReduced: plan?.extraForReduced,
+        extraForFull: plan?.extraForFull,
+        accepted: accepted,
+      ),
       todayMinutes: p!
           .where((i) => i.date == dateText(today))
           .fold(0, (sum, i) => sum + i.estMinutes),
@@ -255,4 +326,44 @@ class ExamActions extends _$ExamActions {
   }
 
   Future<int> taskCount() => ref.read(examRepositoryProvider).activeTaskCount();
+
+  /// What keeping [taskId] in full would cut instead: the cuts that are
+  /// new compared with now. Nothing is written.
+  Future<List<TriageCut>> previewKeep(String taskId) async {
+    final now = await ref.read(plannerProvider.future);
+    final next = await ref.read(plannerRepositoryProvider).previewKeep(taskId);
+    final before = {...?now?.cuts};
+    return [
+      for (final c in next?.cuts ?? const <TriageCut>[])
+        if (!before.contains(c)) c,
+    ];
+  }
+
+  Future<void> keep(String examId, String taskId) async {
+    await ref
+        .read(examRepositoryProvider)
+        .setTriage(examId, taskId, keep: true);
+    await ref.read(plannerProvider.notifier).replanNow();
+  }
+
+  Future<void> restore(String examId, String taskId) async {
+    await ref
+        .read(examRepositoryProvider)
+        .setTriage(examId, taskId, dropped: false);
+    await ref.read(plannerProvider.notifier).replanNow();
+  }
+
+  Future<void> drop(String examId, List<String> taskIds) async {
+    await ref.read(examRepositoryProvider).dropTasks(examId, taskIds);
+    await ref.read(plannerProvider.notifier).replanNow();
+  }
+
+  Future<void> addMinutes(String examId, int extra) async {
+    await ref.read(examRepositoryProvider).addDailyMinutes(examId, extra);
+    await ref.read(plannerProvider.notifier).replanNow();
+  }
+
+  Future<void> acceptReduced(String examId) => ref
+      .read(settingsRepositoryProvider)
+      .set(SettingKeys.triageAccepted, examId);
 }

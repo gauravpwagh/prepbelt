@@ -5,13 +5,15 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/config/defaults.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/providers/core_providers.dart';
-import '../../../engines/planner/planner.dart';
+import '../../../engines/planner/triage.dart';
 import '../../session/state/session_providers.dart';
 import '../../sources/state/reading_providers.dart';
 import '../../tasks/state/task_providers.dart';
 import '../data/planner_repository.dart';
 
 export '../../../engines/planner/planner.dart' show PlanResult, dayKey;
+export '../../../engines/planner/triage.dart'
+    show TriageCut, TriageResult, TriageStep;
 
 part 'planner_providers.g.dart';
 
@@ -34,7 +36,7 @@ class Planner extends _$Planner {
   bool _again = false;
 
   @override
-  Future<PlanResult?> build() async {
+  Future<TriageResult?> build() async {
     final repo = ref.watch(plannerRepositoryProvider);
     final sub = repo.watchInputs().skip(1).listen((_) => _schedule());
     ref.onDispose(() {

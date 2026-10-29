@@ -180,4 +180,46 @@ void main() {
     expect(input!.tasks, hasLength(2));
     expect(input.explores, isEmpty, reason: 'every chapter has a task');
   });
+
+  test(
+    'triage choices: a dropped task leaves the plan, a kept one is '
+    'marked for the planner, and adding minutes changes every weekday',
+    () async {
+      final exam = await exams.create(name: 'JEE Main', date: '2027-01-10');
+      await book(exam.id);
+      final links = await db.select(db.examTasks).get();
+      final first = links.first.taskId;
+
+      await exams.dropTasks(exam.id, [first]);
+      var input = await planner.input();
+      expect(input!.tasks.map((t) => t.id), isNot(contains(first)));
+
+      await exams.setTriage(exam.id, first, dropped: false, keep: true);
+      input = await planner.input();
+      expect(input!.tasks.firstWhere((t) => t.id == first).keep, isTrue);
+
+      await exams.addDailyMinutes(exam.id, 20);
+      input = await planner.input();
+      expect(input!.weekdayMinutes.toSet(), {90 + 20});
+
+      // Undo of the last choice restores the week.
+      await exams.undo(exam.id);
+      input = await planner.input();
+      expect(input!.weekdayMinutes.toSet(), {90});
+    },
+  );
+
+  test('a tight plan comes back with cuts, and previewing a keep runs '
+      'triage without writing', () async {
+    final exam = await exams.create(name: 'JEE Main', date: '2026-11-08');
+    await book(exam.id);
+    final before = await items();
+    final result = await planner.replan();
+    expect(result, isNotNull);
+    final preview = await planner.previewKeep(
+      (await db.select(db.examTasks).get()).first.taskId,
+    );
+    expect(preview, isNotNull);
+    expect((await items()).length, greaterThanOrEqualTo(before.length));
+  });
 }

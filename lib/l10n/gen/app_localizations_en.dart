@@ -1369,4 +1369,138 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addExamMore => 'More time';
+
+  @override
+  String get triageTitle => 'Plan trimmed to fit';
+
+  @override
+  String get triageBody =>
+      'The least important work was cut first. Keep any task in full and the plan cuts something else.';
+
+  @override
+  String triageStepDropFinalLow(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Final review dropped · $count Low tasks',
+      one: 'Final review dropped · 1 Low task',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String triageStepLowToYellow(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Aim for Yellow · $count Low tasks',
+      one: 'Aim for Yellow · 1 Low task',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String triageStepSkim(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Skim instead of read · $count easy Low tasks',
+      one: 'Skim instead of read · 1 easy Low task',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String triageStepLowerMedium(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'One belt lower · $count Medium tasks',
+      one: 'One belt lower · 1 Medium task',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String triageDroppedRow(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Dropped by you · $count tasks',
+      one: 'Dropped by you · 1 task',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String triageKeepAction(String title) {
+    return 'Keep $title in full';
+  }
+
+  @override
+  String triageRestoreAction(String title) {
+    return 'Restore $title';
+  }
+
+  @override
+  String triageDropAction(String title) {
+    return 'Drop $title';
+  }
+
+  @override
+  String triageKeepTitle(String title) {
+    return 'Keep $title in full?';
+  }
+
+  @override
+  String get triageKeepNext => 'To make room, the plan also cuts:';
+
+  @override
+  String get triageKeepNothing => 'Nothing else needs to change.';
+
+  @override
+  String get triageKeepConfirm => 'Keep it';
+
+  @override
+  String get triageCancel => 'Cancel';
+
+  @override
+  String get triageNeedsTitle => 'Still doesn\'t fit';
+
+  @override
+  String triageNeedsReduced(int minutes) {
+    return 'About $minutes more minutes a day keeps this reduced plan.';
+  }
+
+  @override
+  String triageNeedsFull(int minutes) {
+    return 'About $minutes more keeps everything.';
+  }
+
+  @override
+  String get triageNeedsNoTime =>
+      'More time alone can\'t fit it. Drop some tasks, or accept a lower belt.';
+
+  @override
+  String triageAddMinutes(int minutes) {
+    return 'Add $minutes min a day';
+  }
+
+  @override
+  String get triageDrop => 'Drop tasks';
+
+  @override
+  String get triageDropTitle => 'Drop a task from the plan';
+
+  @override
+  String get triageAccept => 'Accept a lower belt';
+
+  @override
+  String get triageAccepted =>
+      'Reduced plan accepted. You can still add time or drop tasks.';
+
+  @override
+  String triageReview(String step) {
+    return 'Review cuts in $step';
+  }
 }

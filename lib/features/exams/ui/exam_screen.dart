@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/ui/app_icons.dart';
+import '../../../core/ui/bottom_sheet.dart';
 import '../../../core/ui/buttons.dart';
 import '../../../core/ui/fields.dart';
 import '../../../l10n/gen/app_localizations.dart';
@@ -25,6 +27,7 @@ class ExamsTab extends ConsumerWidget {
         onAdd: () => context.push(Routes.newExam),
         onOpenTask: (id) => context.push(Routes.task(id)),
         onRetry: () => ref.invalidate(examViewProvider(null)),
+        triage: triageCallbacks(ref),
       ),
     ),
   );
@@ -45,6 +48,7 @@ class ExamScreen extends ConsumerWidget {
         onAdd: () => context.push(Routes.newExam),
         onOpenTask: (id) => context.push(Routes.task(id)),
         onRetry: () => ref.invalidate(examViewProvider(examId)),
+        triage: triageCallbacks(ref),
       ),
     ),
   );
@@ -58,10 +62,12 @@ class ExamBody extends StatelessWidget {
     required this.onOpenTask,
     required this.onRetry,
     this.onBack,
+    this.triage,
     super.key,
   });
 
   final AsyncValue<ExamView?> view;
+  final TriageCallbacks? triage;
   final VoidCallback? onBack;
   final VoidCallback onAdd;
   final ValueChanged<String> onOpenTask;
@@ -78,7 +84,10 @@ class ExamBody extends StatelessWidget {
           _Header(view: v, onBack: onBack),
           const SizedBox(height: AppSpace.lg),
           _Hero(view: v),
-          if (!v.planFits) ...[
+          if (!v.triage.isEmpty) ...[
+            const SizedBox(height: AppSpace.lg),
+            _Triage(view: v, actions: triage),
+          ] else if (!v.planFits) ...[
             const SizedBox(height: AppSpace.lg),
             WarningCard(message: l10n.examPlanTight),
           ],
@@ -91,11 +100,14 @@ class ExamBody extends StatelessWidget {
         ],
       ),
       AsyncData() => _Empty(onAdd: onAdd),
-      AsyncError() => Padding(
-        padding: const EdgeInsets.all(20),
-        child: WarningCard(
-          message: l10n.examLoadFailed,
-          action: SmallButton(label: l10n.todayRetry, onPressed: onRetry),
+      AsyncError() => Align(
+        alignment: Alignment.topCenter,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: WarningCard(
+            message: l10n.examLoadFailed,
+            action: SmallButton(label: l10n.todayRetry, onPressed: onRetry),
+          ),
         ),
       ),
       _ => Center(
@@ -258,6 +270,259 @@ class _Hero extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// What the Exam screen can do about triage. A class so goldens can pass
+/// no-ops.
+final class TriageCallbacks {
+  const TriageCallbacks({
+    required this.previewKeep,
+    required this.keep,
+    required this.restore,
+    required this.drop,
+    required this.addMinutes,
+    required this.accept,
+  });
+
+  /// Titles of what keeping a task would cut instead.
+  final Future<List<String>> Function(String taskId) previewKeep;
+  final Future<void> Function(String examId, String taskId) keep;
+  final Future<void> Function(String examId, String taskId) restore;
+  final Future<void> Function(String examId, String taskId) drop;
+  final Future<void> Function(String examId, int minutes) addMinutes;
+  final Future<void> Function(String examId) accept;
+}
+
+/// Wires [TriageCallbacks] to [ExamActions].
+TriageCallbacks triageCallbacks(WidgetRef ref) {
+  ExamActions actions() => ref.read(examActionsProvider.notifier);
+  return TriageCallbacks(
+    previewKeep: (taskId) async {
+      final cuts = await actions().previewKeep(taskId);
+      final view = ref.read(examViewProvider(null)).value;
+      final titles = {
+        for (final r in [...?view?.triage.droppable]) r.taskId: r.title,
+        for (final c in [...?view?.triage.cuts]) c.taskId: c.title,
+      };
+      return [for (final c in cuts) titles[c.taskId] ?? c.taskId];
+    },
+    keep: (e, t) => actions().keep(e, t),
+    restore: (e, t) => actions().restore(e, t),
+    drop: (e, t) => actions().drop(e, [t]),
+    addMinutes: (e, m) => actions().addMinutes(e, m),
+    accept: (e) => actions().acceptReduced(e),
+  );
+}
+
+/// The cuts that made the plan fit, and step 5 when they are not enough
+/// (docs/04-planner-spec.md, "Triage"). Every cut can be undone.
+class _Triage extends StatelessWidget {
+  const _Triage({required this.view, required this.actions});
+
+  final ExamView view;
+  final TriageCallbacks? actions;
+
+  Future<void> _keep(BuildContext context, PlanCut cut) async {
+    final a = actions;
+    if (a == null) return;
+    final l10n = AppLocalizations.of(context);
+    final c = context.colors;
+    final next = await a.previewKeep(cut.taskId);
+    if (!context.mounted) return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (dialog) => AlertDialog(
+        backgroundColor: c.surface,
+        title: Text(
+          l10n.triageKeepTitle(cut.title),
+          style: AppText.section.copyWith(color: c.ink),
+        ),
+        content: Text(
+          next.isEmpty
+              ? l10n.triageKeepNothing
+              : [l10n.triageKeepNext, for (final t in next) '· $t'].join('\n'),
+          style: AppText.body.copyWith(color: c.ink),
+        ),
+        actions: [
+          TextLinkButton(
+            label: l10n.triageCancel,
+            onPressed: () => Navigator.of(dialog).pop(false),
+          ),
+          TextLinkButton(
+            label: l10n.triageKeepConfirm,
+            onPressed: () => Navigator.of(dialog).pop(true),
+          ),
+        ],
+      ),
+    );
+    if (ok ?? false) await a.keep(view.exam.id, cut.taskId);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final c = context.colors;
+    final t = view.triage;
+    final a = actions;
+    String stepLabel(TriageStep step, int n) => switch (step) {
+      TriageStep.dropFinalLow => l10n.triageStepDropFinalLow(n),
+      TriageStep.lowToYellow => l10n.triageStepLowToYellow(n),
+      TriageStep.skimLowEasy => l10n.triageStepSkim(n),
+      TriageStep.lowerMedium => l10n.triageStepLowerMedium(n),
+    };
+
+    Widget row(String label, VoidCallback onTap) => InkWell(
+      onTap: onTap,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: kMinTouchTarget),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: AppText.body.copyWith(
+                  color: c.ink,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            AppIconView(AppIcon.more, color: c.muted, size: 18),
+          ],
+        ),
+      ),
+    );
+
+    final children = <Widget>[];
+    if (t.cuts.isNotEmpty || t.dropped.isNotEmpty) {
+      children.addAll([
+        Text(l10n.triageTitle, style: AppText.cardTitle.copyWith(color: c.ink)),
+        const SizedBox(height: AppSpace.xs),
+        Text(l10n.triageBody, style: AppText.caption.copyWith(color: c.muted)),
+        const SizedBox(height: AppSpace.sm),
+      ]);
+      for (final step in TriageStep.values) {
+        final cuts = [
+          for (final cut in t.cuts)
+            if (cut.step == step) cut,
+        ];
+        if (cuts.isEmpty) continue;
+        final label = stepLabel(step, cuts.length);
+        children.add(
+          row(
+            label,
+            () => showActionSheet(
+              context,
+              title: label,
+              actions: [
+                for (final cut in cuts)
+                  SheetAction(
+                    l10n.triageKeepAction(cut.title),
+                    () => _keep(context, cut),
+                  ),
+              ],
+            ),
+          ),
+        );
+      }
+      if (t.dropped.isNotEmpty) {
+        final label = l10n.triageDroppedRow(t.dropped.length);
+        children.add(
+          row(
+            label,
+            () => showActionSheet(
+              context,
+              title: label,
+              actions: [
+                for (final d in t.dropped)
+                  SheetAction(
+                    l10n.triageRestoreAction(d.title),
+                    () => a?.restore(view.exam.id, d.taskId),
+                  ),
+              ],
+            ),
+          ),
+        );
+      }
+    }
+
+    final warn = t.needsStudent && !t.accepted;
+    if (warn) {
+      if (children.isNotEmpty) {
+        children.add(const SizedBox(height: AppSpace.lg));
+      }
+      final reduced = t.extraForReduced;
+      final full = t.extraForFull;
+      children.addAll([
+        Text(
+          l10n.triageNeedsTitle,
+          style: AppText.cardTitle.copyWith(color: c.warningText),
+        ),
+        const SizedBox(height: AppSpace.xs),
+        Text(
+          reduced == null
+              ? l10n.triageNeedsNoTime
+              : [
+                  l10n.triageNeedsReduced(reduced),
+                  if (full != null && full > reduced)
+                    l10n.triageNeedsFull(full),
+                ].join(' '),
+          style: AppText.body.copyWith(color: c.ink),
+        ),
+        const SizedBox(height: AppSpace.md),
+        if (reduced != null) ...[
+          PrimaryButton(
+            label: l10n.triageAddMinutes(reduced),
+            onPressed: () => a?.addMinutes(view.exam.id, reduced),
+          ),
+          const SizedBox(height: AppSpace.sm),
+        ],
+        SecondaryButton(
+          label: l10n.triageDrop,
+          onPressed: () => showActionSheet(
+            context,
+            title: l10n.triageDropTitle,
+            actions: [
+              for (final d in t.droppable)
+                SheetAction(
+                  l10n.triageDropAction(d.title),
+                  () => a?.drop(view.exam.id, d.taskId),
+                  destructive: true,
+                ),
+            ],
+          ),
+        ),
+        Align(
+          child: TextLinkButton(
+            label: l10n.triageAccept,
+            onPressed: () => a?.accept(view.exam.id),
+          ),
+        ),
+      ]);
+    } else if (t.needsStudent) {
+      if (children.isNotEmpty) {
+        children.add(const SizedBox(height: AppSpace.md));
+      }
+      children.add(
+        Text(
+          l10n.triageAccepted,
+          style: AppText.caption.copyWith(color: c.muted),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
+      decoration: BoxDecoration(
+        color: warn ? c.warningBg : c.surface,
+        border: Border.all(color: warn ? c.warningBorder : c.line),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
       ),
     );
   }
