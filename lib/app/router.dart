@@ -7,6 +7,7 @@ import '../core/ui/nav_bar.dart';
 import '../core/ui/placeholder_screen.dart';
 import '../features/exams/ui/add_exam_screen.dart';
 import '../features/exams/ui/exam_screen.dart';
+import '../features/onboarding/ui/onboarding_screen.dart';
 import '../features/redefine/ui/redefine_sheet.dart';
 import '../features/session/ui/session_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
@@ -31,15 +32,6 @@ GoRouter router(Ref ref) => buildRouter();
 /// The app's routes. First-launch and active-session redirects arrive with
 /// onboarding (milestone 6) and the return flow (milestone 4).
 GoRouter buildRouter({String initialLocation = Routes.today}) {
-  Widget placeholder(String Function(AppLocalizations l) title) => Builder(
-    builder: (context) => Scaffold(
-      body: PlaceholderScreen(
-        title: title(AppLocalizations.of(context)),
-        showBack: true,
-      ),
-    ),
-  );
-
   GoRoute tab(
     String path,
     Widget screen, {
@@ -123,7 +115,7 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
       GoRoute(path: Routes.settings, builder: (_, _) => const SettingsScreen()),
       GoRoute(
         path: Routes.onboarding,
-        builder: (_, _) => placeholder((l) => l.screenOnboarding),
+        builder: (_, _) => const OnboardingScreen(),
       ),
     ],
   );

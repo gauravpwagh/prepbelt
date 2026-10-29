@@ -1738,4 +1738,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String beltWithFading(String belt) {
     return '$belt, fading';
   }
+
+  @override
+  String get onboardTagline => 'Exam prep, belt by belt.';
+
+  @override
+  String get onboardName => 'What should we call you?';
+
+  @override
+  String get onboardNameHint => 'Your name';
+
+  @override
+  String get onboardMinutes => 'Time to study each day';
+
+  @override
+  String get onboardMinutesHint =>
+      'You can set each weekday later on the exam screen.';
+
+  @override
+  String get onboardContinue => 'Continue';
+
+  @override
+  String get onboardReminderTitle => 'A nudge each evening?';
+
+  @override
+  String get onboardReminderBody =>
+      'One reminder at 19:00 on days you haven\'t studied yet. Never more than one a day.';
+
+  @override
+  String get onboardReminderOn => 'Turn on reminder';
+
+  @override
+  String get onboardReminderOff => 'Not now';
+
+  @override
+  String get onboardExamTitle => 'What are you preparing for?';
+
+  @override
+  String get onboardExamBody =>
+      'Add your exam to get a day-by-day plan. You can also start with your sources and add it later.';
+
+  @override
+  String get onboardAddExam => 'Add exam';
+
+  @override
+  String get onboardSkip => 'Skip for now';
+
+  @override
+  String onboardStep(int step) {
+    return 'Step $step of 3';
+  }
+
+  @override
+  String get onboardFailed => 'Couldn\'t save. Try again.';
 }

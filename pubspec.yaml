@@ -53,6 +53,9 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    # The app icon, shown on first launch.
+    - assets/brand/icon.png
   fonts:
     - family: Manrope
       fonts:

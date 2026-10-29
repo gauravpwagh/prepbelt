@@ -1495,5 +1495,28 @@
         "type": "String"
       }
     }
-  }
+  },
+  "onboardTagline": "Exam prep, belt by belt.",
+  "onboardName": "What should we call you?",
+  "onboardNameHint": "Your name",
+  "onboardMinutes": "Time to study each day",
+  "onboardMinutesHint": "You can set each weekday later on the exam screen.",
+  "onboardContinue": "Continue",
+  "onboardReminderTitle": "A nudge each evening?",
+  "onboardReminderBody": "One reminder at 19:00 on days you haven't studied yet. Never more than one a day.",
+  "onboardReminderOn": "Turn on reminder",
+  "onboardReminderOff": "Not now",
+  "onboardExamTitle": "What are you preparing for?",
+  "onboardExamBody": "Add your exam to get a day-by-day plan. You can also start with your sources and add it later.",
+  "onboardAddExam": "Add exam",
+  "onboardSkip": "Skip for now",
+  "onboardStep": "Step {step} of 3",
+  "@onboardStep": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardFailed": "Couldn't save. Try again."
 }

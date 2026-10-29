@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prepbelt/app/app.dart';
@@ -45,8 +45,14 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   }
 
-  Future<void> launch(WidgetTester tester) async {
-    final ctx = await tester.runAsync(() => createWriteContext(db, clock));
+  Future<void> launch(WidgetTester tester, {bool onboarded = true}) async {
+    final ctx = await tester.runAsync(() async {
+      final ctx = await createWriteContext(db, clock);
+      if (onboarded) {
+        await SettingsRepository(ctx).set(SettingKeys.onboarded, true);
+      }
+      return ctx;
+    });
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -61,6 +67,47 @@ void main() {
     );
     await settle(tester);
   }
+
+  testWidgets('a fresh install opens first launch: name and minutes, the '
+      'reminder, then skip the exam to land on Today', (tester) async {
+    tester.view
+      ..physicalSize = const Size(390, 844)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await launch(tester, onboarded: false);
+    expect(find.text('Exam prep, belt by belt.'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), 'Asha');
+    await tester.tap(find.bySemanticsLabel('More time'));
+    await tester.pump();
+    expect(find.text('1 h 45 min'), findsOneWidget);
+    await tester.tap(find.text('Continue'));
+    await settle(tester);
+    expect(find.text('A nudge each evening?'), findsOneWidget);
+    await tester.tap(find.text('Not now'));
+    await settle(tester);
+    expect(find.text('What are you preparing for?'), findsOneWidget);
+    await tester.tap(find.text('Skip for now'));
+    await settle(tester);
+    expect(find.text("Today's training"), findsOneWidget);
+
+    final settings = await tester.runAsync(
+      () async =>
+          SettingsRepository(await createWriteContext(db, clock)).getAll(),
+    );
+    expect(
+      (
+        settings![SettingKeys.studentName],
+        settings[SettingKeys.onboarded],
+        settings[SettingKeys.reminderEnabled],
+      ),
+      ('Asha', true, false),
+    );
+    final week = await tester.runAsync(
+      () => db.select(db.availabilities).get(),
+    );
+    expect(week!.map((a) => a.minutes).toSet(), {105});
+    await unmount(tester);
+  });
 
   testWidgets('launches to Today, which points to adding a source', (
     tester,

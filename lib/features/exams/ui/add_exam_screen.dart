@@ -36,7 +36,14 @@ class _AddExamScreenState extends ConsumerState<AddExamScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final n = await ref.read(examActionsProvider.notifier).taskCount();
-      if (mounted) setState(() => _tasks = n);
+      // Start from the minutes chosen at first launch, if any.
+      final week = await ref.read(weekMinutesProvider.future);
+      if (mounted) {
+        setState(() {
+          _tasks = n;
+          _minutes = week.first;
+        });
+      }
     });
   }
 

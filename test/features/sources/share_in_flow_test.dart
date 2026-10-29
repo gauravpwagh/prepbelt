@@ -5,8 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prepbelt/app/app.dart';
 import 'package:prepbelt/app/router.dart';
+import 'package:prepbelt/core/config/defaults.dart';
 import 'package:prepbelt/core/db/app_database.dart';
 import 'package:prepbelt/core/providers/core_providers.dart';
+import 'package:prepbelt/features/settings/data/settings_repository.dart';
 import 'package:prepbelt/features/sources/state/source_providers.dart';
 import 'package:prepbelt/features/today/state/reminder_providers.dart';
 import 'package:prepbelt/platform/notifications/reminder_scheduler.dart';
@@ -43,6 +45,9 @@ void main() {
     addTearDown(tester.view.reset);
 
     final t = openTestContext();
+    await tester.runAsync(
+      () => SettingsRepository(t.ctx).set(SettingKeys.onboarded, true),
+    );
     final inbox = _Inbox(
       const SharedLink('https://youtu.be/x9', title: 'Rotational motion'),
     );

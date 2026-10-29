@@ -2486,6 +2486,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{belt}, fading'**
   String beltWithFading(String belt);
+
+  /// No description provided for @onboardTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam prep, belt by belt.'**
+  String get onboardTagline;
+
+  /// No description provided for @onboardName.
+  ///
+  /// In en, this message translates to:
+  /// **'What should we call you?'**
+  String get onboardName;
+
+  /// No description provided for @onboardNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get onboardNameHint;
+
+  /// No description provided for @onboardMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to study each day'**
+  String get onboardMinutes;
+
+  /// No description provided for @onboardMinutesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can set each weekday later on the exam screen.'**
+  String get onboardMinutesHint;
+
+  /// No description provided for @onboardContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get onboardContinue;
+
+  /// No description provided for @onboardReminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A nudge each evening?'**
+  String get onboardReminderTitle;
+
+  /// No description provided for @onboardReminderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'One reminder at 19:00 on days you haven\'t studied yet. Never more than one a day.'**
+  String get onboardReminderBody;
+
+  /// No description provided for @onboardReminderOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on reminder'**
+  String get onboardReminderOn;
+
+  /// No description provided for @onboardReminderOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get onboardReminderOff;
+
+  /// No description provided for @onboardExamTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What are you preparing for?'**
+  String get onboardExamTitle;
+
+  /// No description provided for @onboardExamBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your exam to get a day-by-day plan. You can also start with your sources and add it later.'**
+  String get onboardExamBody;
+
+  /// No description provided for @onboardAddExam.
+  ///
+  /// In en, this message translates to:
+  /// **'Add exam'**
+  String get onboardAddExam;
+
+  /// No description provided for @onboardSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get onboardSkip;
+
+  /// No description provided for @onboardStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} of 3'**
+  String onboardStep(int step);
+
+  /// No description provided for @onboardFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save. Try again.'**
+  String get onboardFailed;
 }
 
 class _AppLocalizationsDelegate
