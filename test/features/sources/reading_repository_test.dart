@@ -3,6 +3,7 @@ import 'package:prepbelt/core/config/review_config.dart';
 import 'package:prepbelt/core/db/app_database.dart';
 import 'package:prepbelt/core/result/result.dart';
 import 'package:prepbelt/core/time/clock.dart';
+import 'package:prepbelt/engines/reading/reading_math.dart';
 import 'package:prepbelt/features/exams/data/exam_repository.dart';
 import 'package:prepbelt/features/sources/data/chapter_split.dart';
 import 'package:prepbelt/features/sources/data/reading_repository.dart';
@@ -210,5 +211,110 @@ void main() {
   test('Create N tasks covers unsurveyed chapters too', () async {
     final book = await addBook();
     expect(await survey.createTasks(book.id), 4);
+  });
+
+  group('progressive splitting (D47)', () {
+    // 100 pages, no chapters.
+    Future<Source> addPdf() => sources.createWithChunks(
+      type: SourceType.pdf,
+      title: 'Notes',
+      unitType: UnitType.page,
+      totalUnits: 100,
+      chapters: const [],
+    );
+    String title(int s, int e) => 'Pages $s–$e';
+
+    Future<SaveOutcome> sit(
+      String id,
+      int end,
+      int minutes, {
+      bool partNow = false,
+      bool finish = false,
+    }) async {
+      final s = await reading.start(id);
+      return reading.save(
+        s.id,
+        endUnit: end,
+        minutes: minutes,
+        partTitle: title,
+        minPartMinutes: 10,
+        partNow: partNow,
+        finish: finish,
+      );
+    }
+
+    test('each sitting becomes the next part with its first read; a short '
+        'one waits and joins the next', () async {
+      final pdf = await addPdf();
+      expect((await reading.progress(pdf.id))!.progressive, isTrue);
+      expect((await reading.progress(pdf.id))!.unitsToExplore, 100);
+
+      final out1 = await sit(pdf.id, 16, 40);
+      expect(out1.tasksCreated, ['Pages 1–16']);
+      expect(await firstReads(), [('firstRead', 40 * 60, 1)]);
+
+      final out2 = await sit(pdf.id, 19, 5);
+      expect(out2.tasksCreated, isEmpty);
+      expect(out2.held, const UnitRange(17, 19));
+
+      final out3 = await sit(pdf.id, 30, 25);
+      expect(out3.tasksCreated, ['Pages 17–30']);
+      final p = (await reading.progress(pdf.id))!;
+      expect(p.source.progressive, isTrue);
+      expect(
+        [for (final c in p.chapters) c.chunk.title],
+        ['Pages 1–16', 'Pages 17–30'],
+      );
+      expect(p.position, 31);
+      expect(p.unitsToExplore, 70);
+      // The held 5 minutes count toward the part.
+      expect((await firstReads()).last, ('firstRead', 30 * 60, 1));
+    });
+
+    test(
+      'a short sitting can be a part anyway; the last page ends it',
+      () async {
+        final pdf = await addPdf();
+        expect((await sit(pdf.id, 3, 5, partNow: true)).tasksCreated, [
+          'Pages 1–3',
+        ]);
+        expect((await sit(pdf.id, 100, 5)).tasksCreated, ['Pages 4–100']);
+        expect((await reading.progress(pdf.id))!.position, isNull);
+      },
+    );
+
+    test('"That was the last part" makes the part and marks the source '
+        'done; undo brings both back', () async {
+      final pdf = await addPdf();
+      await sit(pdf.id, 20, 30);
+      final out = await sit(pdf.id, 24, 5, finish: true);
+      expect(out.tasksCreated, ['Pages 21–24']);
+      var p = (await reading.progress(pdf.id))!;
+      expect((p.finished, p.position, p.unitsToExplore), (true, null, 0));
+      await expectLater(
+        reading.start(pdf.id),
+        throwsA(isA<InvalidOperationError>()),
+      );
+
+      await reading.undo(pdf.id);
+      p = (await reading.progress(pdf.id))!;
+      expect((p.finished, p.chapters.length), (false, 1));
+    });
+  });
+
+  test('Done with this source stops the reading and the Continue item; '
+      'reopening brings them back', () async {
+    final book = await addBook();
+    final s = await reading.start(book.id);
+    await reading.save(s.id, endUnit: 10, minutes: 20);
+    await reading.setFinished(book.id, finished: true);
+    var p = (await reading.progress(book.id))!;
+    expect((p.position, p.unitsToExplore, p.progressive), (null, 0, false));
+
+    await reading.setFinished(book.id, finished: false);
+    p = (await reading.progress(book.id))!;
+    expect((p.position, p.unitsToExplore), (11, 50));
+    await reading.undo(book.id);
+    expect((await reading.progress(book.id))!.finished, isTrue);
   });
 }

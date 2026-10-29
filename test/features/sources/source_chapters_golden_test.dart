@@ -23,6 +23,7 @@ const _source = Source(
   title: 'HC Verma Vol 1',
   unitType: UnitType.page,
   totalUnits: 480,
+  progressive: false,
 );
 
 Chunk _chunk(String id, String title, int start, int end) => Chunk(
@@ -170,7 +171,7 @@ Widget readingSheet() => ProviderScope(
           config: const ReadingConfig(),
           examId: 'e',
         ),
-        onSave: (_, _, _) async {},
+        onSave: (_) async {},
         onDiscard: () {},
       ),
     ),
@@ -246,7 +247,7 @@ void main() {
       ..physicalSize = const Size(390, 1000)
       ..devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    (int, int, Set<String>)? saved;
+    ReadingChoice? saved;
     await tester.pumpWidget(
       themed(
         Scaffold(
@@ -259,7 +260,7 @@ void main() {
               pace: 2.5,
               config: const ReadingConfig(),
             ),
-            onSave: (e, m, t) async => saved = (e, m, t),
+            onSave: (choice) async => saved = choice,
             onDiscard: () {},
           ),
         ),
@@ -280,6 +281,9 @@ void main() {
 
     await tester.tap(find.text('Save'));
     await tester.pump();
-    expect((saved?.$1, saved?.$2, saved?.$3.isEmpty), (120, 120, true));
+    expect(
+      (saved?.endUnit, saved?.minutes, saved?.taskNow.isEmpty, saved?.readOn),
+      (120, 120, true, false),
+    );
   });
 }

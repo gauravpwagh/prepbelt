@@ -80,8 +80,58 @@ final class SourceProgress {
   UnitRange get whole => UnitRange(1, totalUnits);
   int get exploredUnits => coveredUnits(explored, whole);
 
-  /// The first unit not yet read; null once all of it is.
-  int? get position => readable ? firstUncovered(explored, whole) : null;
+  /// "Done with this source": nothing more to read (D47).
+  bool get finished => source.finishedAt != null;
+
+  /// The first unit not yet read; null once all of it is, or once the
+  /// student is done with the source.
+  int? get position =>
+      readable && !finished ? firstUncovered(explored, whole) : null;
+
+  /// Splits as it is read (D47): each saved sitting becomes the next part.
+  /// True once a sitting made a part, or while no chapter has a range.
+  bool get progressive =>
+      source.progressive || !chapters.any((c) => c.range != null);
+
+  /// Where the next part starts: after the last one. Sittings too short
+  /// for a part are held and join the next one.
+  int get nextPartStart => chapters.fold(
+    1,
+    (start, c) => switch (c.chunk.endUnit) {
+      final end? when end >= start => end + 1,
+      _ => start,
+    },
+  );
+
+  /// The part saving [sitting] would make in a progressive source.
+  UnitRange nextPart(UnitRange sitting) =>
+      UnitRange(nextPartStart, sitting.end);
+
+  /// Minutes spent on [nextPart], held sittings included.
+  double minutesOnNextPart(UnitRange sitting, int minutes) => minutesOn(
+    nextPart(sitting),
+    [...savedSittings, Sitting(sitting, minutes)],
+  );
+
+  /// Whether saving [sitting] holds it instead of making a part: it is
+  /// under [minPartMinutes] with held sittings, and not the end.
+  bool holds(UnitRange sitting, int minutes, {required int minPartMinutes}) =>
+      progressive &&
+      sitting.end < totalUnits &&
+      minutesOnNextPart(sitting, minutes) < minPartMinutes;
+
+  /// Units still to read for the plan's "Continue" item: unread units of
+  /// chapters without a task, or everything unread in a progressive
+  /// source. None once finished.
+  int get unitsToExplore {
+    if (!readable || finished) return 0;
+    if (progressive) return totalUnits - exploredUnits;
+    return chapters.fold(
+      0,
+      (sum, c) => c.hasTask ? sum : sum + c.sizeUnits - c.readUnits,
+    );
+  }
+
   int get taskCount => {for (final c in chapters) ?c.taskId}.length;
   int get withoutTask => chapters.where((c) => !c.hasTask).length;
   int get surveyedCount => chapters.where((c) => c.survey != null).length;
@@ -129,7 +179,11 @@ final class SaveOutcome {
     this.tasksCreated = const [],
     this.firstReads = 0,
     this.partial = const [],
+    this.held,
   });
+
+  /// A progressive sitting too short for a part, held for the next one.
+  final UnitRange? held;
 
   /// Titles of the tasks created.
   final List<String> tasksCreated;
@@ -358,7 +412,9 @@ final class ReadingRepository extends EventSourcedRepository {
     if (p == null) throw NotFoundError('source $sourceId');
     final from = p.position;
     if (from == null) {
-      throw const InvalidOperationError('This source is fully read');
+      throw InvalidOperationError(
+        p.finished ? 'This source is marked done' : 'This source is fully read',
+      );
     }
     return mutate(
       entity: entity,
@@ -413,6 +469,11 @@ final class ReadingRepository extends EventSourcedRepository {
   /// [minutes]. Whole chapters read become one task per run with their
   /// first read; tasks already made for finished chapters get their first
   /// read; [taskNow] chapters (partly read) become not-started tasks (D29).
+  ///
+  /// In a progressive source (D47) the sitting, with any held ones before
+  /// it, becomes the next part: a chapter titled by [partTitle] and its
+  /// task with the first read. Under [minPartMinutes] it is held instead,
+  /// unless [partNow] or [finish]. [finish] marks the source done.
   /// One undoable operation.
   Future<SaveOutcome> save(
     String sessionId, {
@@ -420,6 +481,10 @@ final class ReadingRepository extends EventSourcedRepository {
     required int minutes,
     String? examId,
     Set<String> taskNow = const {},
+    String Function(int start, int end)? partTitle,
+    int minPartMinutes = 0,
+    bool partNow = false,
+    bool finish = false,
   }) async {
     final s = await _session(sessionId);
     if (s.status != ReadingStatus.open) {
@@ -431,7 +496,15 @@ final class ReadingRepository extends EventSourcedRepository {
     final range = UnitRange(s.startUnit, end);
     final plan = p.planFor(range);
     final sittings = [...p.savedSittings, Sitting(range, minutes)];
-    final context = plan.newTasks.isEmpty && plan.firstReads.isEmpty
+    final part = p.progressive ? p.nextPart(range) : null;
+    final makePart =
+        part != null &&
+        part.size > 0 &&
+        (partNow ||
+            finish ||
+            !p.holds(range, minutes, minPartMinutes: minPartMinutes));
+    final context =
+        plan.newTasks.isEmpty && plan.firstReads.isEmpty && !makePart
         ? null
         : await _writer.firstReadContext();
 
@@ -497,6 +570,48 @@ final class ReadingRepository extends EventSourcedRepository {
           );
           reads++;
         }
+        if (part != null && !p.source.progressive) {
+          await rec.update(
+            db.sources,
+            s.sourceId,
+            const SourcesCompanion(progressive: Value(true)),
+          );
+        }
+        if (makePart) {
+          final title =
+              partTitle?.call(part.start, part.end) ??
+              '${part.start}–${part.end}';
+          final chunk = await rec.insert(
+            db.chunks,
+            ChunksCompanion(
+              id: Value(rec.newId()),
+              sourceId: Value(s.sourceId),
+              title: Value(title),
+              order: Value(p.chapters.length),
+              startUnit: Value(part.start),
+              endUnit: Value(part.end),
+              sizeUnits: Value(part.size),
+            ),
+          );
+          await _writer.insert(
+            rec,
+            TaskDraft(
+              title: title,
+              chapters: [chunk],
+              firstReadSec: (minutesOn(part, sittings) * 60).round(),
+            ),
+            examId: examId,
+            firstRead: context,
+          );
+          created.add(title);
+        }
+        if (finish && !p.finished) {
+          await rec.update(
+            db.sources,
+            s.sourceId,
+            SourcesCompanion(finishedAt: Value(rec.now)),
+          );
+        }
         for (final i in plan.partial) {
           final c = p.chapters[i];
           if (c.hasTask || !taskNow.contains(c.chunk.id)) continue;
@@ -516,6 +631,7 @@ final class ReadingRepository extends EventSourcedRepository {
     return SaveOutcome(
       tasksCreated: created,
       firstReads: reads,
+      held: part != null && !makePart && part.size > 0 ? part : null,
       partial: [
         for (final i in plan.partial)
           if (!taskNow.contains(p.chapters[i].chunk.id))
@@ -572,6 +688,21 @@ final class ReadingRepository extends EventSourcedRepository {
       ),
     );
   }
+
+  /// "Done with this source" (D47): no more reading, no "Continue" item;
+  /// unread units stay unread. False reopens it. Undoable.
+  Future<void> setFinished(String sourceId, {required bool finished}) =>
+      mutate<void>(
+        entity: entity,
+        entityId: sourceId,
+        op: EventOp.update,
+        data: {'action': finished ? 'finishSource' : 'reopenSource'},
+        body: (rec) => rec.update(
+          db.sources,
+          sourceId,
+          SourcesCompanion(finishedAt: Value(finished ? rec.now : null)),
+        ),
+      );
 
   /// Undoes the latest change to the source (a save, an added task).
   Future<void> undo(String sourceId) => undoLatest(entity, sourceId);

@@ -7,6 +7,7 @@ final class ReadingConfig {
     this.maxAwayMinutes = Defaults.readingMaxAwayMinutes,
     this.awayStepMinutes = Defaults.readingAwayStepMinutes,
     this.chapterChipWindow = Defaults.readingChapterChipWindow,
+    this.minPartMinutes = Defaults.readingMinPartMinutes,
   });
 
   /// Missing or malformed values fall back to [Defaults].
@@ -25,12 +26,16 @@ final class ReadingConfig {
       chapterChipWindow:
           i(SettingKeys.readingChapterChipWindow) ??
           Defaults.readingChapterChipWindow,
+      minPartMinutes:
+          i(SettingKeys.readingMinPartMinutes) ??
+          Defaults.readingMinPartMinutes,
     );
   }
 
   final int maxAwayMinutes;
   final int awayStepMinutes;
   final int chapterChipWindow;
+  final int minPartMinutes;
 
   /// Time away as the sheet pre-fills it: rounded to the step, at least
   /// one step, at most [maxAwayMinutes].

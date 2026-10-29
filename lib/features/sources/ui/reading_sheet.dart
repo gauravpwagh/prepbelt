@@ -36,20 +36,30 @@ class ReadingSheet extends ConsumerWidget {
           await actions.discard(r);
           close();
         },
-        onSave: (endUnit, minutes, taskNow) async {
+        onSave: (choice) async {
           final messenger = ScaffoldMessenger.of(context);
+          final unit = r.source.unitType;
           final out = await actions.save(
             r,
-            endUnit: endUnit,
-            minutes: minutes,
-            taskNow: taskNow,
+            endUnit: choice.endUnit,
+            minutes: choice.minutes,
+            taskNow: choice.taskNow,
+            partTitle: (s, e) => unit.chunkTitle(l10n, s, e),
+            partNow: choice.partNow,
+            finish: choice.finish,
+            readOn: choice.readOn,
           );
           close();
           messenger
             ..hideCurrentSnackBar()
             ..showSnackBar(
               SnackBar(
-                content: Text(l10n.readingSaved(out.tasksCreated.length)),
+                content: Text(switch (out.held) {
+                  final h? => l10n.readingSavedHeld(
+                    unit.range(l10n, h.start, h.end),
+                  ),
+                  null => l10n.readingSaved(out.tasksCreated.length),
+                }),
                 action: SnackBarAction(
                   label: l10n.undo,
                   onPressed: () => actions.undo(r.source.id),
@@ -87,6 +97,33 @@ class _CloseWhenEmptyState extends State<_CloseWhenEmpty> {
   Widget build(BuildContext context) => const SizedBox(height: 200);
 }
 
+/// What the student chose in the sheet.
+final class ReadingChoice {
+  const ReadingChoice({
+    required this.endUnit,
+    required this.minutes,
+    this.taskNow = const {},
+    this.partNow = false,
+    this.finish = false,
+    this.readOn = false,
+  });
+
+  final int endUnit;
+  final int minutes;
+
+  /// Partly read chapters to make tasks now (D29).
+  final Set<String> taskNow;
+
+  /// A short progressive sitting becomes a part anyway (D47).
+  final bool partNow;
+
+  /// "Done with this source" after this sitting.
+  final bool finish;
+
+  /// Start the next sitting right away.
+  final bool readOn;
+}
+
 /// The sheet's content. Public so goldens can render it without a database.
 class ReadingSheetBody extends StatefulWidget {
   const ReadingSheetBody({
@@ -97,8 +134,7 @@ class ReadingSheetBody extends StatefulWidget {
   });
 
   final OpenReading reading;
-  final Future<void> Function(int endUnit, int minutes, Set<String> taskNow)
-  onSave;
+  final Future<void> Function(ReadingChoice choice) onSave;
   final VoidCallback onDiscard;
 
   @override
@@ -110,6 +146,8 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
   late int _endUnit = widget.reading.guessFor(_minutes);
   bool _endTouched = false;
   final _taskNow = <String>{};
+  bool _partNow = false;
+  bool _finish = false;
   bool _saving = false;
 
   OpenReading get _r => widget.reading;
@@ -125,10 +163,19 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
     _endTouched = true;
   });
 
-  Future<void> _save() async {
+  Future<void> _save({bool readOn = false}) async {
     setState(() => _saving = true);
     try {
-      await widget.onSave(_endUnit, _minutes, _taskNow);
+      await widget.onSave(
+        ReadingChoice(
+          endUnit: _endUnit,
+          minutes: _minutes,
+          taskNow: _taskNow,
+          partNow: _partNow,
+          finish: _finish,
+          readOn: readOn,
+        ),
+      );
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -149,7 +196,25 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
       return unit.range(l10n, first.start, last.end);
     }
 
+    // A source split as it is read (D47): the sitting, with held ones,
+    // becomes the next part unless it is short.
+    final part = p.progressive ? p.nextPart(sitting) : null;
+    final holds =
+        p.holds(sitting, _minutes, minPartMinutes: _r.config.minPartMinutes) &&
+        !_partNow &&
+        !_finish;
+    final atEnd = _endUnit >= _r.lastUnit;
     final preview = [
+      if (part != null && part.size > 0)
+        holds
+            ? l10n.readingPreviewHeld(
+                _r.config.minPartMinutes,
+                unit.range(l10n, part.start, part.end),
+              )
+            : l10n.readingPreviewTask(
+                unit.chunkTitle(l10n, part.start, part.end),
+                unit.range(l10n, part.start, part.end),
+              ),
       for (final run in plan.newTasks)
         l10n.readingPreviewTask(
           taskTitleFor([for (final i in run) p.chapters[i].chunk.title]),
@@ -163,11 +228,25 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
           p.readUnitsAfter(i, sitting),
           p.chapters[i].sizeUnits,
         ),
+      if (_finish) l10n.readingPreviewFinish(_r.source.title),
     ];
     final partialWithoutTask = [
       for (final i in plan.partial)
         if (!p.chapters[i].hasTask) p.chapters[i],
     ];
+
+    Widget check(String text, bool value, void Function(bool) onChanged) =>
+        Padding(
+          padding: const EdgeInsets.only(top: AppSpace.sm),
+          child: CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            activeColor: c.accent,
+            value: value,
+            onChanged: (v) => setState(() => onChanged(v ?? false)),
+            title: Text(text, style: AppText.body.copyWith(color: c.ink)),
+          ),
+        );
 
     Widget label(String text) => Padding(
       padding: const EdgeInsets.only(bottom: AppSpace.sm),
@@ -261,26 +340,25 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
             ),
           ),
           for (final ch in partialWithoutTask)
-            Padding(
-              padding: const EdgeInsets.only(top: AppSpace.sm),
-              child: CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
-                controlAffinity: ListTileControlAffinity.leading,
-                activeColor: c.accent,
-                value: _taskNow.contains(ch.chunk.id),
-                onChanged: (v) => setState(
-                  () => v == true
-                      ? _taskNow.add(ch.chunk.id)
-                      : _taskNow.remove(ch.chunk.id),
-                ),
-                title: Text(
-                  l10n.readingMakeTaskNow(ch.chunk.title),
-                  style: AppText.body.copyWith(color: c.ink),
-                ),
-              ),
+            check(
+              l10n.readingMakeTaskNow(ch.chunk.title),
+              _taskNow.contains(ch.chunk.id),
+              (v) =>
+                  v ? _taskNow.add(ch.chunk.id) : _taskNow.remove(ch.chunk.id),
             ),
+          if (holds || _partNow)
+            check(l10n.readingPartNow, _partNow, (v) => _partNow = v),
+          if (!atEnd)
+            check(l10n.readingFinishSource, _finish, (v) => _finish = v),
           const SizedBox(height: AppSpace.xxl),
           PrimaryButton(label: l10n.save, onPressed: _saving ? null : _save),
+          if (!_finish && !atEnd) ...[
+            const SizedBox(height: AppSpace.sm),
+            SecondaryButton(
+              label: l10n.readingSaveReadOn,
+              onPressed: _saving ? null : () => _save(readOn: true),
+            ),
+          ],
           const SizedBox(height: AppSpace.sm),
           Center(
             child: TextLinkButton(

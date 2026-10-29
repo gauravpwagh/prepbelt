@@ -157,11 +157,7 @@ final class PlannerRepository extends EventSourcedRepository {
     final explores = <PlanExplore>[];
     for (final id in sourceIds) {
       final p = await reading.progress(id);
-      if (p == null || !p.readable) continue;
-      var units = 0;
-      for (final c in p.chapters) {
-        if (!c.hasTask) units += c.sizeUnits - c.readUnits;
-      }
+      final units = p?.unitsToExplore ?? 0;
       if (units <= 0) continue;
       explores.add(
         PlanExplore(
@@ -169,7 +165,7 @@ final class PlannerRepository extends EventSourcedRepository {
           subject: id,
           minutes: firstReadMinutes(
             units: units,
-            unit: EffortUnit.values.byName(p.source.unitType.name),
+            unit: EffortUnit.values.byName(p!.source.unitType.name),
           ),
         ),
       );

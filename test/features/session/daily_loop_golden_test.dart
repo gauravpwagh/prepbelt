@@ -34,6 +34,7 @@ Source _source(String id, String title, {UnitType unit = UnitType.page}) =>
       title: title,
       unitType: unit,
       totalUnits: 480,
+      progressive: false,
     );
 
 SessionTask _task(

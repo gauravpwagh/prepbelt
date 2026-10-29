@@ -726,6 +726,32 @@ class $SourcesTable extends Sources with TableInfo<$SourcesTable, Source> {
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _progressiveMeta = const VerificationMeta(
+    'progressive',
+  );
+  @override
+  late final GeneratedColumn<bool> progressive = GeneratedColumn<bool>(
+    'progressive',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("progressive" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _finishedAtMeta = const VerificationMeta(
+    'finishedAt',
+  );
+  @override
+  late final GeneratedColumn<int> finishedAt = GeneratedColumn<int>(
+    'finished_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -739,6 +765,8 @@ class $SourcesTable extends Sources with TableInfo<$SourcesTable, Source> {
     uri,
     unitType,
     totalUnits,
+    progressive,
+    finishedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -815,6 +843,21 @@ class $SourcesTable extends Sources with TableInfo<$SourcesTable, Source> {
         totalUnits.isAcceptableOrUnknown(data['total_units']!, _totalUnitsMeta),
       );
     }
+    if (data.containsKey('progressive')) {
+      context.handle(
+        _progressiveMeta,
+        progressive.isAcceptableOrUnknown(
+          data['progressive']!,
+          _progressiveMeta,
+        ),
+      );
+    }
+    if (data.containsKey('finished_at')) {
+      context.handle(
+        _finishedAtMeta,
+        finishedAt.isAcceptableOrUnknown(data['finished_at']!, _finishedAtMeta),
+      );
+    }
     return context;
   }
 
@@ -872,6 +915,14 @@ class $SourcesTable extends Sources with TableInfo<$SourcesTable, Source> {
         DriftSqlType.int,
         data['${effectivePrefix}total_units'],
       ),
+      progressive: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}progressive'],
+      )!,
+      finishedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}finished_at'],
+      ),
     );
   }
 
@@ -901,6 +952,12 @@ class Source extends DataClass implements Insertable<Source> {
   final String? uri;
   final UnitType unitType;
   final int? totalUnits;
+
+  /// Split as it is read: each saved sitting becomes the next part (D47).
+  final bool progressive;
+
+  /// "Done with this source": nothing more to read, even if units are left.
+  final int? finishedAt;
   const Source({
     required this.id,
     required this.createdAt,
@@ -913,6 +970,8 @@ class Source extends DataClass implements Insertable<Source> {
     this.uri,
     required this.unitType,
     this.totalUnits,
+    required this.progressive,
+    this.finishedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -940,6 +999,10 @@ class Source extends DataClass implements Insertable<Source> {
     if (!nullToAbsent || totalUnits != null) {
       map['total_units'] = Variable<int>(totalUnits);
     }
+    map['progressive'] = Variable<bool>(progressive);
+    if (!nullToAbsent || finishedAt != null) {
+      map['finished_at'] = Variable<int>(finishedAt);
+    }
     return map;
   }
 
@@ -960,6 +1023,10 @@ class Source extends DataClass implements Insertable<Source> {
       totalUnits: totalUnits == null && nullToAbsent
           ? const Value.absent()
           : Value(totalUnits),
+      progressive: Value(progressive),
+      finishedAt: finishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishedAt),
     );
   }
 
@@ -984,6 +1051,8 @@ class Source extends DataClass implements Insertable<Source> {
         serializer.fromJson<String>(json['unitType']),
       ),
       totalUnits: serializer.fromJson<int?>(json['totalUnits']),
+      progressive: serializer.fromJson<bool>(json['progressive']),
+      finishedAt: serializer.fromJson<int?>(json['finishedAt']),
     );
   }
   @override
@@ -1005,6 +1074,8 @@ class Source extends DataClass implements Insertable<Source> {
         $SourcesTable.$converterunitType.toJson(unitType),
       ),
       'totalUnits': serializer.toJson<int?>(totalUnits),
+      'progressive': serializer.toJson<bool>(progressive),
+      'finishedAt': serializer.toJson<int?>(finishedAt),
     };
   }
 
@@ -1020,6 +1091,8 @@ class Source extends DataClass implements Insertable<Source> {
     Value<String?> uri = const Value.absent(),
     UnitType? unitType,
     Value<int?> totalUnits = const Value.absent(),
+    bool? progressive,
+    Value<int?> finishedAt = const Value.absent(),
   }) => Source(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -1032,6 +1105,8 @@ class Source extends DataClass implements Insertable<Source> {
     uri: uri.present ? uri.value : this.uri,
     unitType: unitType ?? this.unitType,
     totalUnits: totalUnits.present ? totalUnits.value : this.totalUnits,
+    progressive: progressive ?? this.progressive,
+    finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
   );
   Source copyWithCompanion(SourcesCompanion data) {
     return Source(
@@ -1048,6 +1123,12 @@ class Source extends DataClass implements Insertable<Source> {
       totalUnits: data.totalUnits.present
           ? data.totalUnits.value
           : this.totalUnits,
+      progressive: data.progressive.present
+          ? data.progressive.value
+          : this.progressive,
+      finishedAt: data.finishedAt.present
+          ? data.finishedAt.value
+          : this.finishedAt,
     );
   }
 
@@ -1064,7 +1145,9 @@ class Source extends DataClass implements Insertable<Source> {
           ..write('title: $title, ')
           ..write('uri: $uri, ')
           ..write('unitType: $unitType, ')
-          ..write('totalUnits: $totalUnits')
+          ..write('totalUnits: $totalUnits, ')
+          ..write('progressive: $progressive, ')
+          ..write('finishedAt: $finishedAt')
           ..write(')'))
         .toString();
   }
@@ -1082,6 +1165,8 @@ class Source extends DataClass implements Insertable<Source> {
     uri,
     unitType,
     totalUnits,
+    progressive,
+    finishedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -1097,7 +1182,9 @@ class Source extends DataClass implements Insertable<Source> {
           other.title == this.title &&
           other.uri == this.uri &&
           other.unitType == this.unitType &&
-          other.totalUnits == this.totalUnits);
+          other.totalUnits == this.totalUnits &&
+          other.progressive == this.progressive &&
+          other.finishedAt == this.finishedAt);
 }
 
 class SourcesCompanion extends UpdateCompanion<Source> {
@@ -1112,6 +1199,8 @@ class SourcesCompanion extends UpdateCompanion<Source> {
   final Value<String?> uri;
   final Value<UnitType> unitType;
   final Value<int?> totalUnits;
+  final Value<bool> progressive;
+  final Value<int?> finishedAt;
   final Value<int> rowid;
   const SourcesCompanion({
     this.id = const Value.absent(),
@@ -1125,6 +1214,8 @@ class SourcesCompanion extends UpdateCompanion<Source> {
     this.uri = const Value.absent(),
     this.unitType = const Value.absent(),
     this.totalUnits = const Value.absent(),
+    this.progressive = const Value.absent(),
+    this.finishedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SourcesCompanion.insert({
@@ -1139,6 +1230,8 @@ class SourcesCompanion extends UpdateCompanion<Source> {
     this.uri = const Value.absent(),
     required UnitType unitType,
     this.totalUnits = const Value.absent(),
+    this.progressive = const Value.absent(),
+    this.finishedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -1160,6 +1253,8 @@ class SourcesCompanion extends UpdateCompanion<Source> {
     Expression<String>? uri,
     Expression<String>? unitType,
     Expression<int>? totalUnits,
+    Expression<bool>? progressive,
+    Expression<int>? finishedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1174,6 +1269,8 @@ class SourcesCompanion extends UpdateCompanion<Source> {
       if (uri != null) 'uri': uri,
       if (unitType != null) 'unit_type': unitType,
       if (totalUnits != null) 'total_units': totalUnits,
+      if (progressive != null) 'progressive': progressive,
+      if (finishedAt != null) 'finished_at': finishedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1190,6 +1287,8 @@ class SourcesCompanion extends UpdateCompanion<Source> {
     Value<String?>? uri,
     Value<UnitType>? unitType,
     Value<int?>? totalUnits,
+    Value<bool>? progressive,
+    Value<int?>? finishedAt,
     Value<int>? rowid,
   }) {
     return SourcesCompanion(
@@ -1204,6 +1303,8 @@ class SourcesCompanion extends UpdateCompanion<Source> {
       uri: uri ?? this.uri,
       unitType: unitType ?? this.unitType,
       totalUnits: totalUnits ?? this.totalUnits,
+      progressive: progressive ?? this.progressive,
+      finishedAt: finishedAt ?? this.finishedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1248,6 +1349,12 @@ class SourcesCompanion extends UpdateCompanion<Source> {
     if (totalUnits.present) {
       map['total_units'] = Variable<int>(totalUnits.value);
     }
+    if (progressive.present) {
+      map['progressive'] = Variable<bool>(progressive.value);
+    }
+    if (finishedAt.present) {
+      map['finished_at'] = Variable<int>(finishedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1268,6 +1375,8 @@ class SourcesCompanion extends UpdateCompanion<Source> {
           ..write('uri: $uri, ')
           ..write('unitType: $unitType, ')
           ..write('totalUnits: $totalUnits, ')
+          ..write('progressive: $progressive, ')
+          ..write('finishedAt: $finishedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -18347,6 +18456,8 @@ typedef $$SourcesTableCreateCompanionBuilder =
       Value<String?> uri,
       required UnitType unitType,
       Value<int?> totalUnits,
+      Value<bool> progressive,
+      Value<int?> finishedAt,
       Value<int> rowid,
     });
 typedef $$SourcesTableUpdateCompanionBuilder =
@@ -18362,6 +18473,8 @@ typedef $$SourcesTableUpdateCompanionBuilder =
       Value<String?> uri,
       Value<UnitType> unitType,
       Value<int?> totalUnits,
+      Value<bool> progressive,
+      Value<int?> finishedAt,
       Value<int> rowid,
     });
 
@@ -18508,6 +18621,16 @@ class $$SourcesTableFilterComposer
 
   ColumnFilters<int> get totalUnits => $composableBuilder(
     column: $table.totalUnits,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get progressive => $composableBuilder(
+    column: $table.progressive,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get finishedAt => $composableBuilder(
+    column: $table.finishedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -18675,6 +18798,16 @@ class $$SourcesTableOrderingComposer
     column: $table.totalUnits,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get progressive => $composableBuilder(
+    column: $table.progressive,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get finishedAt => $composableBuilder(
+    column: $table.finishedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$SourcesTableAnnotationComposer
@@ -18718,6 +18851,16 @@ class $$SourcesTableAnnotationComposer
 
   GeneratedColumn<int> get totalUnits => $composableBuilder(
     column: $table.totalUnits,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get progressive => $composableBuilder(
+    column: $table.progressive,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get finishedAt => $composableBuilder(
+    column: $table.finishedAt,
     builder: (column) => column,
   );
 
@@ -18866,6 +19009,8 @@ class $$SourcesTableTableManager
                 Value<String?> uri = const Value.absent(),
                 Value<UnitType> unitType = const Value.absent(),
                 Value<int?> totalUnits = const Value.absent(),
+                Value<bool> progressive = const Value.absent(),
+                Value<int?> finishedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SourcesCompanion(
                 id: id,
@@ -18879,6 +19024,8 @@ class $$SourcesTableTableManager
                 uri: uri,
                 unitType: unitType,
                 totalUnits: totalUnits,
+                progressive: progressive,
+                finishedAt: finishedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -18894,6 +19041,8 @@ class $$SourcesTableTableManager
                 Value<String?> uri = const Value.absent(),
                 required UnitType unitType,
                 Value<int?> totalUnits = const Value.absent(),
+                Value<bool> progressive = const Value.absent(),
+                Value<int?> finishedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SourcesCompanion.insert(
                 id: id,
@@ -18907,6 +19056,8 @@ class $$SourcesTableTableManager
                 uri: uri,
                 unitType: unitType,
                 totalUnits: totalUnits,
+                progressive: progressive,
+                finishedAt: finishedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

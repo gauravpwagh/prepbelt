@@ -22,6 +22,7 @@ Source _source(String id, SourceType type, String title, int? units) => Source(
   title: title,
   unitType: AddSourceState.unitTypeFor(type),
   totalUnits: units,
+  progressive: false,
 );
 
 final _filled = [

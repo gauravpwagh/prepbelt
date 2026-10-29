@@ -153,6 +153,10 @@ abstract final class Defaults {
   /// Chapter ends within this many units of the guess show as chips.
   static const int readingChapterChipWindow = 15;
 
+  /// In a source split as it is read (D47), a sitting shorter than this,
+  /// with held ones before it, waits to join the next part.
+  static const int readingMinPartMinutes = 10;
+
   /// The pace guess uses at most this many recent sittings (D30).
   static const int readingPaceSittings = 10;
 
@@ -214,4 +218,5 @@ abstract final class SettingKeys {
   static const readingMaxAwayMinutes = 'reading.maxAwayMinutes';
   static const readingAwayStepMinutes = 'reading.awayStepMinutes';
   static const readingChapterChipWindow = 'reading.chapterChipWindow';
+  static const readingMinPartMinutes = 'reading.minPartMinutes';
 }

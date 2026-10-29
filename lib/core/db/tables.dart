@@ -42,6 +42,12 @@ class Sources extends Table with SyncColumns {
   TextColumn get uri => text().nullable()();
   TextColumn get unitType => textEnum<UnitType>()();
   IntColumn get totalUnits => integer().nullable()();
+
+  /// Split as it is read: each saved sitting becomes the next part (D47).
+  BoolColumn get progressive => boolean().withDefault(const Constant(false))();
+
+  /// "Done with this source": nothing more to read, even if units are left.
+  IntColumn get finishedAt => integer().nullable()();
 }
 
 class SourceFiles extends Table with SyncColumns {

@@ -299,7 +299,7 @@ final class ReadingActionsProvider
   }
 }
 
-String _$readingActionsHash() => r'2d273303ee25eab173df71b1bc38fe31ec3f926c';
+String _$readingActionsHash() => r'46b67fd2d67a88c4c9d9f37e556bb39efe4f7354';
 
 /// Reading and task actions for the Source chapters screen and sheets.
 /// Kept alive: its methods read providers after awaiting, and an unwatched

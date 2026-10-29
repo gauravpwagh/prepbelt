@@ -220,6 +220,7 @@
   "surveyNext": "Next chapter",
   "surveyFinish": "Finish survey",
   "surveyEmpty": "This source has no chapters yet.",
+  "chaptersSplitAsYouRead": "No chapters yet. Start reading: each sitting becomes the next part, with its own task.",
   "loadError": "Couldn't load this. Try again.",
   "tryAgain": "Try again",
   "sourcesSummary": "{count, plural, =1{1 source} other{{count} sources}} · {surveyed} surveyed",
@@ -697,6 +698,62 @@
   "@readingMakeTaskNow": {
     "placeholders": {
       "title": {
+        "type": "String"
+      }
+    }
+  },
+  "readingPreviewHeld": "Under {minutes} min, so {range} waits and joins your next part.",
+  "@readingPreviewHeld": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "readingPreviewFinish": "Marks {title} done.",
+  "@readingPreviewFinish": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "readingPartNow": "Make it a task anyway",
+  "readingFinishSource": "That was the last part: I'm done with this source",
+  "readingSaveReadOn": "Save and read on",
+  "readingSavedHeld": "Reading saved · {range} joins your next part",
+  "@readingSavedHeld": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceFinish": "Done with this source",
+  "sourceReopen": "Read more of this source",
+  "sourceFinishedSnack": "{title} marked done",
+  "@sourceFinishedSnack": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceReopenedSnack": "{title} reopened",
+  "@sourceReopenedSnack": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceFinishedLine": "Done · {read} read",
+  "@sourceFinishedLine": {
+    "placeholders": {
+      "read": {
         "type": "String"
       }
     }

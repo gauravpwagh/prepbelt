@@ -190,18 +190,37 @@ class ReadingActions extends _$ReadingActions {
   Future<SavePlan> preview(OpenReading r, int endUnit) =>
       _repo.preview(r.sessionId, endUnit: endUnit, examId: r.examId);
 
+  /// Saves the open sitting; [partTitle] names a progressive part
+  /// (D47). With [readOn] a new sitting starts right after and the source
+  /// opens again.
   Future<SaveOutcome> save(
     OpenReading r, {
     required int endUnit,
     required int minutes,
     Set<String> taskNow = const {},
-  }) => _repo.save(
-    r.sessionId,
-    endUnit: endUnit,
-    minutes: minutes,
-    examId: r.examId,
-    taskNow: taskNow,
-  );
+    String Function(int start, int end)? partTitle,
+    bool partNow = false,
+    bool finish = false,
+    bool readOn = false,
+  }) async {
+    final out = await _repo.save(
+      r.sessionId,
+      endUnit: endUnit,
+      minutes: minutes,
+      examId: r.examId,
+      taskNow: taskNow,
+      partTitle: partTitle,
+      minPartMinutes: r.config.minPartMinutes,
+      partNow: partNow,
+      finish: finish,
+    );
+    if (readOn && !finish && endUnit < r.lastUnit) await start(r.source.id);
+    return out;
+  }
+
+  /// "Done with this source", or reopening it (D47).
+  Future<void> setFinished(String sourceId, {required bool finished}) =>
+      _repo.setFinished(sourceId, finished: finished);
 
   Future<void> discard(OpenReading r) => _repo.discard(r.sessionId);
 

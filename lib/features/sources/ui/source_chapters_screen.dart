@@ -54,6 +54,16 @@ class SourceChaptersScreen extends ConsumerWidget {
       if (result == StartResult.notOpened) snack(l10n.readingNotOpened);
     }
 
+    Future<void> setFinished(SourceChaptersView v, bool finished) async {
+      await actions.setFinished(sourceId, finished: finished);
+      snack(
+        finished
+            ? l10n.sourceFinishedSnack(v.source.title)
+            : l10n.sourceReopenedSnack(v.source.title),
+        undo: true,
+      );
+    }
+
     Future<void> createAll(SourceChaptersView v) async {
       final n = await actions.createAll(sourceId, examId: v.examId);
       if (n > 0) snack(l10n.chaptersTasksCreated(n), undo: true);
@@ -79,6 +89,7 @@ class SourceChaptersScreen extends ConsumerWidget {
         onBack: () => context.pop(),
         onRead: read,
         onFinish: () => context.push(Routes.reading),
+        onSetFinished: setFinished,
         onSurvey: () => context.push(Routes.survey(sourceId)),
         onCreateAll: createAll,
         onAddTask: addTask,
@@ -98,6 +109,7 @@ class SourceChaptersBody extends StatelessWidget {
     required this.onRead,
     required this.onFinish,
     required this.onSurvey,
+    this.onSetFinished,
     required this.onCreateAll,
     required this.onAddTask,
     required this.onOpenTask,
@@ -109,6 +121,9 @@ class SourceChaptersBody extends StatelessWidget {
   final VoidCallback onBack;
   final VoidCallback onRead;
   final VoidCallback onFinish;
+
+  /// "Done with this source" (true) or reopening it (D47).
+  final void Function(SourceChaptersView view, bool finished)? onSetFinished;
   final VoidCallback onSurvey;
   final ValueChanged<SourceChaptersView> onCreateAll;
   final void Function(SourceChaptersView view, int index) onAddTask;
@@ -123,7 +138,14 @@ class SourceChaptersBody extends StatelessWidget {
     final children = switch (view) {
       AsyncData(value: final v?) => [
         if (v.progress.readable) ...[
-          _ReadingCard(view: v, onRead: onRead, onFinish: onFinish),
+          _ReadingCard(
+            view: v,
+            onRead: onRead,
+            onFinish: onFinish,
+            onSetFinished: onSetFinished == null
+                ? null
+                : (finished) => onSetFinished!(v, finished),
+          ),
           const SizedBox(height: AppSpace.md),
         ],
         _SummaryCard(
@@ -133,7 +155,11 @@ class SourceChaptersBody extends StatelessWidget {
         ),
         const SizedBox(height: AppSpace.xl),
         if (v.chapters.isEmpty)
-          _Muted(l10n.surveyEmpty)
+          _Muted(
+            v.progress.readable && !v.progress.finished
+                ? l10n.chaptersSplitAsYouRead
+                : l10n.surveyEmpty,
+          )
         else
           for (final (i, c) in v.chapters.indexed)
             _ChapterRow(
@@ -244,11 +270,13 @@ class _ReadingCard extends StatelessWidget {
     required this.view,
     required this.onRead,
     required this.onFinish,
+    this.onSetFinished,
   });
 
   final SourceChaptersView view;
   final VoidCallback onRead;
   final VoidCallback onFinish;
+  final ValueChanged<bool>? onSetFinished;
 
   @override
   Widget build(BuildContext context) {
@@ -268,6 +296,7 @@ class _ReadingCard extends StatelessWidget {
     final open = p.open;
     final String line;
     final Widget? button;
+    Widget? link;
     if (open != null) {
       final since = TimeOfDay.fromDateTime(
         DateTime.fromMillisecondsSinceEpoch(open.startedAt),
@@ -276,10 +305,25 @@ class _ReadingCard extends StatelessWidget {
         MaterialLocalizations.of(context).formatTimeOfDay(since),
       );
       button = PrimaryButton(label: l10n.readingFinish, onPressed: onFinish);
+    } else if (p.finished) {
+      line = l10n.sourceFinishedLine(unit.count(l10n, done));
+      button = null;
+      if (done < p.totalUnits && onSetFinished != null) {
+        link = TextLinkButton(
+          label: l10n.sourceReopen,
+          onPressed: () => onSetFinished!(false),
+        );
+      }
     } else if (position == null) {
       line = l10n.readingAllRead(formatMinutes(l10n, view.minutesRead));
       button = null;
     } else {
+      if (done > 0 && onSetFinished != null) {
+        link = TextLinkButton(
+          label: l10n.sourceFinish,
+          onPressed: () => onSetFinished!(true),
+        );
+      }
       line = left == null || left == 0
           ? explored
           : '$explored · ${l10n.readingTimeLeft(formatMinutes(l10n, left))}';
@@ -302,7 +346,11 @@ class _ReadingCard extends StatelessWidget {
         const SizedBox(height: AppSpace.md),
         Text(line, style: AppText.body.copyWith(color: c.ink)),
         if (button != null) ...[const SizedBox(height: AppSpace.lg), button],
-        if (partly != null && open == null) ...[
+        if (link != null) ...[
+          const SizedBox(height: AppSpace.xs),
+          Center(child: link),
+        ],
+        if (partly != null && open == null && !p.finished) ...[
           const SizedBox(height: AppSpace.sm),
           Text(
             l10n.readingPartly(

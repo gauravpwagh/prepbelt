@@ -514,6 +514,12 @@ abstract class AppLocalizations {
   /// **'This source has no chapters yet.'**
   String get surveyEmpty;
 
+  /// No description provided for @chaptersSplitAsYouRead.
+  ///
+  /// In en, this message translates to:
+  /// **'No chapters yet. Start reading: each sitting becomes the next part, with its own task.'**
+  String get chaptersSplitAsYouRead;
+
   /// No description provided for @loadError.
   ///
   /// In en, this message translates to:
@@ -1155,6 +1161,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Make {title} a task now'**
   String readingMakeTaskNow(String title);
+
+  /// No description provided for @readingPreviewHeld.
+  ///
+  /// In en, this message translates to:
+  /// **'Under {minutes} min, so {range} waits and joins your next part.'**
+  String readingPreviewHeld(int minutes, String range);
+
+  /// No description provided for @readingPreviewFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Marks {title} done.'**
+  String readingPreviewFinish(String title);
+
+  /// No description provided for @readingPartNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Make it a task anyway'**
+  String get readingPartNow;
+
+  /// No description provided for @readingFinishSource.
+  ///
+  /// In en, this message translates to:
+  /// **'That was the last part: I\'m done with this source'**
+  String get readingFinishSource;
+
+  /// No description provided for @readingSaveReadOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and read on'**
+  String get readingSaveReadOn;
+
+  /// No description provided for @readingSavedHeld.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading saved · {range} joins your next part'**
+  String readingSavedHeld(String range);
+
+  /// No description provided for @sourceFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Done with this source'**
+  String get sourceFinish;
+
+  /// No description provided for @sourceReopen.
+  ///
+  /// In en, this message translates to:
+  /// **'Read more of this source'**
+  String get sourceReopen;
+
+  /// No description provided for @sourceFinishedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} marked done'**
+  String sourceFinishedSnack(String title);
+
+  /// No description provided for @sourceReopenedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} reopened'**
+  String sourceReopenedSnack(String title);
+
+  /// No description provided for @sourceFinishedLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Done · {read} read'**
+  String sourceFinishedLine(String read);
 
   /// No description provided for @readingDidntRead.
   ///

@@ -47,7 +47,7 @@ class AppDatabase extends _$AppDatabase {
   factory AppDatabase.open() => AppDatabase(driftDatabase(name: 'prepbelt'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -59,6 +59,11 @@ class AppDatabase extends _$AppDatabase {
         // Triage choices on ExamTask (docs/04-planner-spec.md, "Triage").
         await m.addColumn(schema.examTasks, schema.examTasks.triageKeep);
         await m.addColumn(schema.examTasks, schema.examTasks.dropped);
+      },
+      from2To3: (m, schema) async {
+        // Progressive splitting and finished sources (D47).
+        await m.addColumn(schema.sources, schema.sources.progressive);
+        await m.addColumn(schema.sources, schema.sources.finishedAt);
       },
     ),
     beforeOpen: (details) async {

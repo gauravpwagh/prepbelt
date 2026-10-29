@@ -28,6 +28,7 @@ RedefineView _view({bool paused = false, int level = 4}) {
     title: 'HC Verma Vol 2',
     unitType: UnitType.page,
     totalUnits: 480,
+    progressive: false,
   );
   final state = TaskState(
     id: 'st',

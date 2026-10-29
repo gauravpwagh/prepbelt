@@ -5,6 +5,7 @@ import 'package:prepbelt/core/db/app_database.dart';
 import '../support/test_db.dart';
 import 'generated/schema.dart';
 import 'generated/schema_v1.dart' as v1;
+import 'generated/schema_v2.dart' as v2;
 
 void main() {
   late SchemaVerifier verifier;
@@ -15,9 +16,9 @@ void main() {
   });
 
   test('a fresh database matches the current snapshot', () async {
-    final connection = await verifier.startAt(2);
+    final connection = await verifier.startAt(3);
     final db = AppDatabase(connection);
-    await verifier.migrateAndValidate(db, 2);
+    await verifier.migrateAndValidate(db, 3);
     await db.close();
   });
 
@@ -43,11 +44,31 @@ void main() {
     await old.close();
 
     final db = AppDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 2);
+    await verifier.migrateAndValidate(db, 3);
     final link = await db.select(db.examTasks).getSingle();
     expect(
       (link.importance, link.targetLevel, link.triageKeep, link.dropped),
       (Importance.high, 7, false, false),
+    );
+    await db.close();
+  });
+
+  test('v2 to v3 adds progressive and finishedAt to sources', () async {
+    final schema = await verifier.schemaAt(2);
+    final old = v2.DatabaseAtV2(schema.newConnection());
+    await old.customStatement(
+      'INSERT INTO sources (id, created_at, updated_at, hlc, device_id, type, '
+      "title, unit_type, total_units) VALUES ('s', 0, 0, '0', 'd', 'book', "
+      "'HC Verma', 'page', 300)",
+    );
+    await old.close();
+
+    final db = AppDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, 3);
+    final source = await db.select(db.sources).getSingle();
+    expect(
+      (source.title, source.progressive, source.finishedAt),
+      ('HC Verma', false, null),
     );
     await db.close();
   });

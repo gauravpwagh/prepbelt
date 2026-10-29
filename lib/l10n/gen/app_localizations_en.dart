@@ -286,6 +286,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get surveyEmpty => 'This source has no chapters yet.';
 
   @override
+  String get chaptersSplitAsYouRead =>
+      'No chapters yet. Start reading: each sitting becomes the next part, with its own task.';
+
+  @override
   String get loadError => 'Couldn\'t load this. Try again.';
 
   @override
@@ -763,6 +767,52 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String readingMakeTaskNow(String title) {
     return 'Make $title a task now';
+  }
+
+  @override
+  String readingPreviewHeld(int minutes, String range) {
+    return 'Under $minutes min, so $range waits and joins your next part.';
+  }
+
+  @override
+  String readingPreviewFinish(String title) {
+    return 'Marks $title done.';
+  }
+
+  @override
+  String get readingPartNow => 'Make it a task anyway';
+
+  @override
+  String get readingFinishSource =>
+      'That was the last part: I\'m done with this source';
+
+  @override
+  String get readingSaveReadOn => 'Save and read on';
+
+  @override
+  String readingSavedHeld(String range) {
+    return 'Reading saved · $range joins your next part';
+  }
+
+  @override
+  String get sourceFinish => 'Done with this source';
+
+  @override
+  String get sourceReopen => 'Read more of this source';
+
+  @override
+  String sourceFinishedSnack(String title) {
+    return '$title marked done';
+  }
+
+  @override
+  String sourceReopenedSnack(String title) {
+    return '$title reopened';
+  }
+
+  @override
+  String sourceFinishedLine(String read) {
+    return 'Done · $read read';
   }
 
   @override

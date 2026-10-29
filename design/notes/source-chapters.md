@@ -88,6 +88,16 @@ All of it is one transaction and one undoable event:
 3. **The reading position** moves to the first page not yet read (D28).
 4. **Pace:** the minutes and pages count towards the student's pace, as the planner spec already describes (calibrated after 3 sessions, blended until 10).
 
+### Sources without chapters: progressive splitting (D47)
+
+A source with no chapters is split as it is read. Saving a sitting makes the next part, "Pages 17–30", from the end of the last part to the page reached, with one task and its first read. A part under 10 minutes (`reading.minPartMinutes`) is held and joins the next sitting; the preview says so, and "Make it a task anyway" overrides it. The last page always makes a part.
+
+### Finishing a source, and reading on (D47)
+
+- **"That was the last part: I'm done with this source"** (checkbox): saves the sitting, makes any held part, and marks the source done.
+- **"Done with this source"** (link under the reading button) marks it done without a sitting. A done source shows "Done · 23 pages read" and **"Read more of this source"**. Unread pages stay unread, and the plan drops its "Continue" item.
+- **"Save and read on"** (secondary button, hidden when finishing): saves and starts the next sitting from the new position at once.
+
 ### Topics
 
 A task belongs to exactly one topic. If the chapters read span two topics, Save creates one task per topic, and the preview line says so. Chapters with no topic yet join the task as they are; the task can be given a topic later.

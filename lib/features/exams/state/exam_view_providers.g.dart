@@ -215,7 +215,7 @@ final class ExamActionsProvider extends $NotifierProvider<ExamActions, void> {
   }
 }
 
-String _$examActionsHash() => r'a9b2bdfc17fbaa8f12d9796cc53401cf233bac95';
+String _$examActionsHash() => r'a183c39543fa140afcb212d17024bfe152ad9f74';
 
 /// Adds an exam with its task links and daily minutes (D38).
 
