@@ -9,6 +9,7 @@ import '../../../platform/files/file_picking.dart';
 import '../../../platform/files/file_store.dart';
 import '../../../platform/pdf_outline/pdf_outline.dart';
 import '../../../platform/share_in/share_in.dart';
+import '../../planner/state/planner_providers.dart';
 import '../data/source_repository.dart';
 
 export '../data/source_repository.dart' show SourceSummary;
@@ -50,8 +51,9 @@ PdfOutlineReader pdfOutlineReader(Ref ref) => const PdfOutlineReader();
 ShareInbox shareInbox(Ref ref) =>
     kIsWeb ? const NoShareInbox() : const SystemShareInbox();
 
-/// Rename, remove and undo from the Sources list.
-@riverpod
+/// Rename, remove and undo from the Sources list. Kept alive: removing
+/// awaits, then replans.
+@Riverpod(keepAlive: true)
 class SourceActions extends _$SourceActions {
   @override
   void build() {}
@@ -61,8 +63,18 @@ class SourceActions extends _$SourceActions {
       .update(id, title: Value(title.trim()))
       .then((_) {});
 
-  Future<void> remove(String id) =>
-      ref.read(sourceRepositoryProvider).softDelete(id);
+  /// How many tasks removing source [id] takes with it.
+  Future<int> taskCount(String id) async =>
+      (await ref.read(sourceRepositoryProvider).tasksOf(id)).length;
 
-  Future<void> undo(String id) => ref.read(sourceRepositoryProvider).undo(id);
+  /// Removes the source with its chapters and tasks, then replans.
+  Future<void> remove(String id) async {
+    await ref.read(sourceRepositoryProvider).softDelete(id);
+    await ref.read(plannerProvider.notifier).replanNow();
+  }
+
+  Future<void> undo(String id) async {
+    await ref.read(sourceRepositoryProvider).undo(id);
+    await ref.read(plannerProvider.notifier).replanNow();
+  }
 }

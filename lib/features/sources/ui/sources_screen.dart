@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart' show CustomSemanticsAction;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/result/result.dart';
 import '../../../core/ui/app_icons.dart';
 import '../../../core/ui/bottom_sheet.dart';
 import '../../../core/ui/buttons.dart';
@@ -26,7 +28,42 @@ class SourcesScreen extends ConsumerWidget {
 
     Future<void> remove(SourceSummary s) async {
       final messenger = ScaffoldMessenger.of(context);
-      await actions.remove(s.source.id);
+      final tasks = await actions.taskCount(s.source.id);
+      if (!context.mounted) return;
+      final c = context.colors;
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (dialog) => AlertDialog(
+          backgroundColor: c.surface,
+          title: Text(
+            l10n.sourceRemoveTitle(s.source.title),
+            style: AppText.section.copyWith(color: c.ink),
+          ),
+          content: Text(
+            l10n.sourceRemoveBody(tasks),
+            style: AppText.body.copyWith(color: c.ink),
+          ),
+          actions: [
+            TextLinkButton(
+              label: l10n.redefineCancel,
+              onPressed: () => Navigator.of(dialog).pop(false),
+            ),
+            TextLinkButton(
+              label: l10n.sourceRemove,
+              onPressed: () => Navigator.of(dialog).pop(true),
+            ),
+          ],
+        ),
+      );
+      if (!(ok ?? false)) return;
+      try {
+        await actions.remove(s.source.id);
+      } on InvalidOperationError {
+        messenger
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(l10n.sourceRemoveBusy)));
+        return;
+      }
       messenger
         ..hideCurrentSnackBar()
         ..showSnackBar(
@@ -241,6 +278,9 @@ class _SourceCard extends StatelessWidget {
       excludeSemantics: true,
       onTap: onOpen,
       onLongPress: onMore,
+      customSemanticsActions: {
+        CustomSemanticsAction(label: l10n.sourceMenu): onMore,
+      },
       child: Material(
         color: c.surface,
         shape: RoundedRectangleBorder(
@@ -331,6 +371,21 @@ class _SourceCard extends StatelessWidget {
                     Text(
                       progress,
                       style: AppText.caption.copyWith(color: c.muted),
+                    ),
+                    // Long-press opens the same sheet.
+                    SizedBox.square(
+                      dimension: kMinTouchTarget,
+                      child: InkResponse(
+                        onTap: onMore,
+                        radius: kMinTouchTarget / 2,
+                        child: Center(
+                          child: AppIconView(
+                            AppIcon.more,
+                            color: c.muted,
+                            size: 20,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),

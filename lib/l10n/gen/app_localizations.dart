@@ -652,6 +652,30 @@ abstract class AppLocalizations {
   /// **'Rename'**
   String get sourceRename;
 
+  /// No description provided for @sourceMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Source options'**
+  String get sourceMenu;
+
+  /// No description provided for @sourceRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {title}?'**
+  String sourceRemoveTitle(String title);
+
+  /// No description provided for @sourceRemoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Its chapters and reading progress go too.} =1{Its chapters and its 1 task, with its belt, go too.} other{Its chapters and its {count} tasks, with their belts, go too.}} You can undo this right after.'**
+  String sourceRemoveBody(int count);
+
+  /// No description provided for @sourceRemoveBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish the open review of this source first.'**
+  String get sourceRemoveBusy;
+
   /// No description provided for @sourceRemove.
   ///
   /// In en, this message translates to:

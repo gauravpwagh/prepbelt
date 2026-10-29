@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../../core/db/event_log.dart';
+import '../../../core/result/result.dart';
 import '../../../platform/files/file_store.dart';
 import 'chapter_split.dart';
 
@@ -177,12 +178,126 @@ final class SourceRepository extends EventSourcedRepository {
     ),
   );
 
-  Future<void> softDelete(String id) => mutate<void>(
-    entity: entity,
-    entityId: id,
-    op: EventOp.delete,
-    body: (rec) => rec.softDelete(db.sources, id),
-  );
+  /// Tasks that go with source [id] when it is removed: those whose parts
+  /// all come from it.
+  Future<List<String>> tasksOf(String id) async {
+    final chunkIds = await _chunkIds(id);
+    if (chunkIds.isEmpty) return const [];
+    final links =
+        await (db.select(db.taskChunks).join([
+              innerJoin(db.tasks, db.tasks.id.equalsExp(db.taskChunks.taskId)),
+            ])..where(
+              db.taskChunks.deletedAt.isNull() & db.tasks.deletedAt.isNull(),
+            ))
+            .get();
+    final ownChunks = chunkIds.toSet();
+    final byTask = <String, List<String>>{};
+    for (final l in links) {
+      final link = l.readTable(db.taskChunks);
+      byTask.putIfAbsent(link.taskId, () => []).add(link.chunkId);
+    }
+    return [
+      for (final MapEntry(key: task, value: chunks) in byTask.entries)
+        if (chunks.every(ownChunks.contains)) task,
+    ];
+  }
+
+  /// Removes source [id] with its chapters and the tasks made from it, as
+  /// one undoable change. Reviews stay in the log (they are append-only);
+  /// an open reading sitting of it is closed. Refused while a review of
+  /// one of its tasks is open.
+  Future<void> softDelete(String id) async {
+    final chunkIds = await _chunkIds(id);
+    final taskIds = await tasksOf(id);
+    final active = await (db.select(
+      db.activeSessions,
+    )..limit(1)).getSingleOrNull();
+    if (active != null && taskIds.contains(active.taskId)) {
+      throw const InvalidOperationError('Finish the open review first');
+    }
+    final taskChunks = [
+      for (final r
+          in await (db.select(db.taskChunks)..where(
+                (t) =>
+                    (t.chunkId.isIn(chunkIds) | t.taskId.isIn(taskIds)) &
+                    t.deletedAt.isNull(),
+              ))
+              .get())
+        r.id,
+    ];
+    final surveys = [
+      for (final r in await (db.select(
+        db.chunkSurveys,
+      )..where((t) => t.chunkId.isIn(chunkIds) & t.deletedAt.isNull())).get())
+        r.id,
+    ];
+    final examChunks = [
+      for (final r in await (db.select(
+        db.examChunks,
+      )..where((t) => t.chunkId.isIn(chunkIds) & t.deletedAt.isNull())).get())
+        r.id,
+    ];
+    final examTasks = [
+      for (final r in await (db.select(
+        db.examTasks,
+      )..where((t) => t.taskId.isIn(taskIds) & t.deletedAt.isNull())).get())
+        r.id,
+    ];
+    final open = [
+      for (final r
+          in await (db.select(db.readingSessions)..where(
+                (t) =>
+                    t.sourceId.equals(id) &
+                    t.status.equalsValue(ReadingStatus.open) &
+                    t.deletedAt.isNull(),
+              ))
+              .get())
+        r.id,
+    ];
+    await mutate<void>(
+      entity: entity,
+      entityId: id,
+      op: EventOp.delete,
+      data: {'tasks': taskIds.length},
+      body: (rec) async {
+        for (final r in open) {
+          await rec.update(
+            db.readingSessions,
+            r,
+            ReadingSessionsCompanion(
+              endedAt: Value(rec.now),
+              status: const Value(ReadingStatus.discarded),
+            ),
+          );
+        }
+        final rows = <(TableInfo<Table, Object?>, List<String>)>[
+          (db.taskChunks, taskChunks),
+          (db.chunkSurveys, surveys),
+          (db.examChunks, examChunks),
+          (db.examTasks, examTasks),
+        ];
+        for (final (table, ids) in rows) {
+          for (final rowId in ids) {
+            await rec.softDelete(table, rowId);
+          }
+        }
+        for (final t in taskIds) {
+          await rec.softDelete(db.tasks, t);
+        }
+        for (final c in chunkIds) {
+          await rec.softDelete(db.chunks, c);
+        }
+        await rec.softDelete(db.sources, id);
+      },
+    );
+  }
+
+  Future<List<String>> _chunkIds(String sourceId) async => [
+    for (final c in await (db.select(
+      db.chunks,
+    )..where((c) => c.sourceId.equals(sourceId) & c.deletedAt.isNull())).get())
+      c.id,
+  ];
 
   /// Reverses the latest change to this source.
   Future<void> undo(String id) => undoLatest(entity, id);

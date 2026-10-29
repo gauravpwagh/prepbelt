@@ -298,6 +298,24 @@
   },
   "sourceCardHintOpen": "Open its chapters",
   "sourceRename": "Rename",
+  "sourceMenu": "Source options",
+  "sourceRemoveTitle": "Remove {title}?",
+  "@sourceRemoveTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceRemoveBody": "{count, plural, =0{Its chapters and reading progress go too.} =1{Its chapters and its 1 task, with its belt, go too.} other{Its chapters and its {count} tasks, with their belts, go too.}} You can undo this right after.",
+  "@sourceRemoveBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sourceRemoveBusy": "Finish the open review of this source first.",
   "sourceRemove": "Remove",
   "sourceRemoved": "Removed {title}",
   "@sourceRemoved": {

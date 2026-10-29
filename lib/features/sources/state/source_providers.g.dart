@@ -384,22 +384,25 @@ final class ShareInboxProvider
 
 String _$shareInboxHash() => r'712fd639543e05289cb9a973c1d7624798dde941';
 
-/// Rename, remove and undo from the Sources list.
+/// Rename, remove and undo from the Sources list. Kept alive: removing
+/// awaits, then replans.
 
 @ProviderFor(SourceActions)
 final sourceActionsProvider = SourceActionsProvider._();
 
-/// Rename, remove and undo from the Sources list.
+/// Rename, remove and undo from the Sources list. Kept alive: removing
+/// awaits, then replans.
 final class SourceActionsProvider
     extends $NotifierProvider<SourceActions, void> {
-  /// Rename, remove and undo from the Sources list.
+  /// Rename, remove and undo from the Sources list. Kept alive: removing
+  /// awaits, then replans.
   SourceActionsProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'sourceActionsProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -420,9 +423,10 @@ final class SourceActionsProvider
   }
 }
 
-String _$sourceActionsHash() => r'299fb08727cb057d62a5d150e205aadae7b0ed4a';
+String _$sourceActionsHash() => r'8510a7ba4984dfc30f9b58be5bb2dd78eaf883a2';
 
-/// Rename, remove and undo from the Sources list.
+/// Rename, remove and undo from the Sources list. Kept alive: removing
+/// awaits, then replans.
 
 abstract class _$SourceActions extends $Notifier<void> {
   void build();

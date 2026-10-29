@@ -400,6 +400,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sourceRename => 'Rename';
 
   @override
+  String get sourceMenu => 'Source options';
+
+  @override
+  String sourceRemoveTitle(String title) {
+    return 'Remove $title?';
+  }
+
+  @override
+  String sourceRemoveBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Its chapters and its $count tasks, with their belts, go too.',
+      one: 'Its chapters and its 1 task, with its belt, go too.',
+      zero: 'Its chapters and reading progress go too.',
+    );
+    return '$_temp0 You can undo this right after.';
+  }
+
+  @override
+  String get sourceRemoveBusy => 'Finish the open review of this source first.';
+
+  @override
   String get sourceRemove => 'Remove';
 
   @override
