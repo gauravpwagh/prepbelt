@@ -65,7 +65,7 @@ void main() {
         ChunkDraft(title: 'Ch 3', startUnit: 41, endUnit: 100),
       ],
     );
-    final chunks = await (db.select(db.chunks)).get();
+    final chunks = await db.select(db.chunks).get();
     chunks.sort((a, b) => a.startUnit!.compareTo(b.startUnit!));
     final reading = ReadingRepository(sessions.ctx, reviews: sessions.reviews);
     await reading.addTask(

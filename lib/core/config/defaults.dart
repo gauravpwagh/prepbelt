@@ -178,6 +178,9 @@ abstract final class Defaults {
 
   /// Activity grid intensity buckets.
   static const int activityGridBuckets = 5;
+
+  /// Weeks the activity grid shows, ending with this one.
+  static const int activityGridWeeks = 12;
 }
 
 /// Keys of `Setting` rows that override [Defaults]. Values are JSON.

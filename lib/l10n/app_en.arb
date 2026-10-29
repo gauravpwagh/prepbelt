@@ -1073,5 +1073,117 @@
       }
     }
   },
-  "todayKindExploreWord": "reading"
+  "todayKindExploreWord": "reading",
+  "examDateLine": "{date} · {days, plural, =0{exam day} =1{1 day left} other{{days} days left}}",
+  "@examDateLine": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "examBeltToday": "Exam belt today",
+  "examProjected": "Projected {belt} by exam day",
+  "@examProjected": {
+    "placeholders": {
+      "belt": {
+        "type": "String"
+      }
+    }
+  },
+  "examReady": "ready",
+  "examAtTarget": "at target",
+  "examToday": "today",
+  "examBeltSemantics": "Exam belt today {belt}, projected {projected} by exam day",
+  "@examBeltSemantics": {
+    "placeholders": {
+      "belt": {
+        "type": "String"
+      },
+      "projected": {
+        "type": "String"
+      }
+    }
+  },
+  "examWeakLinks": "{count, plural, =1{1 weak link} other{{count} weak links}}",
+  "@examWeakLinks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "examWeakHint": "high importance, below Yellow",
+  "examWeakNotStarted": "not started · first read {when}",
+  "@examWeakNotStarted": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "examWeakNotPlanned": "not started",
+  "examWeakNext": "{belt} · review {when}",
+  "@examWeakNext": {
+    "placeholders": {
+      "belt": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "examWhenToday": "today",
+  "examWhenTomorrow": "tomorrow",
+  "examActivity": "Activity",
+  "examActivityHint": "study minutes per day",
+  "examActivityLess": "Less",
+  "examActivityMore": "More",
+  "examActivitySemantics": "{count, plural, =0{No study in the last {weeks} weeks} =1{Studied on 1 day in the last {weeks} weeks} other{Studied on {count} days in the last {weeks} weeks}}",
+  "@examActivitySemantics": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
+  "examPlanTight": "Not everything fits before the exam. Add study time each day to fit it all.",
+  "examsEmptyTitle": "No exam yet",
+  "examsEmptyBody": "Add your exam to get a day-by-day plan.",
+  "examsAdd": "Add exam",
+  "examLoadFailed": "Couldn't load this exam.",
+  "addExamTitle": "Add exam",
+  "addExamName": "Exam name",
+  "addExamDate": "Exam date",
+  "addExamChooseDate": "Choose a date",
+  "addExamDaysFrom": "{days, plural, =1{Tomorrow} other{{days} days from today}}",
+  "@addExamDaysFrom": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "addExamTime": "Time each day",
+  "addExamTimeHint": "The same every day for now. Set each weekday in Settings.",
+  "addExamTasks": "{count, plural, =0{Tasks you add will count toward this exam.} =1{Your 1 task will count toward this exam as Medium. Set importance in each source's survey.} other{Your {count} tasks will count toward this exam as Medium. Set importance in each source's survey.}}",
+  "@addExamTasks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addExamNameMissing": "Give the exam a name",
+  "addExamSave": "Add exam",
+  "addExamFailed": "Couldn't save. Try again.",
+  "addExamLess": "Less time",
+  "addExamMore": "More time"
 }

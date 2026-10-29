@@ -5,6 +5,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../core/ui/bottom_sheet.dart';
 import '../core/ui/nav_bar.dart';
 import '../core/ui/placeholder_screen.dart';
+import '../features/exams/ui/add_exam_screen.dart';
+import '../features/exams/ui/exam_screen.dart';
 import '../features/session/ui/session_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
 import '../features/sources/ui/add_source_screen.dart';
@@ -55,18 +57,7 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
         builder: (context, state, shell) => _Shell(shell: shell),
         branches: [
           StatefulShellBranch(routes: [tab(Routes.today, const TodayScreen())]),
-          StatefulShellBranch(
-            routes: [
-              tab(
-                Routes.exams,
-                Builder(
-                  builder: (context) => PlaceholderScreen(
-                    title: AppLocalizations.of(context).screenExams,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          StatefulShellBranch(routes: [tab(Routes.exams, const ExamsTab())]),
           StatefulShellBranch(
             routes: [tab(Routes.sources, const SourcesScreen())],
           ),
@@ -104,9 +95,10 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
         builder: (_, state) =>
             SurveyScreen(sourceId: state.pathParameters['id']!),
       ),
+      GoRoute(path: Routes.newExam, builder: (_, _) => const AddExamScreen()),
       GoRoute(
         path: '/exams/:id',
-        builder: (_, _) => placeholder((l) => l.screenExam),
+        builder: (_, state) => ExamScreen(examId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/session/:taskId',

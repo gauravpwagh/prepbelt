@@ -1203,4 +1203,170 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todayKindExploreWord => 'reading';
+
+  @override
+  String examDateLine(String date, int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days left',
+      one: '1 day left',
+      zero: 'exam day',
+    );
+    return '$date · $_temp0';
+  }
+
+  @override
+  String get examBeltToday => 'Exam belt today';
+
+  @override
+  String examProjected(String belt) {
+    return 'Projected $belt by exam day';
+  }
+
+  @override
+  String get examReady => 'ready';
+
+  @override
+  String get examAtTarget => 'at target';
+
+  @override
+  String get examToday => 'today';
+
+  @override
+  String examBeltSemantics(String belt, String projected) {
+    return 'Exam belt today $belt, projected $projected by exam day';
+  }
+
+  @override
+  String examWeakLinks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count weak links',
+      one: '1 weak link',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get examWeakHint => 'high importance, below Yellow';
+
+  @override
+  String examWeakNotStarted(String when) {
+    return 'not started · first read $when';
+  }
+
+  @override
+  String get examWeakNotPlanned => 'not started';
+
+  @override
+  String examWeakNext(String belt, String when) {
+    return '$belt · review $when';
+  }
+
+  @override
+  String get examWhenToday => 'today';
+
+  @override
+  String get examWhenTomorrow => 'tomorrow';
+
+  @override
+  String get examActivity => 'Activity';
+
+  @override
+  String get examActivityHint => 'study minutes per day';
+
+  @override
+  String get examActivityLess => 'Less';
+
+  @override
+  String get examActivityMore => 'More';
+
+  @override
+  String examActivitySemantics(int count, int weeks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Studied on $count days in the last $weeks weeks',
+      one: 'Studied on 1 day in the last $weeks weeks',
+      zero: 'No study in the last $weeks weeks',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get examPlanTight =>
+      'Not everything fits before the exam. Add study time each day to fit it all.';
+
+  @override
+  String get examsEmptyTitle => 'No exam yet';
+
+  @override
+  String get examsEmptyBody => 'Add your exam to get a day-by-day plan.';
+
+  @override
+  String get examsAdd => 'Add exam';
+
+  @override
+  String get examLoadFailed => 'Couldn\'t load this exam.';
+
+  @override
+  String get addExamTitle => 'Add exam';
+
+  @override
+  String get addExamName => 'Exam name';
+
+  @override
+  String get addExamDate => 'Exam date';
+
+  @override
+  String get addExamChooseDate => 'Choose a date';
+
+  @override
+  String addExamDaysFrom(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days from today',
+      one: 'Tomorrow',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get addExamTime => 'Time each day';
+
+  @override
+  String get addExamTimeHint =>
+      'The same every day for now. Set each weekday in Settings.';
+
+  @override
+  String addExamTasks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Your $count tasks will count toward this exam as Medium. Set importance in each source\'s survey.',
+      one:
+          'Your 1 task will count toward this exam as Medium. Set importance in each source\'s survey.',
+      zero: 'Tasks you add will count toward this exam.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get addExamNameMissing => 'Give the exam a name';
+
+  @override
+  String get addExamSave => 'Add exam';
+
+  @override
+  String get addExamFailed => 'Couldn\'t save. Try again.';
+
+  @override
+  String get addExamLess => 'Less time';
+
+  @override
+  String get addExamMore => 'More time';
 }

@@ -6,6 +6,7 @@ abstract final class Routes {
   static const progress = '/progress';
   static const sources = '/sources';
   static const newSource = '/sources/new';
+  static const newExam = '/exams/new';
   static const settings = '/settings';
   static const onboarding = '/onboarding';
 

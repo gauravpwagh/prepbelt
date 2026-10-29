@@ -1754,6 +1754,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'reading'**
   String get todayKindExploreWord;
+
+  /// No description provided for @examDateLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} · {days, plural, =0{exam day} =1{1 day left} other{{days} days left}}'**
+  String examDateLine(String date, int days);
+
+  /// No description provided for @examBeltToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam belt today'**
+  String get examBeltToday;
+
+  /// No description provided for @examProjected.
+  ///
+  /// In en, this message translates to:
+  /// **'Projected {belt} by exam day'**
+  String examProjected(String belt);
+
+  /// No description provided for @examReady.
+  ///
+  /// In en, this message translates to:
+  /// **'ready'**
+  String get examReady;
+
+  /// No description provided for @examAtTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'at target'**
+  String get examAtTarget;
+
+  /// No description provided for @examToday.
+  ///
+  /// In en, this message translates to:
+  /// **'today'**
+  String get examToday;
+
+  /// No description provided for @examBeltSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam belt today {belt}, projected {projected} by exam day'**
+  String examBeltSemantics(String belt, String projected);
+
+  /// No description provided for @examWeakLinks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 weak link} other{{count} weak links}}'**
+  String examWeakLinks(int count);
+
+  /// No description provided for @examWeakHint.
+  ///
+  /// In en, this message translates to:
+  /// **'high importance, below Yellow'**
+  String get examWeakHint;
+
+  /// No description provided for @examWeakNotStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'not started · first read {when}'**
+  String examWeakNotStarted(String when);
+
+  /// No description provided for @examWeakNotPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'not started'**
+  String get examWeakNotPlanned;
+
+  /// No description provided for @examWeakNext.
+  ///
+  /// In en, this message translates to:
+  /// **'{belt} · review {when}'**
+  String examWeakNext(String belt, String when);
+
+  /// No description provided for @examWhenToday.
+  ///
+  /// In en, this message translates to:
+  /// **'today'**
+  String get examWhenToday;
+
+  /// No description provided for @examWhenTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'tomorrow'**
+  String get examWhenTomorrow;
+
+  /// No description provided for @examActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get examActivity;
+
+  /// No description provided for @examActivityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'study minutes per day'**
+  String get examActivityHint;
+
+  /// No description provided for @examActivityLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Less'**
+  String get examActivityLess;
+
+  /// No description provided for @examActivityMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get examActivityMore;
+
+  /// No description provided for @examActivitySemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No study in the last {weeks} weeks} =1{Studied on 1 day in the last {weeks} weeks} other{Studied on {count} days in the last {weeks} weeks}}'**
+  String examActivitySemantics(int count, int weeks);
+
+  /// No description provided for @examPlanTight.
+  ///
+  /// In en, this message translates to:
+  /// **'Not everything fits before the exam. Add study time each day to fit it all.'**
+  String get examPlanTight;
+
+  /// No description provided for @examsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No exam yet'**
+  String get examsEmptyTitle;
+
+  /// No description provided for @examsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your exam to get a day-by-day plan.'**
+  String get examsEmptyBody;
+
+  /// No description provided for @examsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add exam'**
+  String get examsAdd;
+
+  /// No description provided for @examLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this exam.'**
+  String get examLoadFailed;
+
+  /// No description provided for @addExamTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add exam'**
+  String get addExamTitle;
+
+  /// No description provided for @addExamName.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam name'**
+  String get addExamName;
+
+  /// No description provided for @addExamDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam date'**
+  String get addExamDate;
+
+  /// No description provided for @addExamChooseDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a date'**
+  String get addExamChooseDate;
+
+  /// No description provided for @addExamDaysFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Tomorrow} other{{days} days from today}}'**
+  String addExamDaysFrom(int days);
+
+  /// No description provided for @addExamTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time each day'**
+  String get addExamTime;
+
+  /// No description provided for @addExamTimeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The same every day for now. Set each weekday in Settings.'**
+  String get addExamTimeHint;
+
+  /// No description provided for @addExamTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Tasks you add will count toward this exam.} =1{Your 1 task will count toward this exam as Medium. Set importance in each source\'s survey.} other{Your {count} tasks will count toward this exam as Medium. Set importance in each source\'s survey.}}'**
+  String addExamTasks(int count);
+
+  /// No description provided for @addExamNameMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the exam a name'**
+  String get addExamNameMissing;
+
+  /// No description provided for @addExamSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Add exam'**
+  String get addExamSave;
+
+  /// No description provided for @addExamFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save. Try again.'**
+  String get addExamFailed;
+
+  /// No description provided for @addExamLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Less time'**
+  String get addExamLess;
+
+  /// No description provided for @addExamMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More time'**
+  String get addExamMore;
 }
 
 class _AppLocalizationsDelegate

@@ -41,6 +41,99 @@ final class ExamRepository extends EventSourcedRepository {
     );
   }
 
+  /// Adds the exam with everything the planner needs, as one undoable
+  /// operation (design/notes/add-exam.md): the Exam, an ExamTask (Medium,
+  /// target [mediumTarget]) for every active task without one, and the same
+  /// [dailyMinutes] on each weekday.
+  Future<Exam> createWithSetup({
+    required String name,
+    required String date,
+    required int dailyMinutes,
+    required int mediumTarget,
+  }) async {
+    if (await _upcoming().getSingleOrNull() != null) {
+      throw const InvalidOperationError(
+        'PrepBelt 1.0 supports one upcoming exam at a time',
+      );
+    }
+    final id = ctx.ids.next();
+    return mutate(
+      entity: entity,
+      entityId: id,
+      op: EventOp.create,
+      data: {'action': 'addExam', 'dailyMinutes': dailyMinutes},
+      body: (rec) async {
+        final exam = await rec.insert(
+          db.exams,
+          ExamsCompanion(
+            id: Value(id),
+            name: Value(name),
+            date: Value(date),
+            priority: const Value(2),
+            status: const Value(ExamStatus.upcoming),
+          ),
+        );
+        final tasks =
+            await (db.select(db.tasks)..where(
+                  (t) =>
+                      t.deletedAt.isNull() &
+                      t.status.isNotValue(TaskStatus.archived.name),
+                ))
+                .get();
+        for (final t in tasks) {
+          await rec.insert(
+            db.examTasks,
+            ExamTasksCompanion(
+              id: Value(rec.newId()),
+              examId: Value(id),
+              taskId: Value(t.id),
+              importance: const Value(Importance.medium),
+              targetLevel: Value(mediumTarget),
+              importanceOverridden: const Value(false),
+            ),
+          );
+        }
+        final week = await (db.select(
+          db.availabilities,
+        )..where((a) => a.deletedAt.isNull())).get();
+        for (var day = 0; day < 7; day++) {
+          final row = week.where((a) => a.weekday == day).firstOrNull;
+          if (row == null) {
+            await rec.insert(
+              db.availabilities,
+              AvailabilitiesCompanion(
+                id: Value(rec.newId()),
+                weekday: Value(day),
+                minutes: Value(dailyMinutes),
+              ),
+            );
+          } else {
+            await rec.update(
+              db.availabilities,
+              row.id,
+              AvailabilitiesCompanion(minutes: Value(dailyMinutes)),
+            );
+          }
+        }
+        return exam;
+      },
+    );
+  }
+
+  /// Active tasks, for "Your 12 tasks will count toward this exam".
+  Future<int> activeTaskCount() async {
+    final count = db.tasks.id.count();
+    final row =
+        await (db.selectOnly(db.tasks)
+              ..addColumns([count])
+              ..where(
+                db.tasks.deletedAt.isNull() &
+                    db.tasks.status.isNotValue(TaskStatus.archived.name),
+              ))
+            .getSingle();
+    return row.read(count) ?? 0;
+  }
+
   Future<Exam> update(
     String id, {
     Value<String> name = const Value.absent(),
