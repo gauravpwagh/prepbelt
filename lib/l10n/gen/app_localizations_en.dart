@@ -1544,4 +1544,198 @@ class AppLocalizationsEn extends AppLocalizations {
   String todayOnTrack(String belt) {
     return 'On track for $belt by exam day';
   }
+
+  @override
+  String get redefineTitle => 'Redefine task';
+
+  @override
+  String get redefineSubtitle =>
+      'Your progress and review history are never lost.';
+
+  @override
+  String get redefineEdit => 'Edit';
+
+  @override
+  String get redefineScope => 'Scope';
+
+  @override
+  String get redefineSplit => 'Split';
+
+  @override
+  String get redefinePause => 'Pause';
+
+  @override
+  String get redefineResume => 'Resume';
+
+  @override
+  String get redefineWhatHappens => 'WHAT HAPPENS';
+
+  @override
+  String get redefineCancel => 'Cancel';
+
+  @override
+  String get editName => 'Name';
+
+  @override
+  String editImportance(String exam) {
+    return 'Importance for $exam';
+  }
+
+  @override
+  String editImpact(String belt, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reviews planned',
+      one: '1 review planned',
+    );
+    return 'Target $belt · $_temp0';
+  }
+
+  @override
+  String get editNoChange => 'Nothing changes for your belt or reviews.';
+
+  @override
+  String get editSave => 'Save changes';
+
+  @override
+  String get scopeFrom => 'From';
+
+  @override
+  String get scopeTo => 'To';
+
+  @override
+  String get scopeShrink => 'Keeps its belt and reviews.';
+
+  @override
+  String get scopeSame => 'Change the range to see what happens.';
+
+  @override
+  String scopeAdded(String range) {
+    return 'Added $range:';
+  }
+
+  @override
+  String get scopeGrowSplit => 'Make it a new task';
+
+  @override
+  String get scopeGrowKeep => 'Keep as one task';
+
+  @override
+  String get scopeGrowSplitImpact =>
+      'The added pages start with a first read; this task keeps its belt.';
+
+  @override
+  String get scopeGrowKeepImpact =>
+      'The belt dims one step until the next Good review.';
+
+  @override
+  String get scopeSave => 'Save scope';
+
+  @override
+  String get scopeUnavailable =>
+      'Scope works on a task with one chapter range.';
+
+  @override
+  String get splitDrag => 'Drag to choose where to split';
+
+  @override
+  String splitAfter(String position) {
+    return 'after $position';
+  }
+
+  @override
+  String splitPart(String letter, String size) {
+    return 'PART $letter · $size';
+  }
+
+  @override
+  String splitPartName(String title, int number) {
+    return '$title, part $number';
+  }
+
+  @override
+  String splitKeep(String belt) {
+    return 'Both parts keep $belt';
+  }
+
+  @override
+  String get splitStartFresh => 'Both parts start with a first read';
+
+  @override
+  String splitNext(String a, String b) {
+    return 'Next reviews $a and $b';
+  }
+
+  @override
+  String get splitUndoHint => 'Undo anytime from the task\'s page';
+
+  @override
+  String get splitApply => 'Split into 2 tasks';
+
+  @override
+  String get splitUnavailable =>
+      'Split needs a task with a page range of at least 2 pages.';
+
+  @override
+  String splitHandle(String position) {
+    return 'Split after $position';
+  }
+
+  @override
+  String get pauseBody =>
+      'Pausing stops the belt from fading and takes the task out of the plan until you resume. Nothing is lost.';
+
+  @override
+  String get pauseApply => 'Pause task';
+
+  @override
+  String get resumeBody =>
+      'Resuming puts the task back in the plan. Its reviews move later by the time it was paused.';
+
+  @override
+  String get resumeApply => 'Resume task';
+
+  @override
+  String get redefineSaved => 'Saved';
+
+  @override
+  String get redefineSplitDone => 'Split into 2 tasks';
+
+  @override
+  String get redefineUndo => 'Undo';
+
+  @override
+  String get redefineFailed => 'Couldn\'t save. Try again.';
+
+  @override
+  String get taskUndoLast => 'Undo last change';
+
+  @override
+  String get taskUndone => 'Change undone';
+
+  @override
+  String get taskMore => 'Redefine task';
+
+  @override
+  String taskPartOf(String title) {
+    return 'Split from $title';
+  }
+
+  @override
+  String beltWithStripes(String belt, int stripes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      stripes,
+      locale: localeName,
+      other: '$stripes stripes',
+      one: '1 stripe',
+      zero: 'no stripes',
+    );
+    return '$belt, $_temp0';
+  }
+
+  @override
+  String beltWithFading(String belt) {
+    return '$belt, fading';
+  }
 }

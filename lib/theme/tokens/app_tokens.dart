@@ -32,6 +32,12 @@ final class AppColors extends ThemeExtension<AppColors> {
     required this.importanceMedium,
     required this.importanceLow,
     required this.gridEmpty,
+    required this.partA,
+    required this.partABg,
+    required this.partAText,
+    required this.partB,
+    required this.partBBg,
+    required this.partBText,
   });
 
   /// Light values, exactly as in the mockups.
@@ -63,6 +69,12 @@ final class AppColors extends ThemeExtension<AppColors> {
     importanceMedium: Color(0xFFF0997B),
     importanceLow: Color(0xFFF5C4B3),
     gridEmpty: Color(0xFFE2E5EE),
+    partA: Color(0xFFC7D2FE),
+    partABg: Color(0xFFF5F6FF),
+    partAText: Color(0xFF3730A3),
+    partB: Color(0xFFFED7AA),
+    partBBg: Color(0xFFFFF8F1),
+    partBText: Color(0xFF9A3412),
   );
 
   /// Dark values, derived: same hues, text kept at 4.5:1 or better on
@@ -95,6 +107,12 @@ final class AppColors extends ThemeExtension<AppColors> {
     importanceMedium: Color(0xFFF0997B),
     importanceLow: Color(0xFFF5C4B3),
     gridEmpty: Color(0xFF2A3048),
+    partA: Color(0xFF4F56A8),
+    partABg: Color(0xFF1E2244),
+    partAText: Color(0xFFB9BEFF),
+    partB: Color(0xFF8A5626),
+    partBBg: Color(0xFF2B2118),
+    partBText: Color(0xFFFFC08A),
   );
 
   /// Primary text, dark cards, selected chips.
@@ -155,6 +173,14 @@ final class AppColors extends ThemeExtension<AppColors> {
 
   final Color gridEmpty;
 
+  /// The two parts of a split (mockup 5): bar, card fill, label text.
+  final Color partA;
+  final Color partABg;
+  final Color partAText;
+  final Color partB;
+  final Color partBBg;
+  final Color partBText;
+
   @override
   AppColors copyWith() => this;
 
@@ -190,6 +216,12 @@ final class AppColors extends ThemeExtension<AppColors> {
       importanceMedium: l(importanceMedium, other.importanceMedium),
       importanceLow: l(importanceLow, other.importanceLow),
       gridEmpty: l(gridEmpty, other.gridEmpty),
+      partA: l(partA, other.partA),
+      partABg: l(partABg, other.partABg),
+      partAText: l(partAText, other.partAText),
+      partB: l(partB, other.partB),
+      partBBg: l(partBBg, other.partBBg),
+      partBText: l(partBText, other.partBText),
     );
   }
 }

@@ -7,11 +7,13 @@ import '../../../app/routes.dart';
 import '../../../core/db/enums.dart';
 import '../../../core/result/result.dart';
 import '../../../core/time/clock.dart';
+import '../../../core/ui/app_icons.dart';
 import '../../../core/ui/buttons.dart';
 import '../../../core/ui/fields.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../theme/level_theme.dart';
 import '../../../theme/tokens/app_tokens.dart';
+import '../../redefine/state/redefine_providers.dart';
 import '../../session/state/session_providers.dart';
 import '../../sources/state/reading_providers.dart';
 import '../../sources/ui/source_labels.dart';
@@ -50,6 +52,14 @@ class TaskDetailScreen extends ConsumerWidget {
         onStart: () => _start(context, ref),
         onOpenSource: (id) => context.push(Routes.sourceChapters(id)),
         onRetry: () => ref.invalidate(taskDetailViewProvider(taskId)),
+        onRedefine: () => context.push(Routes.redefine(taskId)),
+        canUndo: ref.watch(taskUndoableProvider(taskId)).value != null,
+        onUndo: () async {
+          final messenger = ScaffoldMessenger.of(context);
+          final l10n = AppLocalizations.of(context);
+          await ref.read(redefineActionsProvider.notifier).undo(taskId);
+          messenger.showSnackBar(SnackBar(content: Text(l10n.taskUndone)));
+        },
       ),
     ),
   );
@@ -63,10 +73,18 @@ class TaskDetailBody extends StatefulWidget {
     required this.onStart,
     required this.onOpenSource,
     required this.onRetry,
+    this.onRedefine,
+    this.onUndo,
+    this.canUndo = false,
     super.key,
   });
 
   final AsyncValue<TaskDetailView?> view;
+
+  /// Opens the Redefine sheet; null hides the button.
+  final VoidCallback? onRedefine;
+  final VoidCallback? onUndo;
+  final bool canUndo;
   final VoidCallback onBack;
   final VoidCallback onStart;
   final ValueChanged<String> onOpenSource;
@@ -89,10 +107,18 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
         children: [
           RoundIconButton.back(context, widget.onBack),
           const SizedBox(width: AppSpace.lg),
-          Text(
-            l10n.taskOverline,
-            style: AppText.subtitle.copyWith(color: c.muted),
+          Expanded(
+            child: Text(
+              l10n.taskOverline,
+              style: AppText.subtitle.copyWith(color: c.muted),
+            ),
           ),
+          if (widget.onRedefine != null && widget.view.value != null)
+            RoundIconButton(
+              icon: AppIcon.more,
+              semanticLabel: l10n.taskMore,
+              onPressed: widget.onRedefine,
+            ),
         ],
       ),
     );
@@ -103,6 +129,7 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
         onShowAll: () => setState(() => _allHistory = true),
         onStart: widget.onStart,
         onOpenSource: widget.onOpenSource,
+        onUndo: widget.canUndo ? widget.onUndo : null,
       ),
       AsyncData() => _Centered(
         message: l10n.taskRemoved,
@@ -137,6 +164,7 @@ class _Filled extends StatelessWidget {
     required this.onShowAll,
     required this.onStart,
     required this.onOpenSource,
+    this.onUndo,
   });
 
   final TaskDetailView view;
@@ -144,6 +172,9 @@ class _Filled extends StatelessWidget {
   final VoidCallback onShowAll;
   final VoidCallback onStart;
   final ValueChanged<String> onOpenSource;
+
+  /// "Undo last change", when the latest change can be undone.
+  final VoidCallback? onUndo;
 
   @override
   Widget build(BuildContext context) {
@@ -197,6 +228,11 @@ class _Filled extends StatelessWidget {
         _BeltCard(view: view),
         const SizedBox(height: AppSpace.lg),
         _NextCard(view: view, onStart: onStart),
+        if (onUndo != null)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextLinkButton(label: l10n.taskUndoLast, onPressed: onUndo),
+          ),
         if (view.info.parts.isNotEmpty) ...[
           const SizedBox(height: AppSpace.xxl),
           Text(l10n.taskCovers, style: AppText.section.copyWith(color: c.ink)),

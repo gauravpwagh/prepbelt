@@ -1346,5 +1346,154 @@
         "type": "String"
       }
     }
+  },
+  "redefineTitle": "Redefine task",
+  "redefineSubtitle": "Your progress and review history are never lost.",
+  "redefineEdit": "Edit",
+  "redefineScope": "Scope",
+  "redefineSplit": "Split",
+  "redefinePause": "Pause",
+  "redefineResume": "Resume",
+  "redefineWhatHappens": "WHAT HAPPENS",
+  "redefineCancel": "Cancel",
+  "editName": "Name",
+  "editImportance": "Importance for {exam}",
+  "@editImportance": {
+    "placeholders": {
+      "exam": {
+        "type": "String"
+      }
+    }
+  },
+  "editImpact": "Target {belt} · {count, plural, =1{1 review planned} other{{count} reviews planned}}",
+  "@editImpact": {
+    "placeholders": {
+      "belt": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "editNoChange": "Nothing changes for your belt or reviews.",
+  "editSave": "Save changes",
+  "scopeFrom": "From",
+  "scopeTo": "To",
+  "scopeShrink": "Keeps its belt and reviews.",
+  "scopeSame": "Change the range to see what happens.",
+  "scopeAdded": "Added {range}:",
+  "@scopeAdded": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "scopeGrowSplit": "Make it a new task",
+  "scopeGrowKeep": "Keep as one task",
+  "scopeGrowSplitImpact": "The added pages start with a first read; this task keeps its belt.",
+  "scopeGrowKeepImpact": "The belt dims one step until the next Good review.",
+  "scopeSave": "Save scope",
+  "scopeUnavailable": "Scope works on a task with one chapter range.",
+  "splitDrag": "Drag to choose where to split",
+  "splitAfter": "after {position}",
+  "@splitAfter": {
+    "placeholders": {
+      "position": {
+        "type": "String"
+      }
+    }
+  },
+  "splitPart": "PART {letter} · {size}",
+  "@splitPart": {
+    "placeholders": {
+      "letter": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "splitPartName": "{title}, part {number}",
+  "@splitPartName": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "splitKeep": "Both parts keep {belt}",
+  "@splitKeep": {
+    "placeholders": {
+      "belt": {
+        "type": "String"
+      }
+    }
+  },
+  "splitStartFresh": "Both parts start with a first read",
+  "splitNext": "Next reviews {a} and {b}",
+  "@splitNext": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      }
+    }
+  },
+  "splitUndoHint": "Undo anytime from the task's page",
+  "splitApply": "Split into 2 tasks",
+  "splitUnavailable": "Split needs a task with a page range of at least 2 pages.",
+  "splitHandle": "Split after {position}",
+  "@splitHandle": {
+    "placeholders": {
+      "position": {
+        "type": "String"
+      }
+    }
+  },
+  "pauseBody": "Pausing stops the belt from fading and takes the task out of the plan until you resume. Nothing is lost.",
+  "pauseApply": "Pause task",
+  "resumeBody": "Resuming puts the task back in the plan. Its reviews move later by the time it was paused.",
+  "resumeApply": "Resume task",
+  "redefineSaved": "Saved",
+  "redefineSplitDone": "Split into 2 tasks",
+  "redefineUndo": "Undo",
+  "redefineFailed": "Couldn't save. Try again.",
+  "taskUndoLast": "Undo last change",
+  "taskUndone": "Change undone",
+  "taskMore": "Redefine task",
+  "taskPartOf": "Split from {title}",
+  "@taskPartOf": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "beltWithStripes": "{belt}, {stripes, plural, =0{no stripes} =1{1 stripe} other{{stripes} stripes}}",
+  "@beltWithStripes": {
+    "placeholders": {
+      "belt": {
+        "type": "String"
+      },
+      "stripes": {
+        "type": "int"
+      }
+    }
+  },
+  "beltWithFading": "{belt}, fading",
+  "@beltWithFading": {
+    "placeholders": {
+      "belt": {
+        "type": "String"
+      }
+    }
   }
 }

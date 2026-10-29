@@ -226,7 +226,9 @@ final class ReadingRepository extends EventSourcedRepository {
               innerJoin(
                 db.tasks,
                 db.tasks.id.equalsExp(db.taskChunks.taskId) &
-                    db.tasks.deletedAt.isNull(),
+                    db.tasks.deletedAt.isNull() &
+                    // A split's original is archived; its parts stand in.
+                    db.tasks.status.isNotValue(TaskStatus.archived.name),
               ),
               innerJoin(
                 db.taskStates,

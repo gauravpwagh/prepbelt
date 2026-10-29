@@ -7,6 +7,7 @@ import '../core/ui/nav_bar.dart';
 import '../core/ui/placeholder_screen.dart';
 import '../features/exams/ui/add_exam_screen.dart';
 import '../features/exams/ui/exam_screen.dart';
+import '../features/redefine/ui/redefine_sheet.dart';
 import '../features/session/ui/session_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
 import '../features/sources/ui/add_source_screen.dart';
@@ -112,7 +113,10 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
         routes: [
           GoRoute(
             path: 'redefine',
-            builder: (_, _) => placeholder((l) => l.screenRedefine),
+            pageBuilder: (_, state) => SheetPage<void>(
+              key: state.pageKey,
+              child: RedefineSheet(taskId: state.pathParameters['id']!),
+            ),
           ),
         ],
       ),

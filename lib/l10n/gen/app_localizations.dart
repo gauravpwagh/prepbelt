@@ -2186,6 +2186,306 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'On track for {belt} by exam day'**
   String todayOnTrack(String belt);
+
+  /// No description provided for @redefineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Redefine task'**
+  String get redefineTitle;
+
+  /// No description provided for @redefineSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your progress and review history are never lost.'**
+  String get redefineSubtitle;
+
+  /// No description provided for @redefineEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get redefineEdit;
+
+  /// No description provided for @redefineScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Scope'**
+  String get redefineScope;
+
+  /// No description provided for @redefineSplit.
+  ///
+  /// In en, this message translates to:
+  /// **'Split'**
+  String get redefineSplit;
+
+  /// No description provided for @redefinePause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get redefinePause;
+
+  /// No description provided for @redefineResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get redefineResume;
+
+  /// No description provided for @redefineWhatHappens.
+  ///
+  /// In en, this message translates to:
+  /// **'WHAT HAPPENS'**
+  String get redefineWhatHappens;
+
+  /// No description provided for @redefineCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get redefineCancel;
+
+  /// No description provided for @editName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get editName;
+
+  /// No description provided for @editImportance.
+  ///
+  /// In en, this message translates to:
+  /// **'Importance for {exam}'**
+  String editImportance(String exam);
+
+  /// No description provided for @editImpact.
+  ///
+  /// In en, this message translates to:
+  /// **'Target {belt} · {count, plural, =1{1 review planned} other{{count} reviews planned}}'**
+  String editImpact(String belt, int count);
+
+  /// No description provided for @editNoChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing changes for your belt or reviews.'**
+  String get editNoChange;
+
+  /// No description provided for @editSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get editSave;
+
+  /// No description provided for @scopeFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get scopeFrom;
+
+  /// No description provided for @scopeTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get scopeTo;
+
+  /// No description provided for @scopeShrink.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeps its belt and reviews.'**
+  String get scopeShrink;
+
+  /// No description provided for @scopeSame.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the range to see what happens.'**
+  String get scopeSame;
+
+  /// No description provided for @scopeAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {range}:'**
+  String scopeAdded(String range);
+
+  /// No description provided for @scopeGrowSplit.
+  ///
+  /// In en, this message translates to:
+  /// **'Make it a new task'**
+  String get scopeGrowSplit;
+
+  /// No description provided for @scopeGrowKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep as one task'**
+  String get scopeGrowKeep;
+
+  /// No description provided for @scopeGrowSplitImpact.
+  ///
+  /// In en, this message translates to:
+  /// **'The added pages start with a first read; this task keeps its belt.'**
+  String get scopeGrowSplitImpact;
+
+  /// No description provided for @scopeGrowKeepImpact.
+  ///
+  /// In en, this message translates to:
+  /// **'The belt dims one step until the next Good review.'**
+  String get scopeGrowKeepImpact;
+
+  /// No description provided for @scopeSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save scope'**
+  String get scopeSave;
+
+  /// No description provided for @scopeUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Scope works on a task with one chapter range.'**
+  String get scopeUnavailable;
+
+  /// No description provided for @splitDrag.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to choose where to split'**
+  String get splitDrag;
+
+  /// No description provided for @splitAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'after {position}'**
+  String splitAfter(String position);
+
+  /// No description provided for @splitPart.
+  ///
+  /// In en, this message translates to:
+  /// **'PART {letter} · {size}'**
+  String splitPart(String letter, String size);
+
+  /// No description provided for @splitPartName.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}, part {number}'**
+  String splitPartName(String title, int number);
+
+  /// No description provided for @splitKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Both parts keep {belt}'**
+  String splitKeep(String belt);
+
+  /// No description provided for @splitStartFresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Both parts start with a first read'**
+  String get splitStartFresh;
+
+  /// No description provided for @splitNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next reviews {a} and {b}'**
+  String splitNext(String a, String b);
+
+  /// No description provided for @splitUndoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo anytime from the task\'s page'**
+  String get splitUndoHint;
+
+  /// No description provided for @splitApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Split into 2 tasks'**
+  String get splitApply;
+
+  /// No description provided for @splitUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Split needs a task with a page range of at least 2 pages.'**
+  String get splitUnavailable;
+
+  /// No description provided for @splitHandle.
+  ///
+  /// In en, this message translates to:
+  /// **'Split after {position}'**
+  String splitHandle(String position);
+
+  /// No description provided for @pauseBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pausing stops the belt from fading and takes the task out of the plan until you resume. Nothing is lost.'**
+  String get pauseBody;
+
+  /// No description provided for @pauseApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause task'**
+  String get pauseApply;
+
+  /// No description provided for @resumeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Resuming puts the task back in the plan. Its reviews move later by the time it was paused.'**
+  String get resumeBody;
+
+  /// No description provided for @resumeApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume task'**
+  String get resumeApply;
+
+  /// No description provided for @redefineSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get redefineSaved;
+
+  /// No description provided for @redefineSplitDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Split into 2 tasks'**
+  String get redefineSplitDone;
+
+  /// No description provided for @redefineUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get redefineUndo;
+
+  /// No description provided for @redefineFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save. Try again.'**
+  String get redefineFailed;
+
+  /// No description provided for @taskUndoLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo last change'**
+  String get taskUndoLast;
+
+  /// No description provided for @taskUndone.
+  ///
+  /// In en, this message translates to:
+  /// **'Change undone'**
+  String get taskUndone;
+
+  /// No description provided for @taskMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Redefine task'**
+  String get taskMore;
+
+  /// No description provided for @taskPartOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Split from {title}'**
+  String taskPartOf(String title);
+
+  /// No description provided for @beltWithStripes.
+  ///
+  /// In en, this message translates to:
+  /// **'{belt}, {stripes, plural, =0{no stripes} =1{1 stripe} other{{stripes} stripes}}'**
+  String beltWithStripes(String belt, int stripes);
+
+  /// No description provided for @beltWithFading.
+  ///
+  /// In en, this message translates to:
+  /// **'{belt}, fading'**
+  String beltWithFading(String belt);
 }
 
 class _AppLocalizationsDelegate
