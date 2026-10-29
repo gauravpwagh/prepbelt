@@ -17,6 +17,7 @@ abstract final class Routes {
   static String sourceChapters(String sourceId) => '/sources/$sourceId';
   static String survey(String sourceId) => '/sources/$sourceId/survey';
   static String exam(String id) => '/exams/$id';
+  static String editExam(String id) => '/exams/$id/edit';
   static String task(String id) => '/tasks/$id';
   static String redefine(String id) => '/tasks/$id/redefine';
 }

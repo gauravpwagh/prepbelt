@@ -15,6 +15,7 @@ import '../../sources/data/task_writer.dart';
 import '../data/exam_view_repository.dart';
 import 'exam_providers.dart';
 
+export '../../../core/db/app_database.dart' show Exam;
 export '../../../engines/exam/exam_metrics.dart' show ExamMetrics;
 export '../../../engines/planner/triage.dart' show TriageStep;
 
@@ -366,6 +367,36 @@ class ExamActions extends _$ExamActions {
 
   Future<void> setWeek(String examId, List<int> minutes) async {
     await ref.read(examRepositoryProvider).setWeek(examId, minutes);
+    await ref.read(plannerProvider.notifier).replanNow();
+  }
+
+  /// Renames or moves the exam, then replans.
+  Future<void> edit(
+    String examId, {
+    required String name,
+    required DateTime date,
+  }) async {
+    await ref
+        .read(examRepositoryProvider)
+        .edit(examId, name: name.trim(), date: dateText(dayKey(date)));
+    await ref.read(plannerProvider.notifier).replanNow();
+  }
+
+  /// Archives the exam: it is over.
+  Future<void> markDone(String examId) async {
+    await ref.read(examRepositoryProvider).markDone(examId);
+    await ref.read(plannerProvider.notifier).replanNow();
+  }
+
+  /// Removes the exam; tasks and progress stay.
+  Future<void> remove(String examId) async {
+    await ref.read(examRepositoryProvider).softDelete(examId);
+    await ref.read(plannerProvider.notifier).replanNow();
+  }
+
+  /// Reverses the latest exam change (edit, done, remove).
+  Future<void> undo(String examId) async {
+    await ref.read(examRepositoryProvider).undo(examId);
     await ref.read(plannerProvider.notifier).replanNow();
   }
 

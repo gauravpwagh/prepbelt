@@ -2786,6 +2786,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Restore a backup'**
   String get onboardRestore;
+
+  /// No description provided for @examMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam options'**
+  String get examMenu;
+
+  /// No description provided for @examEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit exam'**
+  String get examEdit;
+
+  /// No description provided for @examMarkDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as done'**
+  String get examMarkDone;
+
+  /// No description provided for @examRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove exam'**
+  String get examRemove;
+
+  /// No description provided for @examRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String examRemoveTitle(String name);
+
+  /// No description provided for @examRemoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The exam and its plan go. Your sources, tasks and belts stay.'**
+  String get examRemoveBody;
+
+  /// No description provided for @examRemoveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get examRemoveConfirm;
+
+  /// No description provided for @examDoneSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} marked as done'**
+  String examDoneSnack(String name);
+
+  /// No description provided for @examRemovedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} removed'**
+  String examRemovedSnack(String name);
+
+  /// No description provided for @examSavedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam saved'**
+  String get examSavedSnack;
+
+  /// No description provided for @examPassed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is over. Mark it as done to plan your next exam.'**
+  String examPassed(String name);
+
+  /// No description provided for @editExamTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit exam'**
+  String get editExamTitle;
+
+  /// No description provided for @editExamSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get editExamSave;
 }
 
 class _AppLocalizationsDelegate

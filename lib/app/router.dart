@@ -92,6 +92,13 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
       GoRoute(
         path: '/exams/:id',
         builder: (_, state) => ExamScreen(examId: state.pathParameters['id']!),
+        routes: [
+          GoRoute(
+            path: 'edit',
+            builder: (_, state) =>
+                AddExamScreen(examId: state.pathParameters['id']),
+          ),
+        ],
       ),
       GoRoute(
         path: '/session/:taskId',

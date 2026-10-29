@@ -204,6 +204,8 @@ class RoundIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     return Semantics(
+      // Its own node, so a header around it keeps the button reachable.
+      container: true,
       button: true,
       label: semanticLabel,
       excludeSemantics: true,

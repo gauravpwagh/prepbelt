@@ -1,6 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../core/db/app_database.dart';
 import '../../../core/providers/core_providers.dart';
 import '../../../core/time/clock.dart';
 import '../../../engines/game/streak.dart';

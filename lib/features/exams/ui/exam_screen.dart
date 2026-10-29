@@ -32,6 +32,7 @@ class ExamsTab extends ConsumerWidget {
         week: ref.watch(weekMinutesProvider).value,
         onSaveWeek: (examId, week) =>
             ref.read(examActionsProvider.notifier).setWeek(examId, week),
+        manage: examManage(context, ref),
       ),
     ),
   );
@@ -56,6 +57,7 @@ class ExamScreen extends ConsumerWidget {
         week: ref.watch(weekMinutesProvider).value,
         onSaveWeek: (examId, week) =>
             ref.read(examActionsProvider.notifier).setWeek(examId, week),
+        manage: examManage(context, ref),
       ),
     ),
   );
@@ -72,10 +74,14 @@ class ExamBody extends StatelessWidget {
     this.triage,
     this.week,
     this.onSaveWeek,
+    this.manage,
     super.key,
   });
 
   final AsyncValue<ExamView?> view;
+
+  /// Edit, mark as done, remove; null hides the menu.
+  final ExamManage? manage;
   final TriageCallbacks? triage;
 
   /// Study minutes per weekday, Monday first.
@@ -94,7 +100,17 @@ class ExamBody extends StatelessWidget {
       AsyncData(value: final ExamView v) => ListView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
         children: [
-          _Header(view: v, onBack: onBack),
+          _Header(view: v, onBack: onBack, manage: manage),
+          if (v.daysLeft < 0 && manage != null) ...[
+            const SizedBox(height: AppSpace.lg),
+            WarningCard(
+              message: l10n.examPassed(v.exam.name),
+              action: SmallButton(
+                label: l10n.examMarkDone,
+                onPressed: () => manage!.markDone(v.exam),
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpace.lg),
           _Hero(view: v),
           if (week != null) ...[
@@ -147,10 +163,11 @@ class ExamBody extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.view, required this.onBack});
+  const _Header({required this.view, required this.onBack, this.manage});
 
   final ExamView view;
   final VoidCallback? onBack;
+  final ExamManage? manage;
 
   @override
   Widget build(BuildContext context) {
@@ -185,6 +202,27 @@ class _Header extends StatelessWidget {
             ],
           ),
         ),
+        if (manage != null)
+          RoundIconButton(
+            icon: AppIcon.more,
+            semanticLabel: l10n.examMenu,
+            onPressed: () => showActionSheet(
+              context,
+              title: view.exam.name,
+              actions: [
+                SheetAction(l10n.examEdit, () => manage!.edit(view.exam.id)),
+                SheetAction(
+                  l10n.examMarkDone,
+                  () => manage!.markDone(view.exam),
+                ),
+                SheetAction(
+                  l10n.examRemove,
+                  () => manage!.remove(view.exam),
+                  destructive: true,
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -357,6 +395,77 @@ class _StudyTime extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Editing, archiving and removing the exam. A class so goldens can pass
+/// no-ops.
+final class ExamManage {
+  const ExamManage({
+    required this.edit,
+    required this.markDone,
+    required this.remove,
+  });
+
+  final void Function(String examId) edit;
+  final Future<void> Function(Exam exam) markDone;
+  final Future<void> Function(Exam exam) remove;
+}
+
+/// Wires [ExamManage] to [ExamActions], with Undo on every change and a
+/// confirmation before removing.
+ExamManage examManage(BuildContext context, WidgetRef ref) {
+  final l10n = AppLocalizations.of(context);
+  final messenger = ScaffoldMessenger.of(context);
+  final router = GoRouter.of(context);
+  ExamActions actions() => ref.read(examActionsProvider.notifier);
+  // Replaces any snackbar still showing, so Undo appears at once.
+  void undoable(String message, String examId) =>
+      (messenger..removeCurrentSnackBar()).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          action: SnackBarAction(
+            label: l10n.redefineUndo,
+            onPressed: () => actions().undo(examId),
+          ),
+        ),
+      );
+  return ExamManage(
+    edit: (id) => router.push(Routes.editExam(id)),
+    markDone: (exam) async {
+      await actions().markDone(exam.id);
+      undoable(l10n.examDoneSnack(exam.name), exam.id);
+    },
+    remove: (exam) async {
+      final c = context.colors;
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (dialog) => AlertDialog(
+          backgroundColor: c.surface,
+          title: Text(
+            l10n.examRemoveTitle(exam.name),
+            style: AppText.section.copyWith(color: c.ink),
+          ),
+          content: Text(
+            l10n.examRemoveBody,
+            style: AppText.body.copyWith(color: c.ink),
+          ),
+          actions: [
+            TextLinkButton(
+              label: l10n.redefineCancel,
+              onPressed: () => Navigator.of(dialog).pop(false),
+            ),
+            TextLinkButton(
+              label: l10n.examRemoveConfirm,
+              onPressed: () => Navigator.of(dialog).pop(true),
+            ),
+          ],
+        ),
+      );
+      if (!(ok ?? false)) return;
+      await actions().remove(exam.id);
+      undoable(l10n.examRemovedSnack(exam.name), exam.id);
+    },
+  );
 }
 
 /// What the Exam screen can do about triage. A class so goldens can pass

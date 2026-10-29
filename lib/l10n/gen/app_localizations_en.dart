@@ -1901,4 +1901,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardRestore => 'Restore a backup';
+
+  @override
+  String get examMenu => 'Exam options';
+
+  @override
+  String get examEdit => 'Edit exam';
+
+  @override
+  String get examMarkDone => 'Mark as done';
+
+  @override
+  String get examRemove => 'Remove exam';
+
+  @override
+  String examRemoveTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String get examRemoveBody =>
+      'The exam and its plan go. Your sources, tasks and belts stay.';
+
+  @override
+  String get examRemoveConfirm => 'Remove';
+
+  @override
+  String examDoneSnack(String name) {
+    return '$name marked as done';
+  }
+
+  @override
+  String examRemovedSnack(String name) {
+    return '$name removed';
+  }
+
+  @override
+  String get examSavedSnack => 'Exam saved';
+
+  @override
+  String examPassed(String name) {
+    return '$name is over. Mark it as done to plan your next exam.';
+  }
+
+  @override
+  String get editExamTitle => 'Edit exam';
+
+  @override
+  String get editExamSave => 'Save';
 }

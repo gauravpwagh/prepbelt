@@ -12,11 +12,15 @@ import '../../../core/ui/value_stepper.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../theme/tokens/app_tokens.dart';
 import '../../sources/ui/source_labels.dart';
+import '../state/exam_providers.dart';
 import '../state/exam_view_providers.dart';
 
 /// Add exam (design/notes/add-exam.md): name, date and daily minutes.
+/// With [examId] it edits that exam's name and date instead.
 class AddExamScreen extends ConsumerStatefulWidget {
-  const AddExamScreen({super.key});
+  const AddExamScreen({this.examId, super.key});
+
+  final String? examId;
 
   @override
   ConsumerState<AddExamScreen> createState() => _AddExamScreenState();
@@ -35,6 +39,17 @@ class _AddExamScreenState extends ConsumerState<AddExamScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final id = widget.examId;
+      if (id != null) {
+        final exam = await ref.read(examRepositoryProvider).watch(id).first;
+        if (exam != null && mounted) {
+          setState(() {
+            _name.text = exam.name;
+            _date = DateTime.parse(exam.date);
+          });
+        }
+        return;
+      }
       final n = await ref.read(examActionsProvider.notifier).taskCount();
       // Start from the minutes chosen at first launch, if any.
       final week = await ref.read(weekMinutesProvider.future);
@@ -75,9 +90,18 @@ class _AddExamScreenState extends ConsumerState<AddExamScreen> {
       _failed = false;
     });
     try {
-      await ref
-          .read(examActionsProvider.notifier)
-          .add(name: _name.text, date: _date!, dailyMinutes: _minutes);
+      final id = widget.examId;
+      final actions = ref.read(examActionsProvider.notifier);
+      if (id != null) {
+        final messenger = ScaffoldMessenger.of(context);
+        final l10n = AppLocalizations.of(context);
+        await actions.edit(id, name: _name.text, date: _date!);
+        if (!mounted) return;
+        context.pop();
+        messenger.showSnackBar(SnackBar(content: Text(l10n.examSavedSnack)));
+        return;
+      }
+      await actions.add(name: _name.text, date: _date!, dailyMinutes: _minutes);
       if (mounted) context.go(Routes.today);
     } on Object {
       if (mounted) {
@@ -106,6 +130,7 @@ class _AddExamScreenState extends ConsumerState<AddExamScreen> {
         onPickDate: _pickDate,
         onMinutes: (m) => setState(() => _minutes = m),
         onSave: _save,
+        editing: widget.examId != null,
       ),
     ),
   );
@@ -127,8 +152,12 @@ class AddExamBody extends StatelessWidget {
     this.saving = false,
     this.failed = false,
     this.showErrors = false,
+    this.editing = false,
     super.key,
   });
+
+  /// Editing an exam: name and date only (study time has its own row).
+  final bool editing;
 
   final TextEditingController name;
   final DateTime? date;
@@ -178,7 +207,7 @@ class AddExamBody extends StatelessWidget {
               RoundIconButton.back(context, onBack),
               const SizedBox(width: AppSpace.lg),
               Text(
-                l10n.addExamTitle,
+                editing ? l10n.editExamTitle : l10n.addExamTitle,
                 style: AppText.heroTitle.copyWith(color: c.ink),
               ),
             ],
@@ -248,30 +277,31 @@ class AddExamBody extends StatelessWidget {
                 ],
               ]),
               const SizedBox(height: AppSpace.lg),
-              card([
-                Text(
-                  l10n.addExamTime,
-                  style: AppText.subtitle.copyWith(color: c.ink),
-                ),
-                const SizedBox(height: AppSpace.sm),
-                ValueStepper(
-                  value: formatMinutes(l10n, minutes),
-                  lessLabel: l10n.addExamLess,
-                  moreLabel: l10n.addExamMore,
-                  onLess: minutes > _step
-                      ? () => onMinutes(minutes - _step)
-                      : null,
-                  onMore: minutes < _max
-                      ? () => onMinutes(minutes + _step)
-                      : null,
-                ),
-                const SizedBox(height: AppSpace.sm),
-                Text(
-                  l10n.addExamTimeHint,
-                  style: AppText.caption.copyWith(color: c.muted),
-                ),
-              ]),
-              if (taskCount != null) ...[
+              if (!editing)
+                card([
+                  Text(
+                    l10n.addExamTime,
+                    style: AppText.subtitle.copyWith(color: c.ink),
+                  ),
+                  const SizedBox(height: AppSpace.sm),
+                  ValueStepper(
+                    value: formatMinutes(l10n, minutes),
+                    lessLabel: l10n.addExamLess,
+                    moreLabel: l10n.addExamMore,
+                    onLess: minutes > _step
+                        ? () => onMinutes(minutes - _step)
+                        : null,
+                    onMore: minutes < _max
+                        ? () => onMinutes(minutes + _step)
+                        : null,
+                  ),
+                  const SizedBox(height: AppSpace.sm),
+                  Text(
+                    l10n.addExamTimeHint,
+                    style: AppText.caption.copyWith(color: c.muted),
+                  ),
+                ]),
+              if (taskCount != null && !editing) ...[
                 const SizedBox(height: AppSpace.lg),
                 Text(
                   l10n.addExamTasks(taskCount!),
@@ -290,7 +320,7 @@ class AddExamBody extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(20, AppSpace.md, 20, 24),
           child: PrimaryButton(
-            label: l10n.addExamSave,
+            label: editing ? l10n.editExamSave : l10n.addExamSave,
             onPressed: valid && !saving ? onSave : null,
           ),
         ),

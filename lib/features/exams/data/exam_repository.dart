@@ -292,6 +292,35 @@ final class ExamRepository extends EventSourcedRepository {
     ),
   );
 
+  /// Renames or moves an exam. Undoable.
+  Future<void> edit(String id, {required String name, required String date}) =>
+      mutate<void>(
+        entity: entity,
+        entityId: id,
+        op: EventOp.update,
+        data: {'action': 'editExam'},
+        body: (rec) => rec.update(
+          db.exams,
+          id,
+          ExamsCompanion(name: Value(name), date: Value(date)),
+        ),
+      );
+
+  /// Archives the exam once it is over: it leaves Today and the plan, and
+  /// a new exam can be added. Tasks, links and progress stay. Undoable.
+  Future<void> markDone(String id) => mutate<void>(
+    entity: entity,
+    entityId: id,
+    op: EventOp.update,
+    data: {'action': 'markDone'},
+    body: (rec) => rec.update(
+      db.exams,
+      id,
+      const ExamsCompanion(status: Value(ExamStatus.done)),
+    ),
+  );
+
+  /// Removes the exam (soft delete). Tasks and progress stay. Undoable.
   Future<void> softDelete(String id) => mutate<void>(
     entity: entity,
     entityId: id,

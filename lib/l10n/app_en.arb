@@ -1566,5 +1566,46 @@
   "restoreRestart": "Restart now",
   "restoreLater": "Later",
   "diagnosticsSaved": "Diagnostics saved",
-  "onboardRestore": "Restore a backup"
+  "onboardRestore": "Restore a backup",
+  "examMenu": "Exam options",
+  "examEdit": "Edit exam",
+  "examMarkDone": "Mark as done",
+  "examRemove": "Remove exam",
+  "examRemoveTitle": "Remove {name}?",
+  "@examRemoveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "examRemoveBody": "The exam and its plan go. Your sources, tasks and belts stay.",
+  "examRemoveConfirm": "Remove",
+  "examDoneSnack": "{name} marked as done",
+  "@examDoneSnack": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "examRemovedSnack": "{name} removed",
+  "@examRemovedSnack": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "examSavedSnack": "Exam saved",
+  "examPassed": "{name} is over. Mark it as done to plan your next exam.",
+  "@examPassed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "editExamTitle": "Edit exam",
+  "editExamSave": "Save"
 }
