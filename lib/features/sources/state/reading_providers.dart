@@ -16,9 +16,9 @@ import 'source_providers.dart';
 
 export '../../../core/config/reading_config.dart' show ReadingConfig;
 export '../../../engines/reading/reading_math.dart'
-    show SavePlan, UnitRange, taskTitleFor;
+    show SavePlan, UnitRange, coveredUnits, taskTitleFor;
 export '../data/reading_repository.dart'
-    show ChapterProgress, SaveOutcome, SourceProgress;
+    show ChapterProgress, ChapterTask, SaveOutcome, SourceProgress;
 
 part 'reading_providers.g.dart';
 
@@ -43,6 +43,14 @@ double defaultPaceFor(UnitType unit) => switch (unit) {
   UnitType.item => Defaults.paceItemMin,
 };
 
+/// Minutes per unit of [p]: per chapter when it is read by chapter (D49),
+/// else per page, minute or question from recent sittings (D30).
+Future<double> _paceOf(ReadingRepository repo, SourceProgress p) async {
+  final unit = p.source.unitType;
+  final pace = await repo.pace(unit, defaultPace: defaultPaceFor(unit));
+  return p.byChapter ? p.minutesPerChapter(pagePace: pace) : pace;
+}
+
 /// Everything the Source chapters screen shows.
 final class SourceChaptersView {
   const SourceChaptersView({
@@ -54,7 +62,7 @@ final class SourceChaptersView {
 
   final SourceProgress progress;
 
-  /// Minutes per unit for estimates.
+  /// Minutes per unit for estimates: per chapter when read by chapter.
   final double pace;
   final String? examId;
   final String? examName;
@@ -79,10 +87,9 @@ Stream<SourceChaptersView?> sourceChapters(Ref ref, String sourceId) async* {
   final repo = ref.watch(readingRepositoryProvider);
   yield* repo.watchProgress(sourceId, examId: exam?.id).asyncMap((p) async {
     if (p == null) return null;
-    final unit = p.source.unitType;
     return SourceChaptersView(
       progress: p,
-      pace: await repo.pace(unit, defaultPace: defaultPaceFor(unit)),
+      pace: await _paceOf(repo, p),
       examId: exam?.id,
       examName: exam?.name,
     );
@@ -143,7 +150,6 @@ Stream<OpenReading?> openReading(Ref ref) async* {
     if (s == null) return null;
     final p = await repo.progress(s.sourceId, examId: exam?.id);
     if (p == null) return null;
-    final unit = p.source.unitType;
     return OpenReading(
       sessionId: s.id,
       progress: p,
@@ -151,7 +157,7 @@ Stream<OpenReading?> openReading(Ref ref) async* {
       awayMinutes: config.awayMinutes(
         clock.now().difference(fromUtcMs(s.startedAt)),
       ),
-      pace: await repo.pace(unit, defaultPace: defaultPaceFor(unit)),
+      pace: await _paceOf(repo, p),
       config: config,
       examId: exam?.id,
     );
@@ -199,9 +205,12 @@ class ReadingActions extends _$ReadingActions {
     required int minutes,
     Set<String> taskNow = const {},
     String Function(int start, int end)? partTitle,
+    String Function(String chapter, int start, int end)? pagesTitle,
     bool partNow = false,
     bool finish = false,
     bool readOn = false,
+    bool inChapter = false,
+    int partsDone = 0,
   }) async {
     final out = await _repo.save(
       r.sessionId,
@@ -210,11 +219,16 @@ class ReadingActions extends _$ReadingActions {
       examId: r.examId,
       taskNow: taskNow,
       partTitle: partTitle,
+      pagesTitle: pagesTitle,
+      inChapter: inChapter,
+      partsDone: partsDone,
       minPartMinutes: r.config.minPartMinutes,
       partNow: partNow,
       finish: finish,
     );
-    if (readOn && !finish && endUnit < r.lastUnit) await start(r.source.id);
+    if (readOn && !finish && (endUnit < r.lastUnit || inChapter)) {
+      await start(r.source.id);
+    }
     return out;
   }
 
@@ -231,6 +245,9 @@ class ReadingActions extends _$ReadingActions {
     Importance? importance,
     bool alreadyRead = false,
     String? examId,
+    UnitRange? pages,
+    int? parts,
+    String Function(int part, int parts)? partTitle,
   }) => _repo.addTask(
     sourceId,
     chunkIds: chunkIds,
@@ -238,6 +255,9 @@ class ReadingActions extends _$ReadingActions {
     importance: importance,
     alreadyRead: alreadyRead,
     examId: examId,
+    pages: pages,
+    parts: parts,
+    partTitle: partTitle,
   );
 
   /// "Create N tasks": one per chapter without one, surveyed or not.

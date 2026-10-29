@@ -193,7 +193,7 @@ final class SourceChaptersProvider
   }
 }
 
-String _$sourceChaptersHash() => r'170eadca940cdef3a3606bbc4a10806aba508485';
+String _$sourceChaptersHash() => r'8294ad8531e54f897bdc89bee949b06637b618ca';
 
 final class SourceChaptersFamily extends $Family
     with $FunctionalFamilyOverride<Stream<SourceChaptersView?>, String> {
@@ -255,7 +255,7 @@ final class OpenReadingProvider
   }
 }
 
-String _$openReadingHash() => r'eb3129a55b4f60bc90298c69eb6a2c7d31f1cb2d';
+String _$openReadingHash() => r'cf1f03b435c6f7b0690b7a265112c28c0e8c8465';
 
 /// Reading and task actions for the Source chapters screen and sheets.
 /// Kept alive: its methods read providers after awaiting, and an unwatched
@@ -299,7 +299,7 @@ final class ReadingActionsProvider
   }
 }
 
-String _$readingActionsHash() => r'46b67fd2d67a88c4c9d9f37e556bb39efe4f7354';
+String _$readingActionsHash() => r'9326bbe3c588f91e389aaf55efce93e89c866e36';
 
 /// Reading and task actions for the Source chapters screen and sheets.
 /// Kept alive: its methods read providers after awaiting, and an unwatched

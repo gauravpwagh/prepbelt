@@ -130,6 +130,21 @@ abstract final class Defaults {
   /// Add source: "Split every N pages" starts at this N.
   static const int splitSizePages = 20;
 
+  /// "Number of chapters" in Add source starts here (D49).
+  static const int chapterCountDefault = 10;
+  static const int chapterCountMax = 100;
+
+  /// A chapter without page numbers is estimated at this many minutes
+  /// when the source's size is unknown (D49).
+  static const double chapterMinutesDefault = 45;
+
+  /// First reads of a source's chapters needed before their median
+  /// replaces the estimate (D49).
+  static const int chapterCalibrationSamples = 3;
+
+  /// "Split into N parts" for a chapter without page numbers (D49).
+  static const int chapterPartsMax = 10;
+
   /// Split: children's due dates are staggered by up to this many days.
   static const int splitDueStaggerDays = 2;
 

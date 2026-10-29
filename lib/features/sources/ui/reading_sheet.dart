@@ -45,6 +45,10 @@ class ReadingSheet extends ConsumerWidget {
             minutes: choice.minutes,
             taskNow: choice.taskNow,
             partTitle: (s, e) => unit.chunkTitle(l10n, s, e),
+            pagesTitle: (ch, s, e) =>
+                l10n.taskPagesTitle(ch, unit.range(l10n, s, e)),
+            inChapter: choice.inChapter,
+            partsDone: choice.partsDone,
             partNow: choice.partNow,
             finish: choice.finish,
             readOn: choice.readOn,
@@ -106,9 +110,16 @@ final class ReadingChoice {
     this.partNow = false,
     this.finish = false,
     this.readOn = false,
+    this.inChapter = false,
+    this.partsDone = 0,
   });
 
   final int endUnit;
+
+  /// Read by chapter (D49): still in chapter [endUnit], with [partsDone]
+  /// of its parts finished.
+  final bool inChapter;
+  final int partsDone;
   final int minutes;
 
   /// Partly read chapters to make tasks now (D29).
@@ -148,6 +159,8 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
   final _taskNow = <String>{};
   bool _partNow = false;
   bool _finish = false;
+  bool _inChapter = false;
+  int _partsDone = 0;
   bool _saving = false;
 
   OpenReading get _r => widget.reading;
@@ -161,6 +174,7 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
   void _setEnd(int unit) => setState(() {
     _endUnit = unit.clamp(_r.startUnit, _r.lastUnit);
     _endTouched = true;
+    _partsDone = 0;
   });
 
   Future<void> _save({bool readOn = false}) async {
@@ -174,6 +188,8 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
           partNow: _partNow,
           finish: _finish,
           readOn: readOn,
+          inChapter: _r.progress.byChapter && _inChapter,
+          partsDone: _inChapter ? _partsDone : 0,
         ),
       );
     } finally {
@@ -187,13 +203,39 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
     final c = context.colors;
     final unit = _r.source.unitType;
     final p = _r.progress;
-    final sitting = UnitRange(_r.startUnit, _endUnit);
+    // Read by chapter, a chapter the student is still in is not finished.
+    final byChapter = p.byChapter;
+    final stillIn = byChapter && _inChapter;
+    final sitting = stillIn
+        ? UnitRange(_r.startUnit, _endUnit - 1)
+        : UnitRange(_r.startUnit, _endUnit);
     final plan = p.planFor(sitting);
+    String at(int n) =>
+        byChapter ? p.chapters[n - 1].chunk.title : unit.at(l10n, n);
+    final inChapter = stillIn ? p.chapters[_endUnit - 1] : null;
+    final splitParts = inChapter == null
+        ? 0
+        : inChapter.tasks
+                  .firstWhere(
+                    (t) => t.parts != null,
+                    orElse: () => const ChapterTask(taskId: '', title: ''),
+                  )
+                  .parts ??
+              0;
 
     String rangeOf(List<int> run) {
       final first = p.chapters[run.first].range!;
       final last = p.chapters[run.last].range!;
       return unit.range(l10n, first.start, last.end);
+    }
+
+    String taskOf(List<int> run) {
+      final title = taskTitleFor([
+        for (final i in run) p.chapters[i].chunk.title,
+      ]);
+      return byChapter
+          ? l10n.readingPreviewTaskOnly(title)
+          : l10n.readingPreviewTask(title, rangeOf(run));
     }
 
     // A source split as it is read (D47): the sitting, with held ones,
@@ -203,7 +245,7 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
         p.holds(sitting, _minutes, minPartMinutes: _r.config.minPartMinutes) &&
         !_partNow &&
         !_finish;
-    final atEnd = _endUnit >= _r.lastUnit;
+    final atEnd = _endUnit >= _r.lastUnit && !stillIn;
     final preview = [
       if (part != null && part.size > 0)
         holds
@@ -215,11 +257,7 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
                 unit.chunkTitle(l10n, part.start, part.end),
                 unit.range(l10n, part.start, part.end),
               ),
-      for (final run in plan.newTasks)
-        l10n.readingPreviewTask(
-          taskTitleFor([for (final i in run) p.chapters[i].chunk.title]),
-          rangeOf(run),
-        ),
+      for (final run in plan.newTasks) taskOf(run),
       for (final i in plan.firstReads)
         l10n.readingPreviewFirstRead(p.chapters[i].chunk.title),
       for (final i in plan.partial)
@@ -228,11 +266,14 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
           p.readUnitsAfter(i, sitting),
           p.chapters[i].sizeUnits,
         ),
+      if (inChapter != null)
+        l10n.readingPreviewInChapter(inChapter.chunk.title),
       if (_finish) l10n.readingPreviewFinish(_r.source.title),
     ];
+    // Partly read chapters with pages read and no task on them (D49).
     final partialWithoutTask = [
       for (final i in plan.partial)
-        if (!p.chapters[i].hasTask) p.chapters[i],
+        if (p.readWithoutTask(i, sitting) case final r?) (p.chapters[i], r),
     ];
 
     Widget check(String text, bool value, void Function(bool) onChanged) =>
@@ -261,7 +302,7 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
         children: [
           Text(
             l10n
-                .readingOverline(_r.source.title, unit.at(l10n, _r.startUnit))
+                .readingOverline(_r.source.title, at(_r.startUnit))
                 .toUpperCase(),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -294,7 +335,7 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
           const SizedBox(height: AppSpace.xl),
           label(l10n.readingUpTo),
           ValueStepper(
-            value: unit.at(l10n, _endUnit),
+            value: at(_endUnit),
             lessLabel: l10n.readingLess,
             moreLabel: l10n.readingMore,
             onLess: _endUnit > _r.startUnit
@@ -302,6 +343,45 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
                 : null,
             onMore: _endUnit < _r.lastUnit ? () => _setEnd(_endUnit + 1) : null,
           ),
+          if (byChapter) ...[
+            const SizedBox(height: AppSpace.md),
+            Row(
+              children: [
+                Expanded(
+                  child: ChoiceChipButton(
+                    label: l10n.readingFinishedIt,
+                    selected: !_inChapter,
+                    onPressed: () => setState(() => _inChapter = false),
+                  ),
+                ),
+                const SizedBox(width: AppSpace.sm),
+                Expanded(
+                  child: ChoiceChipButton(
+                    label: l10n.readingStillInIt,
+                    selected: _inChapter,
+                    onPressed: () => setState(() => _inChapter = true),
+                  ),
+                ),
+              ],
+            ),
+            if (splitParts > 1) ...[
+              const SizedBox(height: AppSpace.md),
+              Wrap(
+                spacing: AppSpace.sm,
+                runSpacing: AppSpace.sm,
+                children: [
+                  for (var k = 1; k < splitParts; k++)
+                    ChoiceChipButton(
+                      label: l10n.readingPartsDone(k, splitParts),
+                      fontSize: 13,
+                      selected: _partsDone == k,
+                      onPressed: () =>
+                          setState(() => _partsDone = _partsDone == k ? 0 : k),
+                    ),
+                ],
+              ),
+            ],
+          ],
           if (_r.chapterEndsNear(_endUnit) case final ends
               when ends.isNotEmpty) ...[
             const SizedBox(height: AppSpace.md),
@@ -339,9 +419,14 @@ class _ReadingSheetBodyState extends State<ReadingSheetBody> {
               ),
             ),
           ),
-          for (final ch in partialWithoutTask)
+          for (final (ch, read) in partialWithoutTask)
             check(
-              l10n.readingMakeTaskNow(ch.chunk.title),
+              l10n.readingMakeTaskNow(
+                l10n.taskPagesTitle(
+                  ch.chunk.title,
+                  unit.range(l10n, read.start, read.end),
+                ),
+              ),
               _taskNow.contains(ch.chunk.id),
               (v) =>
                   v ? _taskNow.add(ch.chunk.id) : _taskNow.remove(ch.chunk.id),

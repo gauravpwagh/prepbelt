@@ -410,6 +410,129 @@
     }
   },
   "addSourceKeepOne": "Keep as one",
+  "readingContinue": "Continue {chapter}",
+  "@readingContinue": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      }
+    }
+  },
+  "readingInChapter": "{chapter} · in progress",
+  "@readingInChapter": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      }
+    }
+  },
+  "readingFinishedIt": "Finished it",
+  "readingStillInIt": "Still in it",
+  "readingPartsDone": "Finished part {part} of {parts}",
+  "@readingPartsDone": {
+    "placeholders": {
+      "part": {
+        "type": "int"
+      },
+      "parts": {
+        "type": "int"
+      }
+    }
+  },
+  "readingPreviewTaskOnly": "Creates task {title}.",
+  "@readingPreviewTaskOnly": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "readingPreviewInChapter": "{chapter}: in progress.",
+  "@readingPreviewInChapter": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      }
+    }
+  },
+  "chapterInProgress": "in progress",
+  "chapterPartOf": "Part {part} of {parts}",
+  "@chapterPartOf": {
+    "placeholders": {
+      "part": {
+        "type": "int"
+      },
+      "parts": {
+        "type": "int"
+      }
+    }
+  },
+  "addTaskCovers": "Covers",
+  "addTaskWhole": "Whole chapter",
+  "addTaskSomePages": "Some pages",
+  "addTaskParts": "Split into parts",
+  "addTaskFrom": "From",
+  "addTaskTo": "To",
+  "addTaskPartsCount": "{count} parts",
+  "@addTaskPartsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addTaskPartsHint": "Makes a task for each part: {example}, and so on.",
+  "@addTaskPartsHint": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
+  "addTaskShort": "Short: under 10 minutes. Each task brings its own reviews.",
+  "taskPagesTitle": "{chapter} · {range}",
+  "@taskPagesTitle": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      },
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "taskPartTitle": "{chapter} · part {part} of {parts}",
+  "@taskPartTitle": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      },
+      "part": {
+        "type": "int"
+      },
+      "parts": {
+        "type": "int"
+      }
+    }
+  },
+  "addSourceChapterCount": "Number of chapters: {count}",
+  "@addSourceChapterCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addSourceSplitAsRead": "Split as I read",
+  "addSourceSplitAsReadHelp": "Each reading sitting becomes the next part, with its own task.",
+  "chapterNumbered": "Ch {n}",
+  "@chapterNumbered": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "addSourceFewer": "Fewer",
   "addSourceMore": "More",
   "addSourceRangePages": "pp. {start}–{end}",

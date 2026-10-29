@@ -17,6 +17,7 @@ final class TodayItem {
     this.info,
     this.source,
     this.position,
+    this.chapter,
     this.importance,
     this.overdueDays = 0,
   }) : assert(info != null || source != null, 'a task or a source');
@@ -30,6 +31,9 @@ final class TodayItem {
   /// The source of an explore item, and where reading resumes.
   final Source? source;
   final int? position;
+
+  /// Read by chapter (D49): the chapter reading resumes in.
+  final String? chapter;
   final Importance? importance;
 
   /// Whole days past due, for "OVERDUE 2 DAYS".
@@ -70,6 +74,7 @@ final class TodayRepository {
             minutes: p.estMinutes,
             source: progress.source,
             position: progress.position,
+            chapter: progress.current?.chunk.title,
           ),
         );
         continue;

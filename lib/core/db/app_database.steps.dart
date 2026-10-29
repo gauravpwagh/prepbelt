@@ -2948,9 +2948,784 @@ i1.GeneratedColumn<int> _column_102(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NULL',
     );
+
+final class Schema4 extends i0.VersionedSchema {
+  Schema4({required super.database}) : super(version: 4);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    topics,
+    sources,
+    sourceFiles,
+    chunks,
+    chunkSurveys,
+    readingSessions,
+    tasks,
+    taskChunks,
+    taskStates,
+    reviews,
+    taskLineages,
+    cards,
+    cardResults,
+    exams,
+    examChunks,
+    examTasks,
+    availabilities,
+    availabilityOverrides,
+    planItems,
+    quests,
+    achievements,
+    restTokens,
+    templates,
+    importMaps,
+    settings,
+    events,
+    activeSessions,
+    readingSessionsSource,
+    taskChunksTask,
+    reviewsTaskAt,
+    examTasksExam,
+    planItemsDate,
+    eventsEntity,
+  ];
+  late final Shape0 topics = Shape0(
+    source: i0.VersionedTable(
+      entityName: 'topics',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_7,
+        _column_8,
+        _column_9,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape27 sources = Shape27(
+    source: i0.VersionedTable(
+      entityName: 'sources',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_10,
+        _column_11,
+        _column_12,
+        _column_13,
+        _column_14,
+        _column_101,
+        _column_102,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape2 sourceFiles = Shape2(
+    source: i0.VersionedTable(
+      entityName: 'source_files',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_15,
+        _column_16,
+        _column_17,
+        _column_18,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape3 chunks = Shape3(
+    source: i0.VersionedTable(
+      entityName: 'chunks',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_15,
+        _column_19,
+        _column_11,
+        _column_9,
+        _column_20,
+        _column_21,
+        _column_22,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape4 chunkSurveys = Shape4(
+    source: i0.VersionedTable(
+      entityName: 'chunk_surveys',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_23,
+        _column_24,
+        _column_25,
+        _column_26,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape28 readingSessions = Shape28(
+    source: i0.VersionedTable(
+      entityName: 'reading_sessions',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_15,
+        _column_27,
+        _column_28,
+        _column_29,
+        _column_21,
+        _column_30,
+        _column_31,
+        _column_103,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape6 tasks = Shape6(
+    source: i0.VersionedTable(
+      entityName: 'tasks',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_32,
+        _column_11,
+        _column_33,
+        _column_31,
+        _column_34,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape29 taskChunks = Shape29(
+    source: i0.VersionedTable(
+      entityName: 'task_chunks',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_35,
+        _column_36,
+        _column_20,
+        _column_21,
+        _column_9,
+        _column_104,
+        _column_105,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape8 taskStates = Shape8(
+    source: i0.VersionedTable(
+      entityName: 'task_states',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_37,
+        _column_38,
+        _column_39,
+        _column_40,
+        _column_41,
+        _column_42,
+        _column_43,
+        _column_44,
+        _column_45,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape9 reviews = Shape9(
+    source: i0.VersionedTable(
+      entityName: 'reviews',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_35,
+        _column_46,
+        _column_33,
+        _column_47,
+        _column_48,
+        _column_49,
+        _column_50,
+        _column_51,
+        _column_52,
+        _column_53,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape10 taskLineages = Shape10(
+    source: i0.VersionedTable(
+      entityName: 'task_lineages',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_54,
+        _column_55,
+        _column_56,
+        _column_46,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape11 cards = Shape11(
+    source: i0.VersionedTable(
+      entityName: 'cards',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_35,
+        _column_10,
+        _column_57,
+        _column_58,
+        _column_59,
+        _column_9,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape12 cardResults = Shape12(
+    source: i0.VersionedTable(
+      entityName: 'card_results',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_60,
+        _column_61,
+        _column_62,
+        _column_63,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape13 exams = Shape13(
+    source: i0.VersionedTable(
+      entityName: 'exams',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_7,
+        _column_64,
+        _column_65,
+        _column_31,
+        _column_66,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape14 examChunks = Shape14(
+    source: i0.VersionedTable(
+      entityName: 'exam_chunks',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_67,
+        _column_36,
+        _column_68,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape15 examTasks = Shape15(
+    source: i0.VersionedTable(
+      entityName: 'exam_tasks',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)', 'UNIQUE(exam_id, task_id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_67,
+        _column_35,
+        _column_68,
+        _column_69,
+        _column_70,
+        _column_71,
+        _column_72,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape16 availabilities = Shape16(
+    source: i0.VersionedTable(
+      entityName: 'availabilities',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_73,
+        _column_74,
+        _column_75,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape17 availabilityOverrides = Shape17(
+    source: i0.VersionedTable(
+      entityName: 'availability_overrides',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_64,
+        _column_74,
+        _column_75,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape18 planItems = Shape18(
+    source: i0.VersionedTable(
+      entityName: 'plan_items',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_64,
+        _column_76,
+        _column_77,
+        _column_78,
+        _column_33,
+        _column_79,
+        _column_31,
+        _column_80,
+        _column_9,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape19 quests = Shape19(
+    source: i0.VersionedTable(
+      entityName: 'quests',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_64,
+        _column_10,
+        _column_81,
+        _column_82,
+        _column_83,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape20 achievements = Shape20(
+    source: i0.VersionedTable(
+      entityName: 'achievements',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_84,
+        _column_85,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape21 restTokens = Shape21(
+    source: i0.VersionedTable(
+      entityName: 'rest_tokens',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_86,
+        _column_87,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape22 templates = Shape22(
+    source: i0.VersionedTable(
+      entityName: 'templates',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_33,
+        _column_7,
+        _column_88,
+        _column_89,
+        _column_90,
+        _column_91,
+        _column_92,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape23 importMaps = Shape23(
+    source: i0.VersionedTable(
+      entityName: 'import_maps',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_93,
+        _column_94,
+        _column_95,
+        _column_96,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape24 settings = Shape24(
+    source: i0.VersionedTable(
+      entityName: 'settings',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_97,
+        _column_98,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape25 events = Shape25(
+    source: i0.VersionedTable(
+      entityName: 'events',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_99,
+        _column_100,
+        _column_56,
+        _column_91,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape26 activeSessions = Shape26(
+    source: i0.VersionedTable(
+      entityName: 'active_sessions',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_35,
+        _column_27,
+        _column_49,
+        _column_1,
+        _column_2,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  final i1.Index readingSessionsSource = i1.Index(
+    'reading_sessions_source',
+    'CREATE INDEX reading_sessions_source ON reading_sessions (source_id)',
+  );
+  final i1.Index taskChunksTask = i1.Index(
+    'task_chunks_task',
+    'CREATE INDEX task_chunks_task ON task_chunks (task_id)',
+  );
+  final i1.Index reviewsTaskAt = i1.Index(
+    'reviews_task_at',
+    'CREATE INDEX reviews_task_at ON reviews (task_id, at)',
+  );
+  final i1.Index examTasksExam = i1.Index(
+    'exam_tasks_exam',
+    'CREATE INDEX exam_tasks_exam ON exam_tasks (exam_id)',
+  );
+  final i1.Index planItemsDate = i1.Index(
+    'plan_items_date',
+    'CREATE INDEX plan_items_date ON plan_items (date)',
+  );
+  final i1.Index eventsEntity = i1.Index(
+    'events_entity',
+    'CREATE INDEX events_entity ON events (entity, entity_id)',
+  );
+}
+
+class Shape28 extends i0.VersionedTable {
+  Shape28({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get createdAt =>
+      columnsByName['created_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get updatedAt =>
+      columnsByName['updated_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get deletedAt =>
+      columnsByName['deleted_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get hlc =>
+      columnsByName['hlc']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get deviceId =>
+      columnsByName['device_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get sourceId =>
+      columnsByName['source_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get startedAt =>
+      columnsByName['started_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get startUnit =>
+      columnsByName['start_unit']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get endedAt =>
+      columnsByName['ended_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get endUnit =>
+      columnsByName['end_unit']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get minutes =>
+      columnsByName['minutes']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get status =>
+      columnsByName['status']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get inChapter =>
+      columnsByName['in_chapter']! as i1.GeneratedColumn<int>;
+}
+
+i1.GeneratedColumn<int> _column_103(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'in_chapter',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NOT NULL DEFAULT 0 CHECK (in_chapter IN (0, 1))',
+      defaultValue: const i1.CustomExpression('0'),
+    );
+
+class Shape29 extends i0.VersionedTable {
+  Shape29({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get createdAt =>
+      columnsByName['created_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get updatedAt =>
+      columnsByName['updated_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get deletedAt =>
+      columnsByName['deleted_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get hlc =>
+      columnsByName['hlc']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get deviceId =>
+      columnsByName['device_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get taskId =>
+      columnsByName['task_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get chunkId =>
+      columnsByName['chunk_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get startUnit =>
+      columnsByName['start_unit']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get endUnit =>
+      columnsByName['end_unit']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get sortOrder =>
+      columnsByName['sort_order']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get part =>
+      columnsByName['part']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get parts =>
+      columnsByName['parts']! as i1.GeneratedColumn<int>;
+}
+
+i1.GeneratedColumn<int> _column_104(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'part',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<int> _column_105(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'parts',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL',
+    );
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
+  required Future<void> Function(i1.Migrator m, Schema4 schema) from3To4,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -2964,6 +3739,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from2To3(migrator, schema);
         return 3;
+      case 3:
+        final schema = Schema4(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from3To4(migrator, schema);
+        return 4;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -2973,6 +3753,11 @@ i0.MigrationStepWithVersion migrationSteps({
 i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
+  required Future<void> Function(i1.Migrator m, Schema4 schema) from3To4,
 }) => i0.VersionedSchema.stepByStepHelper(
-  step: migrationSteps(from1To2: from1To2, from2To3: from2To3),
+  step: migrationSteps(
+    from1To2: from1To2,
+    from2To3: from2To3,
+    from3To4: from3To4,
+  ),
 );

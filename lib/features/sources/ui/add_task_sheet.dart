@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/config/defaults.dart';
 import '../../../core/db/enums.dart';
 import '../../../core/ui/buttons.dart';
 import '../../../core/ui/chips.dart';
 import '../../../core/ui/fields.dart';
+import '../../../core/ui/value_stepper.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../theme/tokens/app_tokens.dart';
 import '../state/reading_providers.dart';
@@ -16,13 +18,24 @@ final class AddTaskRequest {
     required this.title,
     required this.alreadyRead,
     this.importance,
+    this.pages,
+    this.parts,
   });
 
   final List<String> chunkIds;
   final String title;
   final Importance? importance;
   final bool alreadyRead;
+
+  /// Only these pages of the one chapter (D49).
+  final UnitRange? pages;
+
+  /// Split the one chapter (without page numbers) into this many parts.
+  final int? parts;
 }
+
+/// What a task on one chapter covers (D49).
+enum _Covers { whole, pages, parts }
 
 /// Opens the Add task sheet for chapter [index]. Returns null when closed.
 Future<AddTaskRequest?> showAddTaskSheet(
@@ -67,17 +80,48 @@ class AddTaskSheet extends StatefulWidget {
 
 class _AddTaskSheetState extends State<AddTaskSheet> {
   late int _last = widget.index;
-  late final _name = TextEditingController(text: _autoTitle);
+  late final _name = TextEditingController();
   bool _nameEdited = false;
   Importance? _importance;
   bool _importanceSet = false;
   late bool _alreadyRead = _chapters.every((c) => c.finished);
 
+  /// A chapter with page numbers, and pages of it without a task.
+  late final ChapterProgress _first = _all[widget.index];
+  late final bool _paged = _first.range != null && _first.slot == null;
+  late final UnitRange? _gap = _first.uncovered.firstOrNull;
+  late _Covers _covers = _first.tasks.isNotEmpty
+      ? _Covers.pages
+      : _Covers.whole;
+  late int _from = _gap?.start ?? 1;
+  late int _to = _gap?.end ?? 1;
+  int _parts = 2;
+
   List<ChapterProgress> get _all => widget.view.chapters;
   List<ChapterProgress> get _chapters => _all.sublist(widget.index, _last + 1);
 
-  String get _autoTitle =>
-      taskTitleFor([for (final c in _chapters) c.chunk.title]);
+  String _autoTitle(AppLocalizations l10n) => switch (_covers) {
+    _Covers.pages => l10n.taskPagesTitle(
+      _first.chunk.title,
+      widget.view.source.unitType.range(l10n, _from, _to),
+    ),
+    _ => taskTitleFor([for (final c in _chapters) c.chunk.title]),
+  };
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_nameEdited) _name.text = _autoTitle(AppLocalizations.of(context));
+  }
+
+  void _retitle() {
+    if (!_nameEdited) _name.text = _autoTitle(AppLocalizations.of(context));
+  }
+
+  /// The pages chosen are all read already.
+  bool get _pagesRead =>
+      coveredUnits(widget.view.progress.explored, UnitRange(_from, _to)) >=
+      _to - _from + 1;
 
   /// The highest surveyed importance of the chosen chapters, else Medium.
   Importance get _defaultImportance {
@@ -89,7 +133,20 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
     return best ?? Importance.medium;
   }
 
-  bool get _canAddNext => _last + 1 < _all.length && !_all[_last + 1].hasTask;
+  bool get _canAddNext =>
+      _covers == _Covers.whole &&
+      _last + 1 < _all.length &&
+      _all[_last + 1].tasks.isEmpty;
+
+  /// A part under the reading config's minimum gets a warning (D49).
+  bool get _short {
+    final minutes = switch (_covers) {
+      _Covers.pages => (_to - _from + 1) * widget.view.pace,
+      _Covers.parts when !_paged => widget.view.pace / _parts,
+      _ => double.infinity,
+    };
+    return minutes < Defaults.readingMinPartMinutes;
+  }
 
   @override
   void dispose() {
@@ -99,7 +156,24 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
 
   void _addNext() => setState(() {
     _last++;
-    if (!_nameEdited) _name.text = _autoTitle;
+    _retitle();
+  });
+
+  void _setCovers(_Covers covers) => setState(() {
+    _covers = covers;
+    _alreadyRead = switch (covers) {
+      _Covers.pages => _pagesRead,
+      _ => _first.finished,
+    };
+    _retitle();
+  });
+
+  void _setPages({int? from, int? to}) => setState(() {
+    final gap = _gap!;
+    _from = (from ?? _from).clamp(gap.start, _to);
+    _to = (to ?? _to).clamp(_from, gap.end);
+    _alreadyRead = _pagesRead;
+    _retitle();
   });
 
   @override
@@ -163,19 +237,99 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                 ),
             ],
           ),
-          if (first != null && last != null) ...[
+          if (first != null &&
+              last != null &&
+              _first.slot == null &&
+              _covers == _Covers.whole) ...[
             const SizedBox(height: AppSpace.xs),
             Text(
               unit.range(l10n, first.start, last.end),
               style: AppText.caption.copyWith(color: c.muted),
             ),
           ],
-          const SizedBox(height: AppSpace.xl),
-          LabeledField(
-            label: l10n.addTaskName,
-            controller: _name,
-            onChanged: (_) => _nameEdited = true,
-          ),
+          if (_last == widget.index &&
+              (_paged ? _gap != null : _first.tasks.isEmpty)) ...[
+            const SizedBox(height: AppSpace.xl),
+            label(l10n.addTaskCovers),
+            Row(
+              children: [
+                if (_first.tasks.isEmpty) ...[
+                  Expanded(
+                    child: ChoiceChipButton(
+                      label: l10n.addTaskWhole,
+                      selected: _covers == _Covers.whole,
+                      onPressed: () => _setCovers(_Covers.whole),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpace.sm),
+                ],
+                Expanded(
+                  child: ChoiceChipButton(
+                    label: _paged ? l10n.addTaskSomePages : l10n.addTaskParts,
+                    selected: _covers != _Covers.whole,
+                    onPressed: () =>
+                        _setCovers(_paged ? _Covers.pages : _Covers.parts),
+                  ),
+                ),
+              ],
+            ),
+            if (_covers == _Covers.pages) ...[
+              const SizedBox(height: AppSpace.lg),
+              label(l10n.addTaskFrom),
+              ValueStepper(
+                value: unit.at(l10n, _from),
+                lessLabel: l10n.readingLess,
+                moreLabel: l10n.readingMore,
+                onLess: _from > _gap!.start
+                    ? () => _setPages(from: _from - 1)
+                    : null,
+                onMore: _from < _to ? () => _setPages(from: _from + 1) : null,
+              ),
+              const SizedBox(height: AppSpace.md),
+              label(l10n.addTaskTo),
+              ValueStepper(
+                value: unit.at(l10n, _to),
+                lessLabel: l10n.readingLess,
+                moreLabel: l10n.readingMore,
+                onLess: _to > _from ? () => _setPages(to: _to - 1) : null,
+                onMore: _to < _gap.end ? () => _setPages(to: _to + 1) : null,
+              ),
+            ],
+            if (_covers == _Covers.parts) ...[
+              const SizedBox(height: AppSpace.lg),
+              ValueStepper(
+                value: l10n.addTaskPartsCount(_parts),
+                lessLabel: l10n.readingLess,
+                moreLabel: l10n.readingMore,
+                onLess: _parts > 2 ? () => setState(() => _parts--) : null,
+                onMore: _parts < Defaults.chapterPartsMax
+                    ? () => setState(() => _parts++)
+                    : null,
+              ),
+              const SizedBox(height: AppSpace.xs),
+              Text(
+                l10n.addTaskPartsHint(
+                  l10n.taskPartTitle(_first.chunk.title, 1, _parts),
+                ),
+                style: AppText.caption.copyWith(color: c.muted),
+              ),
+            ],
+            if (_short) ...[
+              const SizedBox(height: AppSpace.xs),
+              Text(
+                l10n.addTaskShort,
+                style: AppText.caption.copyWith(color: c.warningText),
+              ),
+            ],
+          ],
+          if (_covers != _Covers.parts) ...[
+            const SizedBox(height: AppSpace.xl),
+            LabeledField(
+              label: l10n.addTaskName,
+              controller: _name,
+              onChanged: (_) => _nameEdited = true,
+            ),
+          ],
           if (view.examName case final exam?) ...[
             const SizedBox(height: AppSpace.xl),
             label(l10n.surveyImportanceFor(exam)),
@@ -238,6 +392,8 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                 title: _name.text.trim(),
                 importance: view.examId == null ? null : importance,
                 alreadyRead: _alreadyRead,
+                pages: _covers == _Covers.pages ? UnitRange(_from, _to) : null,
+                parts: _covers == _Covers.parts ? _parts : null,
               ),
             ),
           ),

@@ -507,6 +507,14 @@ class _CoverRow extends StatelessWidget {
                 Text(
                   part.source.unitType.range(l10n, start, end),
                   style: AppText.caption.copyWith(color: c.muted),
+                )
+              else if ((part.link.part, part.link.parts) case (
+                final int k,
+                final int n,
+              ))
+                Text(
+                  l10n.chapterPartOf(k, n),
+                  style: AppText.caption.copyWith(color: c.muted),
                 ),
             ],
           ),

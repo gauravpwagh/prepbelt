@@ -98,6 +98,26 @@ A source with no chapters is split as it is read. Saving a sitting makes the nex
 - **"Done with this source"** (link under the reading button) marks it done without a sitting. A done source shows "Done · 23 pages read" and **"Read more of this source"**. Unread pages stay unread, and the plan drops its "Continue" item.
 - **"Save and read on"** (secondary button, hidden when finishing): saves and starts the next sitting from the new position at once.
 
+### Sources split by number of chapters (D49)
+
+The chapters have no page numbers, so a chapter is the unit of reading.
+
+- **Reading card:** "3 of 14 chapters read · about 2 h 30 min left" and **"Continue Ch 4"** (or "Start reading").
+- **How far did you get?** The "Up to" stepper steps through chapters ("Ch 6"), pre-filled from the time and the minutes per chapter. Two chips under it: **"Finished it"** (default) and **"Still in it"**. The preview reads "Creates task Ch 4 – Ch 5. Ch 6: in progress."
+- **Time:** a sitting's minutes are shared equally among the chapters it touched; a chapter still in progress keeps its share until a later sitting finishes it.
+- **Minutes per chapter:** the median first read of this source's chapters once 3 are read; before that, pages ÷ chapters × pace, or 45 minutes when the page count is unknown.
+- **Parts:** "Finished part 1 of 3" chips appear when the chapter in progress was split into parts.
+
+### Tasks of one or more chapters, or part of one (D49)
+
+A task covers consecutive whole chapters, or one part of one chapter:
+
+- **Pages of a chapter** (chapters with page numbers): Add task offers "Whole chapter" or "Pages __ to __", pre-filled with the first pages without a task. The reading sheet's "Make … a task now" for a partly read chapter now makes a task of the pages read, with its first read and time (replacing D29's not-started whole chapter).
+- **Part k of n** (chapters without page numbers): Add task offers "Split into N parts" (2–10), which creates all N parts at once: "Ch 7 · part 1 of 3".
+- **Rules:** parts never overlap; a task stays within one topic; non-adjacent chapters are joined only by Merge (after 1.0). A part under 10 minutes gets a "short" warning, not a block.
+- **Chapter rows:** a chapter with parts lists them under it, each with its range or "part k of n" and its belt. "Add task" stays on a chapter while pages of it have no task.
+- **Finishing a chapter** with parts records first reads for its parts; pages without a task become a task for each gap.
+
 ### Topics
 
 A task belongs to exactly one topic. If the chapters read span two topics, Save creates one task per topic, and the preview line says so. Chapters with no topic yet join the task as they are; the task can be given a topic later.

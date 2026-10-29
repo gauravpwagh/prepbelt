@@ -47,7 +47,7 @@ class AppDatabase extends _$AppDatabase {
   factory AppDatabase.open() => AppDatabase(driftDatabase(name: 'prepbelt'));
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -64,6 +64,15 @@ class AppDatabase extends _$AppDatabase {
         // Progressive splitting and finished sources (D47).
         await m.addColumn(schema.sources, schema.sources.progressive);
         await m.addColumn(schema.sources, schema.sources.finishedAt);
+      },
+      from3To4: (m, schema) async {
+        // Reading by chapter and parts of chapters (D49).
+        await m.addColumn(
+          schema.readingSessions,
+          schema.readingSessions.inChapter,
+        );
+        await m.addColumn(schema.taskChunks, schema.taskChunks.part);
+        await m.addColumn(schema.taskChunks, schema.taskChunks.parts);
       },
     ),
     beforeOpen: (details) async {

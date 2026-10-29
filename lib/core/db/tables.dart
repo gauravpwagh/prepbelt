@@ -94,6 +94,10 @@ class ReadingSessions extends Table with SyncColumns {
   IntColumn get endUnit => integer().nullable()();
   IntColumn get minutes => integer().nullable()();
   TextColumn get status => textEnum<ReadingStatus>()();
+
+  /// In a source read by chapter (D49): the sitting ended inside its last
+  /// chapter, so that chapter is not finished yet.
+  BoolColumn get inChapter => boolean().withDefault(const Constant(false))();
 }
 
 // ------------------------------------------------------ Tasks and mastery
@@ -114,6 +118,10 @@ class TaskChunks extends Table with SyncColumns {
   IntColumn get startUnit => integer().nullable()();
   IntColumn get endUnit => integer().nullable()();
   IntColumn get order => integer().named('sort_order')();
+
+  /// Part [part] of [parts] of a chapter without page numbers (D49).
+  IntColumn get part => integer().nullable()();
+  IntColumn get parts => integer().nullable()();
 }
 
 /// Cache of the review engine's state, rebuildable from [Reviews].

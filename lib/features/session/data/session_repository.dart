@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../../core/config/defaults.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/db/event_log.dart';
 import '../../../core/result/result.dart';
@@ -297,16 +298,31 @@ final class SessionRepository extends EventSourcedRepository {
 
   /// The first-read estimate of [parts] from their chapters' surveys
   /// (unsurveyed chapters count as Medium and New).
+  ///
+  /// A chapter without page numbers (D49) takes [chapterMinutes] of its
+  /// source, shared among its parts.
   static double estimateFirstRead(
     Iterable<TaskPart> parts,
-    Map<String, ChunkSurvey> surveys,
-  ) {
+    Map<String, ChunkSurvey> surveys, {
+    Map<String, double> chapterMinutes = const {},
+  }) {
     var total = 0.0;
     for (final p in parts) {
       final start = p.link.startUnit ?? p.chunk.startUnit;
       final end = p.link.endUnit ?? p.chunk.endUnit;
-      if (start == null || end == null) continue;
       final survey = surveys[p.chunk.id];
+      if (start == null || end == null) {
+        total += firstReadMinutes(
+          units: 1,
+          unit: EffortUnit.page,
+          pace:
+              (chapterMinutes[p.source.id] ?? Defaults.chapterMinutesDefault) /
+              (p.link.parts ?? 1),
+          difficulty: survey?.difficulty ?? 2,
+          familiarity: survey?.familiarity ?? 0,
+        );
+        continue;
+      }
       total += firstReadMinutes(
         units: end - start + 1,
         unit: EffortUnit.values.byName(p.source.unitType.name),

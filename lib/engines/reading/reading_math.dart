@@ -186,3 +186,17 @@ SavePlan planSave({
 /// "first – last" for more.
 String taskTitleFor(List<String> titles) =>
     titles.length == 1 ? titles.single : '${titles.first} – ${titles.last}';
+
+/// The pieces of [range] not covered by [taken], in order.
+List<UnitRange> gapsIn(UnitRange range, Iterable<UnitRange> taken) {
+  final out = <UnitRange>[];
+  var at = range.start;
+  for (final t in unionOf(taken)) {
+    if (t.end < at) continue;
+    if (t.start > range.end) break;
+    if (t.start > at) out.add(UnitRange(at, min(t.start - 1, range.end)));
+    at = max(at, t.end + 1);
+  }
+  if (at <= range.end) out.add(UnitRange(at, range.end));
+  return out;
+}

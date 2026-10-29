@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../../core/config/defaults.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/db/event_log.dart';
+import '../../../engines/reading/reading_math.dart';
 import '../../../engines/review/review_engine.dart';
 import '../../../engines/review/review_types.dart';
 import '../../tasks/data/review_repository.dart';
@@ -14,6 +15,9 @@ final class TaskDraft {
     required this.chapters,
     this.importance,
     this.firstReadSec,
+    this.range,
+    this.part,
+    this.parts,
   });
 
   final String title;
@@ -26,6 +30,12 @@ final class TaskDraft {
 
   /// When set, the first read is recorded now with this duration (D29).
   final int? firstReadSec;
+
+  /// For a task over part of one chapter (D49): its units, or part [part]
+  /// of [parts] of a chapter without them.
+  final UnitRange? range;
+  final int? part;
+  final int? parts;
 }
 
 /// What recording a first read needs, loaded before the transaction.
@@ -108,9 +118,11 @@ final class TaskWriter {
           id: Value(rec.newId()),
           taskId: Value(taskId),
           chunkId: Value(c.id),
-          startUnit: Value(c.startUnit),
-          endUnit: Value(c.endUnit),
+          startUnit: Value(draft.range?.start ?? c.startUnit),
+          endUnit: Value(draft.range?.end ?? c.endUnit),
           order: Value(i),
+          part: Value(draft.part),
+          parts: Value(draft.parts),
         ),
       );
     }

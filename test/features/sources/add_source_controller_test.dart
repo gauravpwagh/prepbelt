@@ -180,6 +180,30 @@ void main() {
     expect((source.type, source.totalUnits), (SourceType.book, 80));
     expect(await db.select(db.sourceFiles).get(), isEmpty);
   });
+  test('"Number of chapters" makes chapters without pages; "Split as I '
+      'read" saves none (D49)', () async {
+    final (:c, :db) = open();
+    final ctl = c.read(addSourceControllerProvider.notifier)
+      ..setType(SourceType.book)
+      ..setTitle('Law notes')
+      ..setTotalUnits('140')
+      ..setMode(SplitMode.count)
+      ..changeChapterCount(4);
+    var s = c.read(addSourceControllerProvider);
+    expect(s.chapterCount, 14);
+    expect(s.chapters.map((ch) => (ch.title, ch.startUnit)).take(2), [
+      ('Ch 1', null),
+      ('Ch 2', null),
+    ]);
+    expect(s.chapters, hasLength(14));
+
+    ctl.setMode(SplitMode.asRead);
+    s = c.read(addSourceControllerProvider);
+    expect((s.chapters.isEmpty, s.canSave), (true, true));
+    await ctl.save();
+    expect(await db.select(db.chunks).get(), isEmpty);
+  });
+
   test('a shared PDF or link fills the form and preselects its type', () async {
     final (:c, db: _) = open(info: outline);
     final ctl = c.read(addSourceControllerProvider.notifier);

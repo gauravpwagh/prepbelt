@@ -63,6 +63,7 @@ ReadingSession _sitting(int start, int end, int minutes) => ReadingSession(
   endUnit: end,
   minutes: minutes,
   status: ReadingStatus.saved,
+  inChapter: false,
 );
 
 /// Ch 1–2 read as one task, Ch 3 read with its own task, Ch 4 partly read,
@@ -96,11 +97,17 @@ SourceProgress _progress({bool fresh = false}) {
       chunk: c,
       survey: survey,
       importance: importance,
-      taskId: task,
-      taskTitle: task,
-      taskLevel: level,
-      taskDim: dim,
-      taskOrder: order,
+      tasks: [
+        if (task != null)
+          ChapterTask(
+            taskId: task,
+            title: task,
+            level: level,
+            dim: dim,
+            order: order,
+            range: UnitRange(c.startUnit!, c.endUnit!),
+          ),
+      ],
       readUnits: coveredUnits(explored, UnitRange(c.startUnit!, c.endUnit!)),
     );
   }

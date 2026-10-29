@@ -16,7 +16,10 @@ import 'source_providers.dart';
 part 'add_source_controller.g.dart';
 
 /// How the chapters card splits the source (design/notes/add-source.md).
-enum SplitMode { bookmarks, paste, size, one }
+/// How Add source splits a source. [count] makes N chapters without page
+/// numbers; [asRead] makes none, so each sitting becomes the next part
+/// (D47, D49).
+enum SplitMode { bookmarks, paste, count, size, asRead, one }
 
 /// A field that stops the source from being saved.
 enum AddSourceIssue { pdfMissing, titleMissing, unitsMissing, linkMissing }
@@ -74,6 +77,7 @@ final class AddSourceState {
     this.mode = SplitMode.one,
     this.pasteText = '',
     this.splitSize = Defaults.splitSizePages,
+    this.chapterCount = Defaults.chapterCountDefault,
     this.chapters = const [],
     this.pasteErrorLines = const [],
     this.issues = const {},
@@ -104,6 +108,7 @@ final class AddSourceState {
   final SplitMode mode;
   final String pasteText;
   final int splitSize;
+  final int chapterCount;
   final List<ChapterPreview> chapters;
 
   /// Lines of the pasted list that could not be read (1-based).
@@ -123,7 +128,7 @@ final class AddSourceState {
       duplicateId == null &&
       !readingPdf &&
       !saving &&
-      chapters.isNotEmpty;
+      (chapters.isNotEmpty || mode == SplitMode.asRead);
 
   static UnitType unitTypeFor(SourceType type) => switch (type) {
     SourceType.pdf || SourceType.book || SourceType.notes => UnitType.page,
@@ -142,6 +147,10 @@ class AddSourceController extends _$AddSourceController {
   String Function(UnitType unit, int start, int end) rangeTitle = (_, s, e) =>
       '$s–$e';
 
+  /// Titles for "Number of chapters", e.g. "Ch 3". The screen sets a
+  /// localised one.
+  String Function(int n) chapterTitle = (n) => 'Ch $n';
+
   SourceType? _type;
   String _title = '';
   int? _totalUnits;
@@ -158,6 +167,7 @@ class AddSourceController extends _$AddSourceController {
   SplitMode _mode = SplitMode.one;
   String _paste = '';
   int _size = Defaults.splitSizePages;
+  int _count = Defaults.chapterCountDefault;
   List<int> _pasteErrors = const [];
   bool _saving = false;
   bool _saveFailed = false;
@@ -211,6 +221,12 @@ class AddSourceController extends _$AddSourceController {
 
   void changeSplitSize(int delta) {
     _size = (_size + delta).clamp(1, 999);
+    _edited = null;
+    _emit();
+  }
+
+  void changeChapterCount(int delta) {
+    _count = (_count + delta).clamp(1, Defaults.chapterCountMax);
     _edited = null;
     _emit();
   }
@@ -382,6 +398,12 @@ class AddSourceController extends _$AddSourceController {
         final parsed = chaptersFromPastedList(_paste, totalUnits: total);
         _pasteErrors = [for (final e in parsed.errors) e.line];
         return parsed.chapters;
+      case SplitMode.count:
+        return [
+          for (var n = 1; n <= _count; n++) ChunkDraft(title: chapterTitle(n)),
+        ];
+      case SplitMode.asRead:
+        return const [];
       case SplitMode.size:
         return total == null || total < 1
             ? const []
@@ -434,6 +456,7 @@ class AddSourceController extends _$AddSourceController {
       mode: _mode,
       pasteText: _paste,
       splitSize: _size,
+      chapterCount: _count,
       chapters: [
         for (final d in _drafts) ...[
           _preview(d, 0, unit),

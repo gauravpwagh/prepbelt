@@ -23,9 +23,11 @@ Adds a PDF, book, video, link, notes or question bank, and splits it into chapte
 
 4. **Chapters card.** The best available split comes first:
    - **PDF with bookmarks:** "Found 22 chapters in the bookmarks". It lists title and page range (e.g. "Ch 3 Rest and motion · pp. 40–62"), with "Use these" selected. Nested bookmarks are indented under their chapter.
-   - **Otherwise, three options:**
+   - **Otherwise, these options:**
      - "Paste a chapter list": a multi-line field, one chapter per line ending in its first page, e.g. "Rest and motion 40".
+     - "Number of chapters" (D49): a − / + stepper, default 10. Creates Ch 1 … Ch N with no page numbers; the source is then read chapter by chapter.
      - "Split every N pages": a − / + stepper, default 20.
+     - "Split as I read" (D47, D49): no chapters now; each saved sitting becomes the next part.
      - "Keep as one": a single chunk.
    - **Hints:**
      - A chunk under 5 pages gets a small "Short — merge with next?" text button.
@@ -48,6 +50,6 @@ Adds a PDF, book, video, link, notes or question bank, and splits it into chapte
 Saving writes, in one undoable operation:
 - a Source row;
 - a SourceFile row, after copying the PDF to `<app documents>/sources/<uuid>.pdf`;
-- one Chunk row per chapter.
+- one Chunk row per chapter ("Number of chapters" chunks have no start or end unit; "Split as I read" writes none).
 
 Saving does not create tasks. Tasks are created from chapters when the survey finishes, one per chapter by default.

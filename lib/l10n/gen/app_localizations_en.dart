@@ -549,6 +549,104 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addSourceKeepOne => 'Keep as one';
 
   @override
+  String readingContinue(String chapter) {
+    return 'Continue $chapter';
+  }
+
+  @override
+  String readingInChapter(String chapter) {
+    return '$chapter · in progress';
+  }
+
+  @override
+  String get readingFinishedIt => 'Finished it';
+
+  @override
+  String get readingStillInIt => 'Still in it';
+
+  @override
+  String readingPartsDone(int part, int parts) {
+    return 'Finished part $part of $parts';
+  }
+
+  @override
+  String readingPreviewTaskOnly(String title) {
+    return 'Creates task $title.';
+  }
+
+  @override
+  String readingPreviewInChapter(String chapter) {
+    return '$chapter: in progress.';
+  }
+
+  @override
+  String get chapterInProgress => 'in progress';
+
+  @override
+  String chapterPartOf(int part, int parts) {
+    return 'Part $part of $parts';
+  }
+
+  @override
+  String get addTaskCovers => 'Covers';
+
+  @override
+  String get addTaskWhole => 'Whole chapter';
+
+  @override
+  String get addTaskSomePages => 'Some pages';
+
+  @override
+  String get addTaskParts => 'Split into parts';
+
+  @override
+  String get addTaskFrom => 'From';
+
+  @override
+  String get addTaskTo => 'To';
+
+  @override
+  String addTaskPartsCount(int count) {
+    return '$count parts';
+  }
+
+  @override
+  String addTaskPartsHint(String example) {
+    return 'Makes a task for each part: $example, and so on.';
+  }
+
+  @override
+  String get addTaskShort =>
+      'Short: under 10 minutes. Each task brings its own reviews.';
+
+  @override
+  String taskPagesTitle(String chapter, String range) {
+    return '$chapter · $range';
+  }
+
+  @override
+  String taskPartTitle(String chapter, int part, int parts) {
+    return '$chapter · part $part of $parts';
+  }
+
+  @override
+  String addSourceChapterCount(int count) {
+    return 'Number of chapters: $count';
+  }
+
+  @override
+  String get addSourceSplitAsRead => 'Split as I read';
+
+  @override
+  String get addSourceSplitAsReadHelp =>
+      'Each reading sitting becomes the next part, with its own task.';
+
+  @override
+  String chapterNumbered(int n) {
+    return 'Ch $n';
+  }
+
+  @override
   String get addSourceFewer => 'Fewer';
 
   @override

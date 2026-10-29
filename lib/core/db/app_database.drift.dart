@@ -3534,6 +3534,21 @@ class $ReadingSessionsTable extends ReadingSessions
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       ).withConverter<ReadingStatus>($ReadingSessionsTable.$converterstatus);
+  static const VerificationMeta _inChapterMeta = const VerificationMeta(
+    'inChapter',
+  );
+  @override
+  late final GeneratedColumn<bool> inChapter = GeneratedColumn<bool>(
+    'in_chapter',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("in_chapter" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -3549,6 +3564,7 @@ class $ReadingSessionsTable extends ReadingSessions
     endUnit,
     minutes,
     status,
+    inChapter,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3647,6 +3663,12 @@ class $ReadingSessionsTable extends ReadingSessions
         minutes.isAcceptableOrUnknown(data['minutes']!, _minutesMeta),
       );
     }
+    if (data.containsKey('in_chapter')) {
+      context.handle(
+        _inChapterMeta,
+        inChapter.isAcceptableOrUnknown(data['in_chapter']!, _inChapterMeta),
+      );
+    }
     return context;
   }
 
@@ -3710,6 +3732,10 @@ class $ReadingSessionsTable extends ReadingSessions
           data['${effectivePrefix}status'],
         )!,
       ),
+      inChapter: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}in_chapter'],
+      )!,
     );
   }
 
@@ -3741,6 +3767,10 @@ class ReadingSession extends DataClass implements Insertable<ReadingSession> {
   final int? endUnit;
   final int? minutes;
   final ReadingStatus status;
+
+  /// In a source read by chapter (D49): the sitting ended inside its last
+  /// chapter, so that chapter is not finished yet.
+  final bool inChapter;
   const ReadingSession({
     required this.id,
     required this.createdAt,
@@ -3755,6 +3785,7 @@ class ReadingSession extends DataClass implements Insertable<ReadingSession> {
     this.endUnit,
     this.minutes,
     required this.status,
+    required this.inChapter,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3784,6 +3815,7 @@ class ReadingSession extends DataClass implements Insertable<ReadingSession> {
         $ReadingSessionsTable.$converterstatus.toSql(status),
       );
     }
+    map['in_chapter'] = Variable<bool>(inChapter);
     return map;
   }
 
@@ -3810,6 +3842,7 @@ class ReadingSession extends DataClass implements Insertable<ReadingSession> {
           ? const Value.absent()
           : Value(minutes),
       status: Value(status),
+      inChapter: Value(inChapter),
     );
   }
 
@@ -3834,6 +3867,7 @@ class ReadingSession extends DataClass implements Insertable<ReadingSession> {
       status: $ReadingSessionsTable.$converterstatus.fromJson(
         serializer.fromJson<String>(json['status']),
       ),
+      inChapter: serializer.fromJson<bool>(json['inChapter']),
     );
   }
   @override
@@ -3855,6 +3889,7 @@ class ReadingSession extends DataClass implements Insertable<ReadingSession> {
       'status': serializer.toJson<String>(
         $ReadingSessionsTable.$converterstatus.toJson(status),
       ),
+      'inChapter': serializer.toJson<bool>(inChapter),
     };
   }
 
@@ -3872,6 +3907,7 @@ class ReadingSession extends DataClass implements Insertable<ReadingSession> {
     Value<int?> endUnit = const Value.absent(),
     Value<int?> minutes = const Value.absent(),
     ReadingStatus? status,
+    bool? inChapter,
   }) => ReadingSession(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -3886,6 +3922,7 @@ class ReadingSession extends DataClass implements Insertable<ReadingSession> {
     endUnit: endUnit.present ? endUnit.value : this.endUnit,
     minutes: minutes.present ? minutes.value : this.minutes,
     status: status ?? this.status,
+    inChapter: inChapter ?? this.inChapter,
   );
   ReadingSession copyWithCompanion(ReadingSessionsCompanion data) {
     return ReadingSession(
@@ -3902,6 +3939,7 @@ class ReadingSession extends DataClass implements Insertable<ReadingSession> {
       endUnit: data.endUnit.present ? data.endUnit.value : this.endUnit,
       minutes: data.minutes.present ? data.minutes.value : this.minutes,
       status: data.status.present ? data.status.value : this.status,
+      inChapter: data.inChapter.present ? data.inChapter.value : this.inChapter,
     );
   }
 
@@ -3920,7 +3958,8 @@ class ReadingSession extends DataClass implements Insertable<ReadingSession> {
           ..write('endedAt: $endedAt, ')
           ..write('endUnit: $endUnit, ')
           ..write('minutes: $minutes, ')
-          ..write('status: $status')
+          ..write('status: $status, ')
+          ..write('inChapter: $inChapter')
           ..write(')'))
         .toString();
   }
@@ -3940,6 +3979,7 @@ class ReadingSession extends DataClass implements Insertable<ReadingSession> {
     endUnit,
     minutes,
     status,
+    inChapter,
   );
   @override
   bool operator ==(Object other) =>
@@ -3957,7 +3997,8 @@ class ReadingSession extends DataClass implements Insertable<ReadingSession> {
           other.endedAt == this.endedAt &&
           other.endUnit == this.endUnit &&
           other.minutes == this.minutes &&
-          other.status == this.status);
+          other.status == this.status &&
+          other.inChapter == this.inChapter);
 }
 
 class ReadingSessionsCompanion extends UpdateCompanion<ReadingSession> {
@@ -3974,6 +4015,7 @@ class ReadingSessionsCompanion extends UpdateCompanion<ReadingSession> {
   final Value<int?> endUnit;
   final Value<int?> minutes;
   final Value<ReadingStatus> status;
+  final Value<bool> inChapter;
   final Value<int> rowid;
   const ReadingSessionsCompanion({
     this.id = const Value.absent(),
@@ -3989,6 +4031,7 @@ class ReadingSessionsCompanion extends UpdateCompanion<ReadingSession> {
     this.endUnit = const Value.absent(),
     this.minutes = const Value.absent(),
     this.status = const Value.absent(),
+    this.inChapter = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ReadingSessionsCompanion.insert({
@@ -4005,6 +4048,7 @@ class ReadingSessionsCompanion extends UpdateCompanion<ReadingSession> {
     this.endUnit = const Value.absent(),
     this.minutes = const Value.absent(),
     required ReadingStatus status,
+    this.inChapter = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -4029,6 +4073,7 @@ class ReadingSessionsCompanion extends UpdateCompanion<ReadingSession> {
     Expression<int>? endUnit,
     Expression<int>? minutes,
     Expression<String>? status,
+    Expression<bool>? inChapter,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -4045,6 +4090,7 @@ class ReadingSessionsCompanion extends UpdateCompanion<ReadingSession> {
       if (endUnit != null) 'end_unit': endUnit,
       if (minutes != null) 'minutes': minutes,
       if (status != null) 'status': status,
+      if (inChapter != null) 'in_chapter': inChapter,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -4063,6 +4109,7 @@ class ReadingSessionsCompanion extends UpdateCompanion<ReadingSession> {
     Value<int?>? endUnit,
     Value<int?>? minutes,
     Value<ReadingStatus>? status,
+    Value<bool>? inChapter,
     Value<int>? rowid,
   }) {
     return ReadingSessionsCompanion(
@@ -4079,6 +4126,7 @@ class ReadingSessionsCompanion extends UpdateCompanion<ReadingSession> {
       endUnit: endUnit ?? this.endUnit,
       minutes: minutes ?? this.minutes,
       status: status ?? this.status,
+      inChapter: inChapter ?? this.inChapter,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -4127,6 +4175,9 @@ class ReadingSessionsCompanion extends UpdateCompanion<ReadingSession> {
         $ReadingSessionsTable.$converterstatus.toSql(status.value),
       );
     }
+    if (inChapter.present) {
+      map['in_chapter'] = Variable<bool>(inChapter.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -4149,6 +4200,7 @@ class ReadingSessionsCompanion extends UpdateCompanion<ReadingSession> {
           ..write('endUnit: $endUnit, ')
           ..write('minutes: $minutes, ')
           ..write('status: $status, ')
+          ..write('inChapter: $inChapter, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4952,6 +5004,24 @@ class $TaskChunksTable extends TaskChunks
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _partMeta = const VerificationMeta('part');
+  @override
+  late final GeneratedColumn<int> part = GeneratedColumn<int>(
+    'part',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _partsMeta = const VerificationMeta('parts');
+  @override
+  late final GeneratedColumn<int> parts = GeneratedColumn<int>(
+    'parts',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -4965,6 +5035,8 @@ class $TaskChunksTable extends TaskChunks
     startUnit,
     endUnit,
     order,
+    part,
+    parts,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5057,6 +5129,18 @@ class $TaskChunksTable extends TaskChunks
     } else if (isInserting) {
       context.missing(_orderMeta);
     }
+    if (data.containsKey('part')) {
+      context.handle(
+        _partMeta,
+        part.isAcceptableOrUnknown(data['part']!, _partMeta),
+      );
+    }
+    if (data.containsKey('parts')) {
+      context.handle(
+        _partsMeta,
+        parts.isAcceptableOrUnknown(data['parts']!, _partsMeta),
+      );
+    }
     return context;
   }
 
@@ -5110,6 +5194,14 @@ class $TaskChunksTable extends TaskChunks
         DriftSqlType.int,
         data['${effectivePrefix}sort_order'],
       )!,
+      part: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}part'],
+      ),
+      parts: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}parts'],
+      ),
     );
   }
 
@@ -5134,6 +5226,10 @@ class TaskChunk extends DataClass implements Insertable<TaskChunk> {
   final int? startUnit;
   final int? endUnit;
   final int order;
+
+  /// Part [part] of [parts] of a chapter without page numbers (D49).
+  final int? part;
+  final int? parts;
   const TaskChunk({
     required this.id,
     required this.createdAt,
@@ -5146,6 +5242,8 @@ class TaskChunk extends DataClass implements Insertable<TaskChunk> {
     this.startUnit,
     this.endUnit,
     required this.order,
+    this.part,
+    this.parts,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5167,6 +5265,12 @@ class TaskChunk extends DataClass implements Insertable<TaskChunk> {
       map['end_unit'] = Variable<int>(endUnit);
     }
     map['sort_order'] = Variable<int>(order);
+    if (!nullToAbsent || part != null) {
+      map['part'] = Variable<int>(part);
+    }
+    if (!nullToAbsent || parts != null) {
+      map['parts'] = Variable<int>(parts);
+    }
     return map;
   }
 
@@ -5189,6 +5293,10 @@ class TaskChunk extends DataClass implements Insertable<TaskChunk> {
           ? const Value.absent()
           : Value(endUnit),
       order: Value(order),
+      part: part == null && nullToAbsent ? const Value.absent() : Value(part),
+      parts: parts == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parts),
     );
   }
 
@@ -5209,6 +5317,8 @@ class TaskChunk extends DataClass implements Insertable<TaskChunk> {
       startUnit: serializer.fromJson<int?>(json['startUnit']),
       endUnit: serializer.fromJson<int?>(json['endUnit']),
       order: serializer.fromJson<int>(json['order']),
+      part: serializer.fromJson<int?>(json['part']),
+      parts: serializer.fromJson<int?>(json['parts']),
     );
   }
   @override
@@ -5226,6 +5336,8 @@ class TaskChunk extends DataClass implements Insertable<TaskChunk> {
       'startUnit': serializer.toJson<int?>(startUnit),
       'endUnit': serializer.toJson<int?>(endUnit),
       'order': serializer.toJson<int>(order),
+      'part': serializer.toJson<int?>(part),
+      'parts': serializer.toJson<int?>(parts),
     };
   }
 
@@ -5241,6 +5353,8 @@ class TaskChunk extends DataClass implements Insertable<TaskChunk> {
     Value<int?> startUnit = const Value.absent(),
     Value<int?> endUnit = const Value.absent(),
     int? order,
+    Value<int?> part = const Value.absent(),
+    Value<int?> parts = const Value.absent(),
   }) => TaskChunk(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -5253,6 +5367,8 @@ class TaskChunk extends DataClass implements Insertable<TaskChunk> {
     startUnit: startUnit.present ? startUnit.value : this.startUnit,
     endUnit: endUnit.present ? endUnit.value : this.endUnit,
     order: order ?? this.order,
+    part: part.present ? part.value : this.part,
+    parts: parts.present ? parts.value : this.parts,
   );
   TaskChunk copyWithCompanion(TaskChunksCompanion data) {
     return TaskChunk(
@@ -5267,6 +5383,8 @@ class TaskChunk extends DataClass implements Insertable<TaskChunk> {
       startUnit: data.startUnit.present ? data.startUnit.value : this.startUnit,
       endUnit: data.endUnit.present ? data.endUnit.value : this.endUnit,
       order: data.order.present ? data.order.value : this.order,
+      part: data.part.present ? data.part.value : this.part,
+      parts: data.parts.present ? data.parts.value : this.parts,
     );
   }
 
@@ -5283,7 +5401,9 @@ class TaskChunk extends DataClass implements Insertable<TaskChunk> {
           ..write('chunkId: $chunkId, ')
           ..write('startUnit: $startUnit, ')
           ..write('endUnit: $endUnit, ')
-          ..write('order: $order')
+          ..write('order: $order, ')
+          ..write('part: $part, ')
+          ..write('parts: $parts')
           ..write(')'))
         .toString();
   }
@@ -5301,6 +5421,8 @@ class TaskChunk extends DataClass implements Insertable<TaskChunk> {
     startUnit,
     endUnit,
     order,
+    part,
+    parts,
   );
   @override
   bool operator ==(Object other) =>
@@ -5316,7 +5438,9 @@ class TaskChunk extends DataClass implements Insertable<TaskChunk> {
           other.chunkId == this.chunkId &&
           other.startUnit == this.startUnit &&
           other.endUnit == this.endUnit &&
-          other.order == this.order);
+          other.order == this.order &&
+          other.part == this.part &&
+          other.parts == this.parts);
 }
 
 class TaskChunksCompanion extends UpdateCompanion<TaskChunk> {
@@ -5331,6 +5455,8 @@ class TaskChunksCompanion extends UpdateCompanion<TaskChunk> {
   final Value<int?> startUnit;
   final Value<int?> endUnit;
   final Value<int> order;
+  final Value<int?> part;
+  final Value<int?> parts;
   final Value<int> rowid;
   const TaskChunksCompanion({
     this.id = const Value.absent(),
@@ -5344,6 +5470,8 @@ class TaskChunksCompanion extends UpdateCompanion<TaskChunk> {
     this.startUnit = const Value.absent(),
     this.endUnit = const Value.absent(),
     this.order = const Value.absent(),
+    this.part = const Value.absent(),
+    this.parts = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TaskChunksCompanion.insert({
@@ -5358,6 +5486,8 @@ class TaskChunksCompanion extends UpdateCompanion<TaskChunk> {
     this.startUnit = const Value.absent(),
     this.endUnit = const Value.absent(),
     required int order,
+    this.part = const Value.absent(),
+    this.parts = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -5379,6 +5509,8 @@ class TaskChunksCompanion extends UpdateCompanion<TaskChunk> {
     Expression<int>? startUnit,
     Expression<int>? endUnit,
     Expression<int>? order,
+    Expression<int>? part,
+    Expression<int>? parts,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -5393,6 +5525,8 @@ class TaskChunksCompanion extends UpdateCompanion<TaskChunk> {
       if (startUnit != null) 'start_unit': startUnit,
       if (endUnit != null) 'end_unit': endUnit,
       if (order != null) 'sort_order': order,
+      if (part != null) 'part': part,
+      if (parts != null) 'parts': parts,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -5409,6 +5543,8 @@ class TaskChunksCompanion extends UpdateCompanion<TaskChunk> {
     Value<int?>? startUnit,
     Value<int?>? endUnit,
     Value<int>? order,
+    Value<int?>? part,
+    Value<int?>? parts,
     Value<int>? rowid,
   }) {
     return TaskChunksCompanion(
@@ -5423,6 +5559,8 @@ class TaskChunksCompanion extends UpdateCompanion<TaskChunk> {
       startUnit: startUnit ?? this.startUnit,
       endUnit: endUnit ?? this.endUnit,
       order: order ?? this.order,
+      part: part ?? this.part,
+      parts: parts ?? this.parts,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -5463,6 +5601,12 @@ class TaskChunksCompanion extends UpdateCompanion<TaskChunk> {
     if (order.present) {
       map['sort_order'] = Variable<int>(order.value);
     }
+    if (part.present) {
+      map['part'] = Variable<int>(part.value);
+    }
+    if (parts.present) {
+      map['parts'] = Variable<int>(parts.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -5483,6 +5627,8 @@ class TaskChunksCompanion extends UpdateCompanion<TaskChunk> {
           ..write('startUnit: $startUnit, ')
           ..write('endUnit: $endUnit, ')
           ..write('order: $order, ')
+          ..write('part: $part, ')
+          ..write('parts: $parts, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -20885,6 +21031,7 @@ typedef $$ReadingSessionsTableCreateCompanionBuilder =
       Value<int?> endUnit,
       Value<int?> minutes,
       required ReadingStatus status,
+      Value<bool> inChapter,
       Value<int> rowid,
     });
 typedef $$ReadingSessionsTableUpdateCompanionBuilder =
@@ -20902,6 +21049,7 @@ typedef $$ReadingSessionsTableUpdateCompanionBuilder =
       Value<int?> endUnit,
       Value<int?> minutes,
       Value<ReadingStatus> status,
+      Value<bool> inChapter,
       Value<int> rowid,
     });
 
@@ -21004,6 +21152,11 @@ class $$ReadingSessionsTableFilterComposer
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
+  ColumnFilters<bool> get inChapter => $composableBuilder(
+    column: $table.inChapter,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$SourcesTableFilterComposer get sourceId {
     final $$SourcesTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -21097,6 +21250,11 @@ class $$ReadingSessionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get inChapter => $composableBuilder(
+    column: $table.inChapter,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$SourcesTableOrderingComposer get sourceId {
     final $$SourcesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -21166,6 +21324,9 @@ class $$ReadingSessionsTableAnnotationComposer
   GeneratedColumnWithTypeConverter<ReadingStatus, String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
 
+  GeneratedColumn<bool> get inChapter =>
+      $composableBuilder(column: $table.inChapter, builder: (column) => column);
+
   $$SourcesTableAnnotationComposer get sourceId {
     final $$SourcesTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -21233,6 +21394,7 @@ class $$ReadingSessionsTableTableManager
                 Value<int?> endUnit = const Value.absent(),
                 Value<int?> minutes = const Value.absent(),
                 Value<ReadingStatus> status = const Value.absent(),
+                Value<bool> inChapter = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ReadingSessionsCompanion(
                 id: id,
@@ -21248,6 +21410,7 @@ class $$ReadingSessionsTableTableManager
                 endUnit: endUnit,
                 minutes: minutes,
                 status: status,
+                inChapter: inChapter,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -21265,6 +21428,7 @@ class $$ReadingSessionsTableTableManager
                 Value<int?> endUnit = const Value.absent(),
                 Value<int?> minutes = const Value.absent(),
                 required ReadingStatus status,
+                Value<bool> inChapter = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ReadingSessionsCompanion.insert(
                 id: id,
@@ -21280,6 +21444,7 @@ class $$ReadingSessionsTableTableManager
                 endUnit: endUnit,
                 minutes: minutes,
                 status: status,
+                inChapter: inChapter,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -22613,6 +22778,8 @@ typedef $$TaskChunksTableCreateCompanionBuilder =
       Value<int?> startUnit,
       Value<int?> endUnit,
       required int order,
+      Value<int?> part,
+      Value<int?> parts,
       Value<int> rowid,
     });
 typedef $$TaskChunksTableUpdateCompanionBuilder =
@@ -22628,6 +22795,8 @@ typedef $$TaskChunksTableUpdateCompanionBuilder =
       Value<int?> startUnit,
       Value<int?> endUnit,
       Value<int> order,
+      Value<int?> part,
+      Value<int?> parts,
       Value<int> rowid,
     });
 
@@ -22723,6 +22892,16 @@ class $$TaskChunksTableFilterComposer
 
   ColumnFilters<int> get order => $composableBuilder(
     column: $table.order,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get part => $composableBuilder(
+    column: $table.part,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get parts => $composableBuilder(
+    column: $table.parts,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -22827,6 +23006,16 @@ class $$TaskChunksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get part => $composableBuilder(
+    column: $table.part,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get parts => $composableBuilder(
+    column: $table.parts,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$TasksTableOrderingComposer get taskId {
     final $$TasksTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -22909,6 +23098,12 @@ class $$TaskChunksTableAnnotationComposer
 
   GeneratedColumn<int> get order =>
       $composableBuilder(column: $table.order, builder: (column) => column);
+
+  GeneratedColumn<int> get part =>
+      $composableBuilder(column: $table.part, builder: (column) => column);
+
+  GeneratedColumn<int> get parts =>
+      $composableBuilder(column: $table.parts, builder: (column) => column);
 
   $$TasksTableAnnotationComposer get taskId {
     final $$TasksTableAnnotationComposer composer = $composerBuilder(
@@ -22996,6 +23191,8 @@ class $$TaskChunksTableTableManager
                 Value<int?> startUnit = const Value.absent(),
                 Value<int?> endUnit = const Value.absent(),
                 Value<int> order = const Value.absent(),
+                Value<int?> part = const Value.absent(),
+                Value<int?> parts = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TaskChunksCompanion(
                 id: id,
@@ -23009,6 +23206,8 @@ class $$TaskChunksTableTableManager
                 startUnit: startUnit,
                 endUnit: endUnit,
                 order: order,
+                part: part,
+                parts: parts,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -23024,6 +23223,8 @@ class $$TaskChunksTableTableManager
                 Value<int?> startUnit = const Value.absent(),
                 Value<int?> endUnit = const Value.absent(),
                 required int order,
+                Value<int?> part = const Value.absent(),
+                Value<int?> parts = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TaskChunksCompanion.insert(
                 id: id,
@@ -23037,6 +23238,8 @@ class $$TaskChunksTableTableManager
                 startUnit: startUnit,
                 endUnit: endUnit,
                 order: order,
+                part: part,
+                parts: parts,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

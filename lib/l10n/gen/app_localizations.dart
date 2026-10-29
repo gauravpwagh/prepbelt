@@ -868,6 +868,150 @@ abstract class AppLocalizations {
   /// **'Keep as one'**
   String get addSourceKeepOne;
 
+  /// No description provided for @readingContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue {chapter}'**
+  String readingContinue(String chapter);
+
+  /// No description provided for @readingInChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'{chapter} · in progress'**
+  String readingInChapter(String chapter);
+
+  /// No description provided for @readingFinishedIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished it'**
+  String get readingFinishedIt;
+
+  /// No description provided for @readingStillInIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Still in it'**
+  String get readingStillInIt;
+
+  /// No description provided for @readingPartsDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished part {part} of {parts}'**
+  String readingPartsDone(int part, int parts);
+
+  /// No description provided for @readingPreviewTaskOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Creates task {title}.'**
+  String readingPreviewTaskOnly(String title);
+
+  /// No description provided for @readingPreviewInChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'{chapter}: in progress.'**
+  String readingPreviewInChapter(String chapter);
+
+  /// No description provided for @chapterInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'in progress'**
+  String get chapterInProgress;
+
+  /// No description provided for @chapterPartOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Part {part} of {parts}'**
+  String chapterPartOf(int part, int parts);
+
+  /// No description provided for @addTaskCovers.
+  ///
+  /// In en, this message translates to:
+  /// **'Covers'**
+  String get addTaskCovers;
+
+  /// No description provided for @addTaskWhole.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole chapter'**
+  String get addTaskWhole;
+
+  /// No description provided for @addTaskSomePages.
+  ///
+  /// In en, this message translates to:
+  /// **'Some pages'**
+  String get addTaskSomePages;
+
+  /// No description provided for @addTaskParts.
+  ///
+  /// In en, this message translates to:
+  /// **'Split into parts'**
+  String get addTaskParts;
+
+  /// No description provided for @addTaskFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get addTaskFrom;
+
+  /// No description provided for @addTaskTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get addTaskTo;
+
+  /// No description provided for @addTaskPartsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} parts'**
+  String addTaskPartsCount(int count);
+
+  /// No description provided for @addTaskPartsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Makes a task for each part: {example}, and so on.'**
+  String addTaskPartsHint(String example);
+
+  /// No description provided for @addTaskShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short: under 10 minutes. Each task brings its own reviews.'**
+  String get addTaskShort;
+
+  /// No description provided for @taskPagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{chapter} · {range}'**
+  String taskPagesTitle(String chapter, String range);
+
+  /// No description provided for @taskPartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{chapter} · part {part} of {parts}'**
+  String taskPartTitle(String chapter, int part, int parts);
+
+  /// No description provided for @addSourceChapterCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of chapters: {count}'**
+  String addSourceChapterCount(int count);
+
+  /// No description provided for @addSourceSplitAsRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Split as I read'**
+  String get addSourceSplitAsRead;
+
+  /// No description provided for @addSourceSplitAsReadHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Each reading sitting becomes the next part, with its own task.'**
+  String get addSourceSplitAsReadHelp;
+
+  /// No description provided for @chapterNumbered.
+  ///
+  /// In en, this message translates to:
+  /// **'Ch {n}'**
+  String chapterNumbered(int n);
+
   /// No description provided for @addSourceFewer.
   ///
   /// In en, this message translates to:

@@ -53,6 +53,7 @@ class _AddSourceScreenState extends ConsumerState<AddSourceScreen> {
     super.didChangeDependencies();
     final l10n = AppLocalizations.of(context);
     _ctl.rangeTitle = (unit, s, e) => unit.chunkTitle(l10n, s, e);
+    _ctl.chapterTitle = l10n.chapterNumbered;
   }
 
   @override
@@ -379,6 +380,37 @@ class AddSourceBody extends StatelessWidget {
       onTap: () => controller.setMode(mode),
     );
 
+    Widget stepper({
+      required String value,
+      required VoidCallback? onLess,
+      required VoidCallback onMore,
+    }) => Padding(
+      padding: const EdgeInsetsDirectional.only(start: 32, bottom: 6),
+      child: Row(
+        children: [
+          RoundIconButton(
+            icon: AppIcon.minus,
+            semanticLabel: l10n.addSourceFewer,
+            onPressed: onLess,
+          ),
+          const SizedBox(width: AppSpace.md),
+          Text(
+            value,
+            style: AppText.body.copyWith(
+              color: c.ink,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(width: AppSpace.md),
+          RoundIconButton(
+            icon: AppIcon.add,
+            semanticLabel: l10n.addSourceMore,
+            onPressed: onMore,
+          ),
+        ],
+      ),
+    );
+
     return [
       if (state.bookmarksFound) ...[
         Text(
@@ -419,32 +451,33 @@ class AddSourceBody extends StatelessWidget {
           l10n.addSourceSplitEvery(unit.count(l10n, state.splitSize)),
         ),
         if (state.mode == SplitMode.size)
+          stepper(
+            value: unit.count(l10n, state.splitSize),
+            onLess: state.splitSize > 1
+                ? () => controller.changeSplitSize(-5)
+                : null,
+            onMore: () => controller.changeSplitSize(5),
+          ),
+      ],
+      if (state.canSplit) ...[
+        option(SplitMode.count, l10n.addSourceChapterCount(state.chapterCount)),
+        if (state.mode == SplitMode.count)
+          stepper(
+            value: l10n.sourceChapters(state.chapterCount),
+            onLess: state.chapterCount > 1
+                ? () => controller.changeChapterCount(-1)
+                : null,
+            onMore: () => controller.changeChapterCount(1),
+          ),
+      ],
+      if (hasTotal) ...[
+        option(SplitMode.asRead, l10n.addSourceSplitAsRead),
+        if (state.mode == SplitMode.asRead)
           Padding(
             padding: const EdgeInsetsDirectional.only(start: 32, bottom: 6),
-            child: Row(
-              children: [
-                RoundIconButton(
-                  icon: AppIcon.minus,
-                  semanticLabel: l10n.addSourceFewer,
-                  onPressed: state.splitSize > 1
-                      ? () => controller.changeSplitSize(-5)
-                      : null,
-                ),
-                const SizedBox(width: AppSpace.md),
-                Text(
-                  unit.count(l10n, state.splitSize),
-                  style: AppText.body.copyWith(
-                    color: c.ink,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(width: AppSpace.md),
-                RoundIconButton(
-                  icon: AppIcon.add,
-                  semanticLabel: l10n.addSourceMore,
-                  onPressed: () => controller.changeSplitSize(5),
-                ),
-              ],
+            child: Text(
+              l10n.addSourceSplitAsReadHelp,
+              style: AppText.caption.copyWith(color: c.muted),
             ),
           ),
       ],

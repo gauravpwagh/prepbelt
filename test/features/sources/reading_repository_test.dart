@@ -154,22 +154,41 @@ void main() {
     },
   );
 
-  test('"Make it a task now" creates a not-started task', () async {
-    final book = await addBook();
-    final ch3 = (await reading.progress(book.id))!.chapters[2].chunk.id;
-    final s = await reading.start(book.id);
-    final out = await reading.save(
-      s.id,
-      endUnit: 35,
-      minutes: 70,
-      taskNow: {ch3},
-    );
-    expect(out.tasksCreated, ['Ch 1 – Ch 2', 'Ch 3']);
-    expect(out.partial, isEmpty);
-    final p = (await reading.progress(book.id))!;
-    expect(p.chapters[2].hasTask, isTrue);
-    expect(p.chapters[2].read, isFalse);
-  });
+  test(
+    '"Make it a task now" makes the pages read so far a task with its '
+    'first read; finishing the chapter makes the rest a task (D49)',
+    () async {
+      final book = await addBook();
+      final ch3 = (await reading.progress(book.id))!.chapters[2].chunk.id;
+      final s = await reading.start(book.id);
+      final out = await reading.save(
+        s.id,
+        endUnit: 35,
+        minutes: 70,
+        taskNow: {ch3},
+        pagesTitle: (ch, a, b) => '$ch · pp. $a–$b',
+      );
+      expect(out.tasksCreated, ['Ch 1 – Ch 2', 'Ch 3 · pp. 31–35']);
+      expect(out.partial, isEmpty);
+      var c3 = (await reading.progress(book.id))!.chapters[2];
+      expect((c3.hasTask, c3.read, c3.parts.length), (false, false, 1));
+      expect(c3.uncovered, [const UnitRange(36, 45)]);
+      // 70 min over 35 pages: 10 min for pp. 31–35.
+      expect((await firstReads()).last, ('firstRead', 10 * 60, 1));
+
+      final s2 = await reading.start(book.id);
+      expect(s2.startUnit, 36);
+      final out2 = await reading.save(
+        s2.id,
+        endUnit: 45,
+        minutes: 20,
+        pagesTitle: (ch, a, b) => '$ch · pp. $a–$b',
+      );
+      expect(out2.tasksCreated, ['Ch 3 · pp. 36–45']);
+      c3 = (await reading.progress(book.id))!.chapters[2];
+      expect((c3.hasTask, c3.read, c3.parts.length), (true, true, 2));
+    },
+  );
 
   test('Add task over two chapters, already read', () async {
     final book = await addBook();
@@ -316,5 +335,142 @@ void main() {
     expect((p.position, p.unitsToExplore), (11, 50));
     await reading.undo(book.id);
     expect((await reading.progress(book.id))!.finished, isTrue);
+  });
+
+  group('reading by chapter, and parts of chapters (D49)', () {
+    // 14 chapters, 140 pages, no page numbers per chapter.
+    Future<Source> addCounted() => sources.createWithChunks(
+      type: SourceType.pdf,
+      title: 'Law notes',
+      unitType: UnitType.page,
+      totalUnits: 140,
+      chapters: [for (var n = 1; n <= 14; n++) ChunkDraft(title: 'Ch $n')],
+    );
+
+    Future<SaveOutcome> sit(
+      String id,
+      int end,
+      int minutes, {
+      bool inChapter = false,
+      int partsDone = 0,
+    }) async {
+      final s = await reading.start(id);
+      return reading.save(
+        s.id,
+        endUnit: end,
+        minutes: minutes,
+        inChapter: inChapter,
+        partsDone: partsDone,
+      );
+    }
+
+    test('chapters are the units; a chapter still in progress keeps its '
+        'share of time until a sitting finishes it', () async {
+      final law = await addCounted();
+      var p = (await reading.progress(law.id))!;
+      expect(
+        (p.byChapter, p.progressive, p.totalUnits, p.position),
+        (true, false, 14, 1),
+      );
+      expect(p.unitsToExplore, 14);
+
+      expect((await sit(law.id, 3, 60)).tasksCreated, ['Ch 1 – Ch 3']);
+      final out = await sit(law.id, 5, 40, inChapter: true);
+      expect(out.tasksCreated, ['Ch 4']);
+      p = (await reading.progress(law.id))!;
+      expect((p.position, p.current?.chunk.title), (5, 'Ch 5'));
+      expect(p.chapters[4].inProgress, isTrue);
+      // 40 minutes over Ch 4 and Ch 5: 20 each.
+      expect((await firstReads()).last, ('firstRead', 20 * 60, 1));
+
+      final s = await reading.start(law.id);
+      expect(s.startUnit, 5, reason: 'continues the chapter in progress');
+      await reading.save(s.id, endUnit: 5, minutes: 10);
+      expect((await firstReads()).last, ('firstRead', 30 * 60, 1));
+      p = (await reading.progress(law.id))!;
+      expect(
+        (p.position, p.exploredUnits, p.chapters[4].inProgress),
+        (6, 5, false),
+      );
+    });
+
+    test('minutes per chapter: pages shared equally, then the median of '
+        'first reads', () async {
+      final law = await addCounted();
+      var p = (await reading.progress(law.id))!;
+      expect(p.minutesPerChapter(pagePace: 2), 20, reason: '140 / 14 × 2');
+      await sit(law.id, 1, 30);
+      await sit(law.id, 2, 50);
+      await sit(law.id, 3, 40);
+      p = (await reading.progress(law.id))!;
+      expect(p.minutesPerChapter(pagePace: 2), 40);
+    });
+
+    test('part k of n: Add task splits a chapter; "Finished part 1 of 3" '
+        'records it; finishing the chapter shares the rest', () async {
+      final law = await addCounted();
+      final ch1 = (await reading.progress(law.id))!.chapters[0];
+      await reading.addTask(
+        law.id,
+        chunkIds: [ch1.chunk.id],
+        title: '',
+        parts: 3,
+        partTitle: (k, n) => 'Ch 1 · part $k of $n',
+      );
+      var c1 = (await reading.progress(law.id))!.chapters[0];
+      expect(
+        [for (final t in c1.tasks) t.title],
+        ['Ch 1 · part 1 of 3', 'Ch 1 · part 2 of 3', 'Ch 1 · part 3 of 3'],
+      );
+      expect((c1.hasTask, c1.read, c1.parts.length), (true, false, 3));
+      await expectLater(
+        reading.addTask(law.id, chunkIds: [ch1.chunk.id], title: 'x'),
+        throwsA(isA<InvalidOperationError>()),
+      );
+
+      final out = await sit(law.id, 1, 30, inChapter: true, partsDone: 1);
+      expect(out.firstReads, 1);
+      expect((await firstReads()).last, ('firstRead', 30 * 60, 1));
+      await sit(law.id, 1, 50);
+      c1 = (await reading.progress(law.id))!.chapters[0];
+      expect(c1.read, isTrue);
+      // The 50 minutes left are shared by parts 2 and 3.
+      expect((await firstReads()).skip(1).map((r) => r.$2), [25 * 60, 25 * 60]);
+    });
+
+    test('pages of a chapter: Add task makes a part; overlapping pages and '
+        'the whole chapter are refused', () async {
+      final book = await addBook();
+      final ch2 = (await reading.progress(book.id))!.chapters[1];
+      await reading.addTask(
+        book.id,
+        chunkIds: [ch2.chunk.id],
+        title: 'Ch 2 · pp. 11–15',
+        pages: const UnitRange(11, 15),
+      );
+      final c2 = (await reading.progress(book.id))!.chapters[1];
+      expect((c2.hasTask, c2.parts.length), (false, 1));
+      expect(c2.uncovered, [const UnitRange(16, 30)]);
+      await expectLater(
+        reading.addTask(
+          book.id,
+          chunkIds: [ch2.chunk.id],
+          title: 'x',
+          pages: const UnitRange(15, 20),
+        ),
+        throwsA(isA<InvalidOperationError>()),
+      );
+      await expectLater(
+        reading.addTask(book.id, chunkIds: [ch2.chunk.id], title: 'x'),
+        throwsA(isA<InvalidOperationError>()),
+      );
+      await reading.addTask(
+        book.id,
+        chunkIds: [ch2.chunk.id],
+        title: 'Ch 2 · pp. 16–30',
+        pages: const UnitRange(16, 30),
+      );
+      expect((await reading.progress(book.id))!.chapters[1].hasTask, isTrue);
+    });
   });
 }

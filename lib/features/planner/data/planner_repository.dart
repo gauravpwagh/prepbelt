@@ -121,6 +121,17 @@ final class PlannerRepository extends EventSourcedRepository {
       for (final s in await db.select(db.chunkSurveys).get()) s.chunkId: s,
     };
 
+    // Minutes per chapter of sources read by chapter (D49).
+    final chapterMinutes = <String, double>{};
+    for (final r in partRows) {
+      final source = r.readTable(db.sources);
+      if (r.readTable(db.chunks).startUnit != null ||
+          chapterMinutes.containsKey(source.id)) {
+        continue;
+      }
+      chapterMinutes[source.id] = await _minutesPerChapter(source.id);
+    }
+
     final tasks = <PlanTask>[];
     final sourceIds = <String>{};
     for (final r in rows) {
@@ -133,7 +144,11 @@ final class PlannerRepository extends EventSourcedRepository {
         Importance.low => PlanImportance.low,
         _ => PlanImportance.medium,
       };
-      final read = SessionRepository.estimateFirstRead(parts, surveys);
+      final read = SessionRepository.estimateFirstRead(
+        parts,
+        surveys,
+        chapterMinutes: chapterMinutes,
+      );
       final first = parts.isEmpty ? null : parts.first;
       final survey = first == null ? null : surveys[first.chunk.id];
       if (first != null) sourceIds.add(first.source.id);
@@ -163,10 +178,13 @@ final class PlannerRepository extends EventSourcedRepository {
         PlanExplore(
           sourceId: id,
           subject: id,
-          minutes: firstReadMinutes(
-            units: units,
-            unit: EffortUnit.values.byName(p!.source.unitType.name),
-          ),
+          // Read by chapter, the units are chapters (D49).
+          minutes: p!.byChapter
+              ? units * await _minutesPerChapter(id)
+              : firstReadMinutes(
+                  units: units,
+                  unit: EffortUnit.values.byName(p.source.unitType.name),
+                ),
         ),
       );
     }
@@ -297,6 +315,24 @@ final class PlannerRepository extends EventSourcedRepository {
       )
       .watch()
       .map((_) {});
+
+  /// Minutes a chapter of source [id] takes, when it is read by chapter
+  /// (D49): calibrated from its first reads, else from its pages.
+  Future<double> _minutesPerChapter(String id) async {
+    final p = await reading.progress(id);
+    if (p == null) return Defaults.chapterMinutesDefault;
+    final unit = p.source.unitType;
+    final pace = await reading.pace(
+      unit,
+      defaultPace: switch (unit) {
+        UnitType.page => Defaults.pacePageMin,
+        UnitType.minute => Defaults.paceVideoMinuteMin,
+        UnitType.question => Defaults.paceQuestionMin,
+        UnitType.item => Defaults.paceItemMin,
+      },
+    );
+    return p.minutesPerChapter(pagePace: pace);
+  }
 
   Future<int> _minutesDoneToday(DateTime today) async {
     final start = DateTime(today.year, today.month, today.day);

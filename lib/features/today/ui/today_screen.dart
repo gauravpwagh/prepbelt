@@ -423,7 +423,11 @@ class _Card extends StatelessWidget {
       final source = item.source!;
       title = source.title;
       final at = item.position;
-      where = at == null ? '' : l10n.readingFrom(source.unitType.at(l10n, at));
+      where = switch ((item.chapter, at)) {
+        (final chapter?, _) => l10n.readingContinue(chapter),
+        (_, final at?) => l10n.readingFrom(source.unitType.at(l10n, at)),
+        _ => '',
+      };
     } else {
       title = info.task.title;
       final source = info.source;

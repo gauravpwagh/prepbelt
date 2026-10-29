@@ -79,6 +79,10 @@ class SourceChaptersScreen extends ConsumerWidget {
         importance: request.importance,
         alreadyRead: request.alreadyRead,
         examId: v.examId,
+        pages: request.pages,
+        parts: request.parts,
+        partTitle: (k, n) =>
+            l10n.taskPartTitle(v.chapters[index].chunk.title, k, n),
       );
       snack(l10n.addTaskAdded, undo: true);
     }
@@ -168,7 +172,7 @@ class SourceChaptersBody extends StatelessWidget {
               unitType: v.source.unitType,
               joined: c.hasTask && c.taskOrder > 0,
               onAddTask: () => onAddTask(v, i),
-              onOpenTask: () => onOpenTask(c.taskId!),
+              onOpenTask: onOpenTask,
             ),
       ],
       AsyncError() => [
@@ -286,7 +290,10 @@ class _ReadingCard extends StatelessWidget {
     final unit = view.source.unitType;
     final done = p.exploredUnits;
     final position = p.position;
-    final explored = l10n.readingExplored(done, unit.count(l10n, p.totalUnits));
+    // Read by chapter, units are chapters (D49).
+    String count(int n) =>
+        p.byChapter ? l10n.sourceChapters(n) : unit.count(l10n, n);
+    final explored = l10n.readingExplored(done, count(p.totalUnits));
     final left = view.minutesLeft;
     final partly = [
       for (final ch in view.chapters)
@@ -306,7 +313,7 @@ class _ReadingCard extends StatelessWidget {
       );
       button = PrimaryButton(label: l10n.readingFinish, onPressed: onFinish);
     } else if (p.finished) {
-      line = l10n.sourceFinishedLine(unit.count(l10n, done));
+      line = l10n.sourceFinishedLine(count(done));
       button = null;
       if (done < p.totalUnits && onSetFinished != null) {
         link = TextLinkButton(
@@ -327,9 +334,12 @@ class _ReadingCard extends StatelessWidget {
       line = left == null || left == 0
           ? explored
           : '$explored · ${l10n.readingTimeLeft(formatMinutes(l10n, left))}';
+      final current = p.current;
       button = PrimaryButton(
-        label: position == 1
+        label: position == 1 && !(current?.inProgress ?? false)
             ? l10n.readingStart
+            : current != null
+            ? l10n.readingContinue(current.chunk.title)
             : unit == UnitType.minute
             ? l10n.readingWatchFrom(unit.at(l10n, position))
             : l10n.readingFrom(unit.at(l10n, position)),
@@ -353,11 +363,13 @@ class _ReadingCard extends StatelessWidget {
         if (partly != null && open == null && !p.finished) ...[
           const SizedBox(height: AppSpace.sm),
           Text(
-            l10n.readingPartly(
-              partly.chunk.title,
-              partly.readUnits,
-              partly.sizeUnits,
-            ),
+            partly.slot != null
+                ? l10n.readingInChapter(partly.chunk.title)
+                : l10n.readingPartly(
+                    partly.chunk.title,
+                    partly.readUnits,
+                    partly.sizeUnits,
+                  ),
             style: AppText.caption.copyWith(color: c.muted),
           ),
         ],
@@ -467,16 +479,48 @@ class _ChapterRow extends StatelessWidget {
   /// Not the first chapter of its task: joined to the row above.
   final bool joined;
   final VoidCallback onAddTask;
-  final VoidCallback onOpenTask;
+  final ValueChanged<String> onOpenTask;
+
+  Widget _badge(BuildContext context, ChapterTask task) {
+    final l10n = AppLocalizations.of(context);
+    final dim = task.dim;
+    return Semantics(
+      button: true,
+      label: l10n.chapterOpenTask(task.title),
+      child: InkWell(
+        onTap: () => onOpenTask(task.taskId),
+        borderRadius: BorderRadius.circular(AppRadii.button),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minWidth: kMinTouchTarget,
+            minHeight: kMinTouchTarget,
+          ),
+          child: Center(
+            child: context.levels.badge(
+              context,
+              LevelBadgeData(
+                level: task.level,
+                stripes: (2 - dim).clamp(0, 2),
+                fading: dim >= Defaults.maxDimSteps,
+                showCaption: false,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
     final ch = chapter;
-    final range = ch.range == null
+    // Read by chapter, the range is only the chapter's place (D49).
+    final range = ch.range == null || ch.slot != null
         ? null
         : unitType.range(l10n, ch.range!.start, ch.range!.end);
+    final parts = ch.parts;
     final survey = ch.survey;
     final details = [
       ?range,
@@ -485,41 +529,22 @@ class _ChapterRow extends StatelessWidget {
         _difficulty(l10n, survey.difficulty),
         _familiarity(l10n, survey.familiarity),
       ],
-      if (ch.partlyRead) l10n.chapterReadPart(ch.readUnits, ch.sizeUnits),
+      if (ch.partlyRead)
+        ch.slot != null
+            ? l10n.chapterInProgress
+            : l10n.chapterReadPart(ch.readUnits, ch.sizeUnits),
     ].join(' · ');
 
     final Widget trailing;
     if (!ch.hasTask) {
       trailing = SmallButton(label: l10n.chaptersAddTask, onPressed: onAddTask);
+    } else if (parts.isNotEmpty) {
+      // Each part shows its own belt, in the column the belts use.
+      trailing = const SizedBox.shrink();
     } else if (joined) {
       trailing = const SizedBox(width: 44);
     } else {
-      final dim = ch.taskDim;
-      trailing = Semantics(
-        button: true,
-        label: l10n.chapterOpenTask(ch.taskTitle ?? ch.chunk.title),
-        child: InkWell(
-          onTap: onOpenTask,
-          borderRadius: BorderRadius.circular(AppRadii.button),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              minWidth: kMinTouchTarget,
-              minHeight: kMinTouchTarget,
-            ),
-            child: Center(
-              child: context.levels.badge(
-                context,
-                LevelBadgeData(
-                  level: ch.taskLevel,
-                  stripes: (2 - dim).clamp(0, 2),
-                  fading: dim >= Defaults.maxDimSteps,
-                  showCaption: false,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
+      trailing = _badge(context, ch.tasks.first);
     }
 
     final read = ch.finished;
@@ -592,6 +617,24 @@ class _ChapterRow extends StatelessWidget {
                       style: AppText.caption.copyWith(color: c.muted),
                     ),
                   ],
+                  // Tasks over part of the chapter, each with its belt.
+                  for (final t in parts)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(switch ((t.range, t.part, t.parts)) {
+                            (final r?, _, _) => unitType.range(
+                              l10n,
+                              r.start,
+                              r.end,
+                            ),
+                            (_, final k?, final n?) => l10n.chapterPartOf(k, n),
+                            _ => t.title,
+                          }, style: AppText.caption.copyWith(color: c.ink)),
+                        ),
+                        _badge(context, t),
+                      ],
+                    ),
                 ],
               ),
             ),
