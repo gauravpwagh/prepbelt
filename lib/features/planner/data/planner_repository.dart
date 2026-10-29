@@ -1,0 +1,286 @@
+import 'package:drift/drift.dart';
+
+import '../../../core/config/defaults.dart';
+import '../../../core/db/app_database.dart';
+import '../../../core/db/event_log.dart';
+import '../../../engines/planner/estimate.dart';
+import '../../../engines/planner/planner.dart';
+import '../../session/data/session_repository.dart';
+import '../../sources/data/reading_repository.dart';
+import '../../tasks/data/review_repository.dart';
+
+/// `YYYY-MM-DD` of a day key.
+String dateText(DateTime day) => day.toIso8601String().substring(0, 10);
+
+/// Runs the planner (docs/04-planner-spec.md) over stored data and keeps
+/// the PlanItem rows. PlanItems are a cache of the plan: each run replaces
+/// the planned rows from today on, keeps past and done rows, and marks
+/// rows left planned on earlier days as `moved`. One Event per run records
+/// it; the rows themselves are written directly (they are regenerated,
+/// never edited, so undo has nothing to restore).
+final class PlannerRepository extends EventSourcedRepository {
+  PlannerRepository(
+    super.ctx, {
+    required this.sessions,
+    required this.reviews,
+    required this.reading,
+  });
+
+  final SessionRepository sessions;
+  final ReviewRepository reviews;
+  final ReadingRepository reading;
+
+  static const entity = 'plan';
+
+  Future<Exam?> upcomingExam() =>
+      (db.select(db.exams)
+            ..where(
+              (e) =>
+                  e.deletedAt.isNull() &
+                  e.status.equalsValue(ExamStatus.upcoming),
+            )
+            ..orderBy([(e) => OrderingTerm.asc(e.date)])
+            ..limit(1))
+          .getSingleOrNull();
+
+  /// The planner's input for today, or null without an upcoming exam.
+  Future<PlannerInput?> input() async {
+    final exam = await upcomingExam();
+    if (exam == null) return null;
+    final today = dayKey(ctx.clock.now().toLocal());
+    final examDay = dayKey(DateTime.parse(exam.date));
+    if (!examDay.isAfter(today)) return null;
+    final engine = await reviews.loadEngine();
+
+    final week = List.filled(7, Defaults.defaultDailyMinutes);
+    for (final a in await (db.select(
+      db.availabilities,
+    )..where((a) => a.deletedAt.isNull())).get()) {
+      week[a.weekday] = a.minutes;
+    }
+    final overrides = <DateTime, int>{
+      for (final o in await (db.select(
+        db.availabilityOverrides,
+      )..where((o) => o.deletedAt.isNull())).get())
+        dayKey(DateTime.parse(o.date)): o.minutes,
+    };
+    // Today's minutes less what was already studied today.
+    final done = await _minutesDoneToday(today);
+    final cap = overrides[today] ?? week[today.weekday - 1];
+    overrides[today] = (cap - done).clamp(0, cap);
+
+    final links = {
+      for (final l in await (db.select(
+        db.examTasks,
+      )..where((l) => l.examId.equals(exam.id) & l.deletedAt.isNull())).get())
+        l.taskId: l,
+    };
+    final rows =
+        await (db.select(db.taskStates).join([
+              innerJoin(db.tasks, db.tasks.id.equalsExp(db.taskStates.taskId)),
+            ])..where(
+              db.tasks.deletedAt.isNull() &
+                  db.tasks.status.equalsValue(TaskStatus.active),
+            ))
+            .get();
+
+    final tasks = <PlanTask>[];
+    final sourceIds = <String>{};
+    for (final r in rows) {
+      final state = r.readTable(db.taskStates);
+      final SessionTask info;
+      try {
+        info = await sessions.load(state.taskId);
+      } on Object {
+        continue;
+      }
+      final link = links[state.taskId];
+      final importance = switch (link?.importance) {
+        Importance.high => PlanImportance.high,
+        Importance.low => PlanImportance.low,
+        _ => PlanImportance.medium,
+      };
+      final read = await sessions.firstReadEstimate(info);
+      final first = info.parts.isEmpty ? null : info.parts.first;
+      final survey = first == null
+          ? null
+          : await (db.select(db.chunkSurveys)
+                  ..where((s) => s.chunkId.equals(first.chunk.id)))
+                .getSingleOrNull();
+      if (first != null) sourceIds.add(first.source.id);
+      tasks.add(
+        PlanTask(
+          id: state.taskId,
+          state: ReviewRepository.toReviewState(state),
+          importance: importance,
+          planned: engine.plannedReviewsFor(link?.targetLevel),
+          firstReadMinutes: read < 1 ? 15 : read,
+          reviewMinutes: (step) => reviewMinutes(read, firstReview: step == 0),
+          difficulty: survey?.difficulty ?? 2,
+          subject: first?.source.id ?? '',
+          sourceKey: first?.source.id ?? '',
+          sourceOrder: first?.chunk.startUnit ?? 0,
+        ),
+      );
+    }
+
+    final explores = <PlanExplore>[];
+    for (final id in sourceIds) {
+      final p = await reading.progress(id);
+      if (p == null || !p.readable) continue;
+      var units = 0;
+      for (final c in p.chapters) {
+        if (!c.hasTask) units += c.sizeUnits - c.readUnits;
+      }
+      if (units <= 0) continue;
+      explores.add(
+        PlanExplore(
+          sourceId: id,
+          subject: id,
+          minutes: firstReadMinutes(
+            units: units,
+            unit: EffortUnit.values.byName(p.source.unitType.name),
+          ),
+        ),
+      );
+    }
+
+    return PlannerInput(
+      today: today,
+      examDay: examDay,
+      weekdayMinutes: week,
+      overrides: overrides,
+      tasks: tasks,
+      explores: explores,
+    );
+  }
+
+  /// Plans from today and stores it. Returns the result, or null without
+  /// an upcoming exam (then any planned rows from today on are cleared).
+  Future<PlanResult?> replan() async {
+    final exam = await upcomingExam();
+    final input = await this.input();
+    final result = input == null
+        ? null
+        : plan(input, await reviews.loadEngine());
+    final today = dateText(dayKey(ctx.clock.now().toLocal()));
+    await mutate<void>(
+      entity: entity,
+      entityId: exam?.id ?? 'none',
+      op: EventOp.update,
+      data: {
+        'action': 'replan',
+        'items': result?.entries.length ?? 0,
+        'fits': result?.fits,
+      },
+      body: (rec) async {
+        // Missed sessions on earlier days become "moved".
+        await (db.update(db.planItems)..where(
+              (p) =>
+                  p.date.isSmallerThanValue(today) &
+                  p.status.equalsValue(PlanItemStatus.planned),
+            ))
+            .write(
+              PlanItemsCompanion(
+                status: const Value(PlanItemStatus.moved),
+                updatedAt: Value(rec.now),
+                hlc: Value(rec.hlc),
+              ),
+            );
+        await (db.delete(db.planItems)..where(
+              (p) =>
+                  p.date.isBiggerOrEqualValue(today) &
+                  p.status.equalsValue(PlanItemStatus.planned),
+            ))
+            .go();
+        if (result == null) return;
+        final generation = await _nextGeneration();
+        await db.batch((b) {
+          for (final e in result.entries) {
+            b.insert(
+              db.planItems,
+              PlanItemsCompanion.insert(
+                id: rec.newId(),
+                createdAt: rec.now,
+                updatedAt: rec.now,
+                hlc: rec.hlc,
+                deviceId: ctx.deviceId,
+                date: dateText(e.day),
+                taskId: Value(e.taskId),
+                sourceId: Value(e.sourceId),
+                examId: Value(exam!.id),
+                kind: PlanItemKind.values.byName(e.kind.name),
+                estMinutes: e.minutes,
+                status: PlanItemStatus.planned,
+                generation: generation,
+                order: e.order,
+              ),
+            );
+          }
+        });
+      },
+    );
+    return result;
+  }
+
+  /// Today's plan items in order, re-read whenever the plan changes.
+  Stream<List<PlanItem>> watchDay(DateTime day) =>
+      (db.select(db.planItems)
+            ..where((p) => p.date.equals(dateText(day)) & p.deletedAt.isNull())
+            ..orderBy([(p) => OrderingTerm.asc(p.order)]))
+          .watch();
+
+  /// Every plan item from [from] on, for projections and the Exam screen.
+  Future<List<PlanItem>> from(DateTime from) =>
+      (db.select(db.planItems)..where(
+            (p) =>
+                p.date.isBiggerOrEqualValue(dateText(from)) &
+                p.deletedAt.isNull(),
+          ))
+          .get();
+
+  /// Fires whenever an input of the planner changes. The plan table is
+  /// not an input, so replanning does not trigger itself.
+  Stream<void> watchInputs() => db
+      .customSelect(
+        'SELECT 1',
+        readsFrom: {
+          db.tasks,
+          db.taskStates,
+          db.taskChunks,
+          db.examTasks,
+          db.exams,
+          db.availabilities,
+          db.availabilityOverrides,
+          db.chunkSurveys,
+          db.readingSessions,
+          db.sources,
+        },
+      )
+      .watch()
+      .map((_) {});
+
+  Future<int> _minutesDoneToday(DateTime today) async {
+    final start = DateTime(today.year, today.month, today.day);
+    final end = DateTime(today.year, today.month, today.day + 1);
+    final rows =
+        await (db.select(db.reviews)..where(
+              (r) =>
+                  r.deletedAt.isNull() &
+                  r.at.isBetweenValues(
+                    start.toUtc().millisecondsSinceEpoch,
+                    end.toUtc().millisecondsSinceEpoch - 1,
+                  ),
+            ))
+            .get();
+    return rows.fold<int>(0, (s, r) => s + (r.durationSec / 60).round());
+  }
+
+  Future<int> _nextGeneration() async {
+    final max = db.planItems.generation.max();
+    final row = await (db.selectOnly(
+      db.planItems,
+    )..addColumns([max])).getSingle();
+    return (row.read(max) ?? 0) + 1;
+  }
+}

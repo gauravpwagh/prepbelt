@@ -43,13 +43,36 @@ class TodayScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _read(
+    BuildContext context,
+    WidgetRef ref,
+    String sourceId,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
+    try {
+      final result = await ref
+          .read(readingActionsProvider.notifier)
+          .start(sourceId);
+      if (result == StartResult.notOpened) {
+        messenger.showSnackBar(SnackBar(content: Text(l10n.readingNotOpened)));
+        await router.push(Routes.sourceChapters(sourceId));
+      }
+    } on InvalidOperationError {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.sessionOpenFirst)));
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
     body: SafeArea(
       child: TodayBody(
         view: ref.watch(todayViewProvider),
         onStart: (id) => _start(context, ref, id),
+        onStartReading: (id) => _read(context, ref, id),
         onOpenTask: (id) => context.push(Routes.task(id)),
+        onOpenSource: (id) => context.push(Routes.sourceChapters(id)),
         onOpenExam: (id) => context.push(Routes.exam(id)),
         onAddSource: () => context.push(Routes.newSource),
         onRetry: () => ref.invalidate(todayViewProvider),
@@ -63,7 +86,9 @@ class TodayBody extends StatelessWidget {
   const TodayBody({
     required this.view,
     required this.onStart,
+    required this.onStartReading,
     required this.onOpenTask,
+    required this.onOpenSource,
     required this.onOpenExam,
     required this.onAddSource,
     required this.onRetry,
@@ -72,7 +97,11 @@ class TodayBody extends StatelessWidget {
 
   final AsyncValue<TodayView> view;
   final ValueChanged<String> onStart;
+
+  /// Starts a reading sitting on a source (a "continue reading" item).
+  final ValueChanged<String> onStartReading;
   final ValueChanged<String> onOpenTask;
+  final ValueChanged<String> onOpenSource;
   final ValueChanged<String> onOpenExam;
   final VoidCallback onAddSource;
   final VoidCallback onRetry;
@@ -125,8 +154,12 @@ class TodayBody extends StatelessWidget {
               ..add(
                 _Card(
                   card: card,
-                  onStart: () => onStart(card.item.info.task.id),
-                  onTap: () => onOpenTask(card.item.info.task.id),
+                  onStart: card.item.info == null
+                      ? () => onStartReading(card.item.id)
+                      : () => onStart(card.item.id),
+                  onTap: card.item.info == null
+                      ? () => onOpenSource(card.item.id)
+                      : () => onOpenTask(card.item.id),
                 ),
               )
               ..add(const SizedBox(height: AppSpace.md));
@@ -290,15 +323,28 @@ class _Card extends StatelessWidget {
     final kind = switch (item.kind) {
       TodayKind.overdue => l10n.todayKindOverdue(item.overdueDays, time),
       TodayKind.review => l10n.todayKindReview(time),
+      TodayKind.finalReview => l10n.todayKindFinalReview(time),
       TodayKind.firstRead => l10n.todayKindFirstRead(time),
+      TodayKind.explore => l10n.todayKindExplore(time),
     }.toUpperCase();
-    final source = info.source;
-    final range = info.range;
-    final where = source == null
-        ? ''
-        : range != null
-        ? '${source.title} · ${source.unitType.range(l10n, range.start, range.end)}'
-        : '${source.title} · ${info.parts.first.chunk.title}';
+
+    final String title;
+    final String where;
+    if (info == null) {
+      final source = item.source!;
+      title = source.title;
+      final at = item.position;
+      where = at == null ? '' : l10n.readingFrom(source.unitType.at(l10n, at));
+    } else {
+      title = info.task.title;
+      final source = info.source;
+      final range = info.range;
+      where = source == null
+          ? ''
+          : range != null
+          ? '${source.title} · ${source.unitType.range(l10n, range.start, range.end)}'
+          : '${source.title} · ${info.parts.first.chunk.title}';
+    }
     final d = card.display;
     return SessionCard(
       badge: LevelBadgeData(
@@ -308,14 +354,13 @@ class _Card extends StatelessWidget {
       ),
       kindLabel: kind,
       kindColor: item.kind == TodayKind.overdue ? c.warningText : null,
-      title: info.task.title,
+      title: title,
       subtitle: where,
-      startLabel: l10n.sessionStart(
-        info.task.title,
-        item.kind == TodayKind.firstRead
-            ? l10n.todayKindFirstReadWord
-            : l10n.todayKindReviewWord,
-      ),
+      startLabel: l10n.sessionStart(title, switch (item.kind) {
+        TodayKind.firstRead => l10n.todayKindFirstReadWord,
+        TodayKind.explore => l10n.todayKindExploreWord,
+        _ => l10n.todayKindReviewWord,
+      }),
       onStart: onStart,
       onTap: onTap,
     );

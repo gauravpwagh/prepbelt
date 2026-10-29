@@ -1190,4 +1190,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reminderChannel => 'Daily reminder';
+
+  @override
+  String todayKindFinalReview(String time) {
+    return 'FINAL REVIEW · $time';
+  }
+
+  @override
+  String todayKindExplore(String time) {
+    return 'CONTINUE READING · $time';
+  }
+
+  @override
+  String get todayKindExploreWord => 'reading';
 }

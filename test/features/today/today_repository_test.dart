@@ -6,6 +6,7 @@ import 'package:prepbelt/engines/review/review_types.dart';
 import 'package:prepbelt/features/exams/data/exam_repository.dart';
 import 'package:prepbelt/features/session/data/session_repository.dart';
 import 'package:prepbelt/features/sources/data/chapter_split.dart';
+import 'package:prepbelt/features/sources/data/reading_repository.dart';
 import 'package:prepbelt/features/sources/data/source_repository.dart';
 import 'package:prepbelt/features/survey/data/survey_repository.dart';
 import 'package:prepbelt/features/tasks/data/review_repository.dart';
@@ -30,6 +31,7 @@ void main() {
     today = TodayRepository(
       db,
       sessions: SessionRepository(t.ctx, reviews: reviews),
+      reading: ReadingRepository(t.ctx, reviews: reviews),
     );
     sources = SourceRepository(t.ctx);
     survey = SurveyRepository(t.ctx);
@@ -117,7 +119,7 @@ void main() {
 
     // Ch 2's first review is days away (the gaps fit 74 days before the
     // exam), so it is not on today's list.
-    expect(list.map((i) => (i.kind, i.info.task.id)).toList(), [
+    expect(list.map((i) => (i.kind, i.info!.task.id)).toList(), [
       (TodayKind.overdue, ids[0]),
       (TodayKind.firstRead, ids[5]),
       (TodayKind.firstRead, ids[3]),

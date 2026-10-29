@@ -1056,5 +1056,22 @@
   "taskLoadFailed": "Couldn't load this task.",
   "reminderTitle": "Today's training is ready",
   "reminderBody": "A few minutes keeps your belts bright.",
-  "reminderChannel": "Daily reminder"
+  "reminderChannel": "Daily reminder",
+  "todayKindFinalReview": "FINAL REVIEW · {time}",
+  "@todayKindFinalReview": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "todayKindExplore": "CONTINUE READING · {time}",
+  "@todayKindExplore": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "todayKindExploreWord": "reading"
 }

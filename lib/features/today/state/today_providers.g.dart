@@ -49,10 +49,16 @@ final class TodayRepositoryProvider
   }
 }
 
-String _$todayRepositoryHash() => r'fa4d9023d9277a115952399b9f6abffcd26b1721';
+String _$todayRepositoryHash() => r'4f8d72d3fa7825b6086015809027c240d57cb8f9';
+
+/// Today's items: the plan's when there is an upcoming exam, otherwise
+/// what is due (D33).
 
 @ProviderFor(todayItems)
 final todayItemsProvider = TodayItemsProvider._();
+
+/// Today's items: the plan's when there is an upcoming exam, otherwise
+/// what is due (D33).
 
 final class TodayItemsProvider
     extends
@@ -62,6 +68,8 @@ final class TodayItemsProvider
           Stream<List<TodayItem>>
         >
     with $FutureModifier<List<TodayItem>>, $StreamProvider<List<TodayItem>> {
+  /// Today's items: the plan's when there is an upcoming exam, otherwise
+  /// what is due (D33).
   TodayItemsProvider._()
     : super(
         from: null,
@@ -88,7 +96,7 @@ final class TodayItemsProvider
   }
 }
 
-String _$todayItemsHash() => r'afc2b6a8e78409d235f676847727b90bf7f6f4d0';
+String _$todayItemsHash() => r'95f14f7e10be4b62ada02db10b6698c60a6fc81b';
 
 @ProviderFor(streak)
 final streakProvider = StreakProvider._();
@@ -159,4 +167,4 @@ final class TodayViewProvider
   }
 }
 
-String _$todayViewHash() => r'78c68f61731879b118228137fb9713d7d9ef30bd';
+String _$todayViewHash() => r'166fdb87f1b9de732f504f7164312a581db587d8';

@@ -227,7 +227,7 @@ TodayView _todayView({List<TodayCard>? cards, bool hasTasks = true}) {
       status: ExamStatus.upcoming,
     ),
     cards:
-        cards ?? [for (final i in items) (item: i, display: _display(i.info))],
+        cards ?? [for (final i in items) (item: i, display: _display(i.info!))],
   );
 }
 
@@ -235,7 +235,9 @@ Widget today(AsyncValue<TodayView> v) => Scaffold(
   body: TodayBody(
     view: v,
     onStart: (_) {},
+    onStartReading: (_) {},
     onOpenTask: (_) {},
+    onOpenSource: (_) {},
     onOpenExam: (_) {},
     onAddSource: () {},
     onRetry: () {},

@@ -4,27 +4,39 @@ import '../../../core/config/defaults.dart';
 import '../../../core/db/app_database.dart';
 import '../../../engines/planner/estimate.dart';
 import '../../session/data/session_repository.dart';
+import '../../sources/data/reading_repository.dart';
 
 /// What a Today card is for.
-enum TodayKind { overdue, review, firstRead }
+enum TodayKind { overdue, review, finalReview, firstRead, explore }
 
-/// One session card on Today.
+/// One session card on Today: a task, or a source to keep reading (D27).
 final class TodayItem {
   const TodayItem({
     required this.kind,
-    required this.info,
     required this.minutes,
+    this.info,
+    this.source,
+    this.position,
     this.importance,
     this.overdueDays = 0,
-  });
+  }) : assert(info != null || source != null, 'a task or a source');
 
   final TodayKind kind;
-  final SessionTask info;
   final int minutes;
+
+  /// The task; null for an explore item.
+  final SessionTask? info;
+
+  /// The source of an explore item, and where reading resumes.
+  final Source? source;
+  final int? position;
   final Importance? importance;
 
   /// Whole days past due, for "OVERDUE 2 DAYS".
   final int overdueDays;
+
+  /// The task's id, or the explore item's source id.
+  String get id => info?.task.id ?? source!.id;
 }
 
 /// Reads what Today shows. Until the planner exists (milestone 5) it lists
@@ -32,10 +44,60 @@ final class TodayItem {
 /// then at most [Defaults.todayFirstReadsWithoutPlan] not-started tasks as
 /// first reads, most important first. Read-only.
 final class TodayRepository {
-  TodayRepository(this.db, {required this.sessions});
+  TodayRepository(this.db, {required this.sessions, required this.reading});
 
   final AppDatabase db;
   final SessionRepository sessions;
+  final ReadingRepository reading;
+
+  /// Today's items from the plan (docs/04-planner-spec.md): planned rows
+  /// only, in plan order. [dayStart] (local midnight, UTC ms) tells
+  /// overdue reviews apart.
+  Future<List<TodayItem>> fromPlan(
+    List<PlanItem> items, {
+    required int dayStart,
+  }) async {
+    final importance = await _importance();
+    final out = <TodayItem>[];
+    for (final p in items) {
+      if (p.status != PlanItemStatus.planned) continue;
+      if (p.kind == PlanItemKind.explore) {
+        final progress = await reading.progress(p.sourceId!);
+        if (progress == null) continue;
+        out.add(
+          TodayItem(
+            kind: TodayKind.explore,
+            minutes: p.estMinutes,
+            source: progress.source,
+            position: progress.position,
+          ),
+        );
+        continue;
+      }
+      final info = await _load(p.taskId!);
+      if (info == null) continue;
+      final due = info.state.dueAt;
+      final overdue =
+          p.kind != PlanItemKind.firstRead && due != null && due < dayStart;
+      out.add(
+        TodayItem(
+          kind: switch (p.kind) {
+            PlanItemKind.firstRead => TodayKind.firstRead,
+            PlanItemKind.finalReview => TodayKind.finalReview,
+            _ when overdue => TodayKind.overdue,
+            _ => TodayKind.review,
+          },
+          minutes: p.estMinutes,
+          info: info,
+          importance: importance[info.task.id],
+          overdueDays: overdue
+              ? ((dayStart - due) / Duration.millisecondsPerDay).ceil()
+              : 0,
+        ),
+      );
+    }
+    return out;
+  }
 
   /// Today's items, re-read whenever tasks, reviews or surveys change.
   /// [dayStart] and [dayEnd] are the local day's bounds in UTC ms.
@@ -123,7 +185,7 @@ final class TodayRepository {
     candidates.sort((a, b) {
       final byImportance = rank(a.importance).compareTo(rank(b.importance));
       if (byImportance != 0) return byImportance;
-      final pa = a.info.parts.first, pb = b.info.parts.first;
+      final pa = a.info!.parts.first, pb = b.info!.parts.first;
       final bySource = pa.source.title.compareTo(pb.source.title);
       if (bySource != 0) return bySource;
       return (pa.chunk.startUnit ?? 0).compareTo(pb.chunk.startUnit ?? 0);

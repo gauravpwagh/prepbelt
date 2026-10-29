@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../features/planner/state/planner_providers.dart';
 import '../features/session/state/session_providers.dart';
 import '../features/sources/state/reading_providers.dart';
 import '../features/today/state/reminder_providers.dart';
@@ -54,6 +55,8 @@ class _SourceReturnState extends ConsumerState<SourceReturn>
   }
 
   Future<void> _check() async {
+    // A new day, or time away: the plan catches up (missed sessions move).
+    unawaited(ref.read(plannerProvider.notifier).replanNow());
     if (mounted) {
       unawaited(
         ref

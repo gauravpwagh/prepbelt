@@ -1736,6 +1736,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Daily reminder'**
   String get reminderChannel;
+
+  /// No description provided for @todayKindFinalReview.
+  ///
+  /// In en, this message translates to:
+  /// **'FINAL REVIEW · {time}'**
+  String todayKindFinalReview(String time);
+
+  /// No description provided for @todayKindExplore.
+  ///
+  /// In en, this message translates to:
+  /// **'CONTINUE READING · {time}'**
+  String todayKindExplore(String time);
+
+  /// No description provided for @todayKindExploreWord.
+  ///
+  /// In en, this message translates to:
+  /// **'reading'**
+  String get todayKindExploreWord;
 }
 
 class _AppLocalizationsDelegate

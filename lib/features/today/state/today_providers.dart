@@ -5,7 +5,9 @@ import '../../../core/providers/core_providers.dart';
 import '../../../core/time/clock.dart';
 import '../../../engines/game/streak.dart';
 import '../../exams/state/exam_providers.dart';
+import '../../planner/state/planner_providers.dart';
 import '../../session/state/session_providers.dart';
+import '../../sources/state/reading_providers.dart';
 import '../../tasks/data/review_repository.dart';
 import '../../tasks/state/task_providers.dart';
 import '../data/today_repository.dart';
@@ -18,6 +20,15 @@ part 'today_providers.g.dart';
 TodayRepository todayRepository(Ref ref) => TodayRepository(
   ref.watch(appDatabaseProvider),
   sessions: ref.watch(sessionRepositoryProvider),
+  reading: ref.watch(readingRepositoryProvider),
+);
+
+const _notStarted = LevelDisplay(
+  level: 0,
+  dim: 0,
+  stripes: 0,
+  fading: false,
+  overdue: false,
 );
 
 /// A Today card: the item and its badge as it looks now.
@@ -57,17 +68,27 @@ final class TodayView {
   }
 }
 
+/// Today's items: the plan's when there is an upcoming exam, otherwise
+/// what is due (D33).
 @riverpod
-Stream<List<TodayItem>> todayItems(Ref ref) {
+Stream<List<TodayItem>> todayItems(Ref ref) async* {
   final now = ref.watch(clockProvider).now().toLocal();
   final start = DateTime(now.year, now.month, now.day);
   final end = DateTime(now.year, now.month, now.day + 1);
-  return ref
-      .watch(todayRepositoryProvider)
-      .watch(
-        dayStart: start.toUtc().millisecondsSinceEpoch,
-        dayEnd: end.toUtc().millisecondsSinceEpoch,
-      );
+  final dayStart = start.toUtc().millisecondsSinceEpoch;
+  final repo = ref.watch(todayRepositoryProvider);
+  final planned = await ref.watch(plannerProvider.future);
+  if (planned == null) {
+    yield* repo.watch(
+      dayStart: dayStart,
+      dayEnd: end.toUtc().millisecondsSinceEpoch,
+    );
+    return;
+  }
+  yield* ref
+      .watch(plannerRepositoryProvider)
+      .watchDay(dayKey(now))
+      .asyncMap((items) => repo.fromPlan(items, dayStart: dayStart));
 }
 
 @riverpod
@@ -101,10 +122,12 @@ Future<TodayView> todayView(Ref ref) async {
       for (final i in items)
         (
           item: i,
-          display: engine.display(
-            ReviewRepository.toReviewState(i.info.state),
-            now,
-          ),
+          display: i.info == null
+              ? _notStarted
+              : engine.display(
+                  ReviewRepository.toReviewState(i.info!.state),
+                  now,
+                ),
         ),
     ],
   );

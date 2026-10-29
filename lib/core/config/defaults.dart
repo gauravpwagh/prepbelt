@@ -71,6 +71,9 @@ abstract final class Defaults {
 
   // --------------------------------------------------------------- Planner
 
+  /// Daily study minutes until first launch asks for them (milestone 6).
+  static const int defaultDailyMinutes = 90;
+
   static const int maxReadingSessionMinutes = 45;
   static const int newSessionFloorMinutes = 15;
   static const int maxDayOverrunMinutes = 10;

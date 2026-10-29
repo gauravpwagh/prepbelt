@@ -236,8 +236,36 @@ final class SessionRepository extends EventSourcedRepository {
           planned: planned,
         );
         await db.delete(db.activeSessions).go();
+        await _markPlanDone(rec, session.taskId);
         return review;
       },
+    );
+  }
+
+  /// Today's first planned item for [taskId] becomes done, so the plan
+  /// keeps the record and the planner fills the rest of the day around it.
+  Future<void> _markPlanDone(ChangeRecorder rec, String taskId) async {
+    final now = DateTime.fromMillisecondsSinceEpoch(rec.now).toLocal();
+    final today =
+        '${now.year.toString().padLeft(4, '0')}-'
+        '${now.month.toString().padLeft(2, '0')}-'
+        '${now.day.toString().padLeft(2, '0')}';
+    final item =
+        await (db.select(db.planItems)
+              ..where(
+                (p) =>
+                    p.date.equals(today) &
+                    p.taskId.equals(taskId) &
+                    p.status.equalsValue(PlanItemStatus.planned),
+              )
+              ..orderBy([(p) => OrderingTerm.asc(p.order)])
+              ..limit(1))
+            .getSingleOrNull();
+    if (item == null) return;
+    await rec.update(
+      db.planItems,
+      item.id,
+      const PlanItemsCompanion(status: Value(PlanItemStatus.done)),
     );
   }
 
