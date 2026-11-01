@@ -11,7 +11,12 @@ only; every change is marked "PrepBelt patch" in the code.
 2. `toJsonObject` catches a failed copy and passes an empty path, so Dart
    shows Add source without a file instead of the app crashing
    (upstream threw a `SecurityException` on the main thread).
-3. `build.gradle` applies the Kotlin plugin, which Flutter 3.44 does for
+3. Shared text is read with `getCharSequenceExtra`, falling back to the
+   subject. Upstream used `getStringExtra`, which returns null for the
+   formatted text many apps share (chat apps, notes), so the share arrived
+   without a path, Dart failed to parse it and the app did nothing. A path
+   is never null now, and text shared with a file is sent as `message`.
+4. `build.gradle` applies the Kotlin plugin, which Flutter 3.44 does for
    every plugin. We stay on Flutter 3.41 (D1).
 
-Drop this copy when upstream fixes 1 and 2 and we move to Flutter 3.44.
+Drop this copy when upstream fixes 1 to 3 and we move to Flutter 3.44.

@@ -50,4 +50,16 @@ void main() {
     );
     expect(sharedItemFrom([]), isNull);
   });
+
+  test('a link sent beside a preview image arrives as the message', () {
+    final link = sharedItemFrom([
+      SharedMediaFile(
+        path: '/cache/preview.png',
+        type: SharedMediaType.text,
+        mimeType: 'text/plain',
+        message: 'My project https://chatgpt.com/g/g-p-123/project',
+      ),
+    ]);
+    expect((link! as SharedLink).url, 'https://chatgpt.com/g/g-p-123/project');
+  });
 }

@@ -117,14 +117,26 @@ final class SystemShareInbox implements ShareInbox {
 
   static ReceiveSharingIntent get _plugin => ReceiveSharingIntent.instance;
 
+  /// A share the plugin can't read still opens Add source, rather than
+  /// nothing happening.
   @override
-  Future<SharedItem?> initial() async =>
-      sharedItemFrom(await _plugin.getInitialMedia());
+  Future<SharedItem?> initial() async {
+    try {
+      return sharedItemFrom(await _plugin.getInitialMedia());
+    } on Object {
+      return const SharedOther();
+    }
+  }
 
   @override
   Stream<SharedItem> get incoming => _plugin
       .getMediaStream()
       .map(sharedItemFrom)
+      .transform(
+        StreamTransformer<SharedItem?, SharedItem?>.fromHandlers(
+          handleError: (_, _, sink) => sink.add(const SharedOther()),
+        ),
+      )
       .where((i) => i != null)
       .cast();
 

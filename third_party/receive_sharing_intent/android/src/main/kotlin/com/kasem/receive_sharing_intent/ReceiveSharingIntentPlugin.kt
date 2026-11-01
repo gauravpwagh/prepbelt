@@ -119,7 +119,10 @@ class ReceiveSharingIntentPlugin : FlutterPlugin, ActivityAware, MethodCallHandl
 
             Intent.ACTION_SEND -> {
                 val uri = intent.parcelable<Uri>(Intent.EXTRA_STREAM)
-                val text = intent.getStringExtra(Intent.EXTRA_TEXT)
+                // PrepBelt patch: apps that share formatted text (chat apps,
+                // notes) send a CharSequence, which getStringExtra drops.
+                val text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT)?.toString()
+                    ?: intent.getCharSequenceExtra(Intent.EXTRA_SUBJECT)?.toString()
                 toJsonObject(uri, text, intent.type)?.let { JSONArray(listOf(it)) }
             }
 
@@ -151,8 +154,12 @@ class ReceiveSharingIntentPlugin : FlutterPlugin, ActivityAware, MethodCallHandl
         val type = MediaType.fromMimeType(mType)
         val (thumbnail, duration) = path?.takeIf { it.isNotEmpty() }?.let { getThumbnailAndDuration(path, type) }
                 ?: Pair(null, null)
+        // PrepBelt patch: never send a missing path, which Dart can't parse;
+        // text that came with a file (a link with a preview image) rides
+        // along as the message.
         return JSONObject()
-                .put("path", path ?: text)
+                .put("path", path ?: text ?: "")
+                .put("message", if (path != null) text else null)
                 .put("type", type.value)
                 .put("mimeType", mType)
                 .put("thumbnail", thumbnail)
