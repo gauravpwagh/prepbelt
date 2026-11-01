@@ -7,6 +7,7 @@ import 'generated/schema.dart';
 import 'generated/schema_v1.dart' as v1;
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
+import 'generated/schema_v4.dart' as v4;
 
 void main() {
   late SchemaVerifier verifier;
@@ -17,9 +18,9 @@ void main() {
   });
 
   test('a fresh database matches the current snapshot', () async {
-    final connection = await verifier.startAt(4);
+    final connection = await verifier.startAt(5);
     final db = AppDatabase(connection);
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
     await db.close();
   });
 
@@ -45,7 +46,7 @@ void main() {
     await old.close();
 
     final db = AppDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
     final link = await db.select(db.examTasks).getSingle();
     expect(
       (link.importance, link.targetLevel, link.triageKeep, link.dropped),
@@ -65,7 +66,7 @@ void main() {
     await old.close();
 
     final db = AppDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
     final source = await db.select(db.sources).getSingle();
     expect(
       (source.title, source.progressive, source.finishedAt),
@@ -90,9 +91,31 @@ void main() {
     await old.close();
 
     final db = AppDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
     final sitting = await db.select(db.readingSessions).getSingle();
     expect((sitting.startUnit, sitting.inChapter), (1, false));
+    await db.close();
+  });
+
+  test('v4 to v5 marks existing source files as in app storage', () async {
+    final schema = await verifier.schemaAt(4);
+    final old = v4.DatabaseAtV4(schema.newConnection());
+    await old.customStatement(
+      'INSERT INTO sources (id, created_at, updated_at, hlc, device_id, type, '
+      "title, unit_type, progressive) VALUES ('s', 0, 0, '0', 'd', 'pdf', "
+      "'HC Verma', 'page', 0)",
+    );
+    await old.customStatement(
+      'INSERT INTO source_files (id, created_at, updated_at, hlc, device_id, '
+      "source_id, local_path, bytes, sha256) VALUES ('f', 0, 0, '0', 'd', "
+      "'s', 'sources/f.pdf', 10, 'abc')",
+    );
+    await old.close();
+
+    final db = AppDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, 5);
+    final file = await db.select(db.sourceFiles).getSingle();
+    expect((file.localPath, file.place), ('sources/f.pdf', FilePlace.app));
     await db.close();
   });
 

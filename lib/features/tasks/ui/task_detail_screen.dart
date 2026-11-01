@@ -17,6 +17,7 @@ import '../../redefine/state/redefine_providers.dart';
 import '../../session/state/session_providers.dart';
 import '../../sources/state/reading_providers.dart';
 import '../../sources/ui/source_labels.dart';
+import '../../sources/ui/study_folder_dialogs.dart';
 import '../state/task_detail_providers.dart';
 
 /// Task detail (design/notes/task-detail.md): belt, next review, what it
@@ -31,11 +32,23 @@ class TaskDetailScreen extends ConsumerWidget {
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
     try {
-      final result = await ref
-          .read(sessionActionsProvider.notifier)
-          .start(taskId);
-      if (result == StartResult.notOpened) {
-        messenger.showSnackBar(SnackBar(content: Text(l10n.sessionNotOpened)));
+      final actions = ref.read(sessionActionsProvider.notifier);
+      final result = await actions.start(taskId);
+      final sourceId = await actions.sourceOf(taskId);
+      if (sourceId == null) {
+        if (result != StartResult.opened) {
+          messenger.showSnackBar(
+            SnackBar(content: Text(l10n.sessionNotOpened)),
+          );
+        }
+      } else if (context.mounted) {
+        await afterStart(
+          context,
+          ref,
+          result,
+          sourceId: sourceId,
+          notOpened: l10n.sessionNotOpened,
+        );
       }
       await router.push(Routes.session(taskId));
     } on InvalidOperationError {

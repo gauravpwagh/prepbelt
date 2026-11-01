@@ -42,11 +42,12 @@ void main() {
       'first launch, reminder',
       () => Scaffold(
         body: OnboardingBody(
-          step: 1,
+          step: 2,
           name: TextEditingController(),
           minutes: 90,
           onMinutes: (_) {},
           onContinue: () {},
+          onFolder: (_) {},
           onReminder: (_) {},
           onAddExam: () {},
           onSkip: () {},

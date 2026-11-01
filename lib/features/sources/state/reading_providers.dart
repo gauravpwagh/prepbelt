@@ -12,7 +12,7 @@ import '../../settings/state/settings_providers.dart';
 import '../../survey/state/survey_providers.dart';
 import '../../tasks/state/task_providers.dart';
 import '../data/reading_repository.dart';
-import 'source_providers.dart';
+import 'study_files.dart';
 
 export '../../../core/config/reading_config.dart' show ReadingConfig;
 export '../../../engines/reading/reading_math.dart'
@@ -171,7 +171,20 @@ enum StartResult {
 
   /// Started, but nothing to open (a paper book) or it failed to open.
   notOpened,
+
+  /// Started, but the file was not found: relink it (D51).
+  missing,
+
+  /// Started, but the study folder is not available.
+  noFolder,
 }
+
+StartResult startResultOf(OpenOutcome o) => switch (o) {
+  OpenOutcome.opened => StartResult.opened,
+  OpenOutcome.failed => StartResult.notOpened,
+  OpenOutcome.missing => StartResult.missing,
+  OpenOutcome.noFolder => StartResult.noFolder,
+};
 
 /// Reading and task actions for the Source chapters screen and sheets.
 /// Kept alive: its methods read providers after awaiting, and an unwatched
@@ -188,9 +201,7 @@ class ReadingActions extends _$ReadingActions {
   /// PrepBelt.
   Future<StartResult> start(String sourceId) async {
     await _repo.start(sourceId);
-    return await openSource(ref, sourceId)
-        ? StartResult.opened
-        : StartResult.notOpened;
+    return startResultOf(await openSource(ref, sourceId));
   }
 
   Future<SavePlan> preview(OpenReading r, int endUnit) =>
@@ -267,16 +278,6 @@ class ReadingActions extends _$ReadingActions {
   Future<void> undo(String sourceId) => _repo.undo(sourceId);
 }
 
-/// Opens a source in its own app: its stored file, else its link. False
-/// when there is nothing to open (a paper book) or no app could open it.
-Future<bool> openSource(Ref ref, String sourceId) async {
-  final sources = ref.read(sourceRepositoryProvider);
-  final source = await sources.watch(sourceId).first;
-  final stored = await sources.fileOf(sourceId);
-  final opener = ref.read(sourceOpenerProvider);
-  if (stored != null) {
-    final store = await ref.read(fileStoreProvider.future);
-    return opener.open(file: store.resolve(stored.localPath));
-  }
-  return opener.open(uri: source?.uri);
-}
+/// Opens a source in its own app: its file, else its link (D51).
+Future<OpenOutcome> openSource(Ref ref, String sourceId) =>
+    ref.read(studyFilesProvider.notifier).open(sourceId);

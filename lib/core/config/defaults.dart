@@ -181,6 +181,19 @@ abstract final class Defaults {
   /// The pace guess uses at most this many recent sittings (D30).
   static const int readingPaceSittings = 10;
 
+  // ------------------------------------------------- Study folder (D51)
+
+  /// An automatic backup is written when the last one is this many days
+  /// old (local dates) and something changed. Settings offers [backupEveryChoices].
+  static const int backupEveryDays = 1;
+  static const List<int> backupEveryChoices = [1, 3, 7];
+
+  /// Automatic backups kept in the folder; older ones are deleted.
+  static const int backupKeep = 7;
+
+  /// The study folder's subfolder for backups.
+  static const String backupFolder = 'Backups';
+
   // ------------------------------------------------------------ Game layer
 
   /// XP per review = [xpPerRatingWeight] × rating weight + promotion bonus.
@@ -240,4 +253,7 @@ abstract final class SettingKeys {
   static const readingAwayStepMinutes = 'reading.awayStepMinutes';
   static const readingChapterChipWindow = 'reading.chapterChipWindow';
   static const readingMinPartMinutes = 'reading.minPartMinutes';
+
+  /// Days between automatic backups (D51).
+  static const backupEveryDays = 'backup.everyDays';
 }

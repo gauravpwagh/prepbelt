@@ -297,7 +297,6 @@
     }
   },
   "sourceCardHintOpen": "Open its chapters",
-  "sourceRename": "Rename",
   "sourceMenu": "Source options",
   "sourceRemoveTitle": "Remove {title}?",
   "@sourceRemoveTitle": {
@@ -1802,15 +1801,133 @@
   "onboardExamBody": "Add your exam to get a day-by-day plan. You can also start with your sources and add it later.",
   "onboardAddExam": "Add exam",
   "onboardSkip": "Skip for now",
-  "onboardStep": "Step {step} of 3",
+  "onboardStep": "Step {step} of {steps}",
   "@onboardStep": {
     "placeholders": {
       "step": {
+        "type": "int"
+      },
+      "steps": {
         "type": "int"
       }
     }
   },
   "onboardFailed": "Couldn't save. Try again.",
+  "folderAskTitle": "Choose your PrepBelt folder",
+  "folderAskBody": "Your PDFs live in a folder you choose, and a backup is saved there every day. Pick or create one, for example Documents/PrepBelt.",
+  "folderGoneTitle": "Your PrepBelt folder isn't available",
+  "folderGoneBody": "It may have been moved or deleted, or PrepBelt lost access to it. Choose it again, or choose a new one.",
+  "folderChoose": "Choose folder",
+  "fileMissingTitle": "Can't find {name}",
+  "@fileMissingTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fileMissingBody": "It may have been moved, renamed or deleted from your PrepBelt folder.",
+  "fileFind": "Find the file",
+  "fileDifferentTitle": "A different file",
+  "fileDifferentBody": "This isn't the same file as before. Its pages may differ; the chapters stay as they are. Use it anyway?",
+  "fileUseAnyway": "Use it",
+  "fileUsedBy": "This file is already the source {title}.",
+  "@fileUsedBy": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "fileRelinked": "Linked to {name}.",
+  "@fileRelinked": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardFolderTitle": "Where should PrepBelt keep your files?",
+  "onboardFolderBody": "Pick or create a folder, for example Documents/PrepBelt. Your PDFs live there, and a backup is saved there every day. If you reinstall PrepBelt, pick the same folder to get everything back.",
+  "onboardFolderBodyLocal": "Your PDFs and a daily backup are kept inside PrepBelt on this phone. To keep a copy elsewhere, export a backup from Settings.",
+  "onboardFolderNotNow": "Not now",
+  "settingsFolder": "PrepBelt folder",
+  "settingsFolderNone": "Not chosen: PDFs can't be added and nothing is backed up",
+  "settingsFolderGone": "Not available: choose it again",
+  "settingsFolderMoved": "Your PDFs are now in {folder}.",
+  "@settingsFolderMoved": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAutoBackup": "Automatic backup",
+  "settingsAutoBackupOff": "Off: choose a folder first",
+  "settingsAutoBackupLast": "{every} · last {when}",
+  "@settingsAutoBackupLast": {
+    "placeholders": {
+      "every": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAutoBackupNone": "{every} · none yet",
+  "@settingsAutoBackupNone": {
+    "placeholders": {
+      "every": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAutoBackupFailed": "{every} · last backup failed",
+  "@settingsAutoBackupFailed": {
+    "placeholders": {
+      "every": {
+        "type": "String"
+      }
+    }
+  },
+  "backupEvery": "{days, plural, =1{Every day} other{Every {days} days}}",
+  "backupEveryWeek": "Every week",
+  "@backupEvery": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsBackupNow": "Back up now",
+  "settingsBackupNowHint": "Saves your data to your PrepBelt folder",
+  "settingsBackupNowDone": "Backed up to your PrepBelt folder.",
+  "settingsBackupNowFailed": "Couldn't back up. Check your PrepBelt folder.",
+  "todayFolderCard": "Choose a folder for your PDFs and backups.",
+  "todayFolderChoose": "Choose",
+  "sourceEditDetails": "Edit details",
+  "sourceEditTitle": "Edit source",
+  "sourceEditTotalMinutes": "Total minutes",
+  "sourceEditTotalTooSmall": "At least {n}: the last chapter ends there.",
+  "@sourceEditTotalTooSmall": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "sourceEditFile": "File",
+  "sourceEditChangeFile": "Choose another file",
+  "sourceEditFileMissing": "Not found in your PrepBelt folder",
+  "sourceEdited": "Saved {title}",
+  "@sourceEdited": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "settingsStudy": "STUDY",
   "settingsReminder": "REMINDER",
   "settingsLook": "LOOK",
@@ -1824,7 +1941,7 @@
   "settingsThemeDojo": "Dojo",
   "settingsThemeHint": "Gems arrives in a later version.",
   "settingsExport": "Export a backup",
-  "settingsExportHint": "One file with everything, sources included",
+  "settingsExportHint": "One file with your data. Your PDFs stay in your folder",
   "settingsRestore": "Restore from a backup",
   "settingsRestoreHint": "Replaces what is on this phone",
   "settingsDiagnostics": "Export diagnostics",

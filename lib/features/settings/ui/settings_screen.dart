@@ -10,26 +10,33 @@ import 'package:intl/intl.dart';
 import '../../../core/config/app_info.dart';
 import '../../../core/config/defaults.dart';
 import '../../../core/ui/app_icons.dart';
+import '../../../core/ui/bottom_sheet.dart';
 import '../../../core/ui/buttons.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../theme/tokens/app_tokens.dart';
 import '../../exams/state/exam_view_providers.dart';
 import '../../exams/ui/week_sheet.dart';
+import '../../sources/state/study_files.dart';
 import '../../tasks/state/task_providers.dart';
 import '../../today/ui/reminder_text.dart';
+import '../state/auto_backup.dart';
 import '../state/settings_actions.dart';
 import '../state/settings_providers.dart';
 
 /// Picks a backup, checks it, asks to confirm, and stages it for the next
 /// start (design/notes/settings.md). Used by Settings and first launch.
-Future<void> restoreBackup(BuildContext context, WidgetRef ref) async {
+Future<void> restoreBackup(
+  BuildContext context,
+  WidgetRef ref, {
+  Future<DateTime?> Function()? stage,
+}) async {
   final l10n = AppLocalizations.of(context);
   final messenger = ScaffoldMessenger.of(context);
   final locale = Localizations.localeOf(context).toLanguageTag();
   final actions = ref.read(settingsActionsProvider.notifier);
   final DateTime? made;
   try {
-    made = await actions.stageRestore();
+    made = await (stage ?? actions.stageRestore)();
   } on BackupError catch (e) {
     messenger.showSnackBar(
       SnackBar(
@@ -142,11 +149,47 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final week = ref.watch(weekMinutesProvider).value;
     final rebuild = ref.watch(masteryRebuildProvider);
     final text = reminderText(l10n);
+    final folder = ref.watch(folderStatusProvider).value;
+    final device = ref.watch(deviceProvider).value;
     return Scaffold(
       body: SafeArea(
         child: SettingsBody(
           settings: settings,
           week: week,
+          folder: folder,
+          device: device,
+          onFolder: () => _work('folder', () async {
+            final chosen = await ref.read(studyFilesProvider.notifier).choose();
+            final label = chosen == null
+                ? null
+                : (await ref.read(folderStatusProvider.future)).label;
+            if (label != null) {
+              messenger.showSnackBar(
+                SnackBar(content: Text(l10n.settingsFolderMoved(label))),
+              );
+            }
+          }),
+          onBackupEvery: () => showActionSheet(
+            context,
+            title: l10n.settingsAutoBackup,
+            actions: [
+              for (final days in Defaults.backupEveryChoices)
+                SheetAction(
+                  backupEveryLabel(l10n, days),
+                  () => _actions.setBackupEvery(days),
+                ),
+            ],
+          ),
+          onBackupNow: () => _work('backupNow', () async {
+            final ok = await ref.read(autoBackupProvider.notifier).runNow();
+            messenger.showSnackBar(
+              SnackBar(
+                content: Text(
+                  ok ? l10n.settingsBackupNowDone : l10n.settingsBackupNowFailed,
+                ),
+              ),
+            );
+          }),
           busy: _busy,
           showDebug: widget.showDebugActions,
           onBack: () => context.pop(),
@@ -214,6 +257,10 @@ TimeOfDay _time(Object? value) {
   );
 }
 
+/// "Every day", "Every 3 days", "Every week".
+String backupEveryLabel(AppLocalizations l10n, int days) =>
+    days == 7 ? l10n.backupEveryWeek : l10n.backupEvery(days);
+
 /// The settings page for given values. Public so goldens can render it.
 class SettingsBody extends StatelessWidget {
   const SettingsBody({
@@ -224,6 +271,11 @@ class SettingsBody extends StatelessWidget {
     required this.onExport,
     required this.onRestore,
     required this.onDiagnostics,
+    this.folder,
+    this.device,
+    this.onFolder,
+    this.onBackupEvery,
+    this.onBackupNow,
     this.week,
     this.onEditWeek,
     this.onRebuild,
@@ -233,6 +285,13 @@ class SettingsBody extends StatelessWidget {
   });
 
   final Map<String, Object?> settings;
+
+  /// The study folder and backup times (D51); null while loading.
+  final FolderStatus? folder;
+  final DeviceState? device;
+  final VoidCallback? onFolder;
+  final VoidCallback? onBackupEvery;
+  final VoidCallback? onBackupNow;
   final List<int>? week;
   final String? busy;
   final bool showDebug;
@@ -258,6 +317,26 @@ class SettingsBody extends StatelessWidget {
         '${time.hour.toString().padLeft(2, '0')}:'
         '${time.minute.toString().padLeft(2, '0')}';
     final idle = busy == null;
+    final every = switch (settings[SettingKeys.backupEveryDays]) {
+      final num n => n.toInt(),
+      _ => Defaults.backupEveryDays,
+    };
+    final everyText = backupEveryLabel(l10n, every);
+    final ready = folder?.available ?? false;
+    final lastAt = device?.backupAt;
+    final failed = device?.backupFailedAt != null;
+    final backupText = !ready
+        ? l10n.settingsAutoBackupOff
+        : failed
+        ? l10n.settingsAutoBackupFailed(everyText)
+        : lastAt == null
+        ? l10n.settingsAutoBackupNone(everyText)
+        : l10n.settingsAutoBackupLast(
+            everyText,
+            DateFormat('d MMM, HH:mm', locale).format(
+              DateTime.fromMillisecondsSinceEpoch(lastAt).toLocal(),
+            ),
+          );
 
     Widget section(String title, List<Widget> rows) => Padding(
       padding: const EdgeInsets.only(top: AppSpace.xl),
@@ -340,6 +419,31 @@ class SettingsBody extends StatelessWidget {
         ]),
         section(l10n.settingsData, [
           _Row(
+            title: l10n.settingsFolder,
+            subtitle: folder == null
+                ? ''
+                : !folder!.chosen
+                ? l10n.settingsFolderNone
+                : !folder!.available
+                ? l10n.settingsFolderGone
+                : folder!.label,
+            warning: folder != null && !folder!.available,
+            working: busy == 'folder',
+            onTap: idle ? onFolder : null,
+          ),
+          _Row(
+            title: l10n.settingsAutoBackup,
+            subtitle: backupText,
+            warning: ready && failed,
+            onTap: idle && ready ? onBackupEvery : null,
+          ),
+          _Row(
+            title: l10n.settingsBackupNow,
+            subtitle: l10n.settingsBackupNowHint,
+            working: busy == 'backupNow',
+            onTap: idle && ready ? onBackupNow : null,
+          ),
+          _Row(
             title: l10n.settingsExport,
             subtitle: l10n.settingsExportHint,
             working: busy == 'export',
@@ -377,8 +481,12 @@ class _Row extends StatelessWidget {
     this.trailing,
     this.onTap,
     this.working = false,
+    this.warning = false,
     this.toggled,
   });
+
+  /// The subtitle in the warning colour.
+  final bool warning;
 
   final String title;
   final String? subtitle;
@@ -419,7 +527,9 @@ class _Row extends StatelessWidget {
                       if (hasText)
                         Text(
                           subtitle!,
-                          style: AppText.caption.copyWith(color: c.muted),
+                          style: AppText.caption.copyWith(
+                            color: warning ? c.warningText : c.muted,
+                          ),
                         ),
                     ],
                   ),

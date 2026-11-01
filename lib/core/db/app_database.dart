@@ -47,7 +47,7 @@ class AppDatabase extends _$AppDatabase {
   factory AppDatabase.open() => AppDatabase(driftDatabase(name: 'prepbelt'));
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -73,6 +73,10 @@ class AppDatabase extends _$AppDatabase {
         );
         await m.addColumn(schema.taskChunks, schema.taskChunks.part);
         await m.addColumn(schema.taskChunks, schema.taskChunks.parts);
+      },
+      from4To5: (m, schema) async {
+        // Source files in the study folder (D51).
+        await m.addColumn(schema.sourceFiles, schema.sourceFiles.place);
       },
     ),
     beforeOpen: (details) async {

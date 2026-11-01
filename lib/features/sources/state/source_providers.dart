@@ -5,7 +5,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../../core/providers/core_providers.dart';
-import '../../../platform/files/file_picking.dart';
 import '../../../platform/files/file_store.dart';
 import '../../../platform/pdf_outline/pdf_outline.dart';
 import '../../../platform/share_in/share_in.dart';
@@ -41,9 +40,6 @@ Future<FileStore> fileStore(Ref ref) async => FileStore(
 );
 
 @Riverpod(keepAlive: true)
-PdfPicker pdfPicker(Ref ref) => const SystemPdfPicker();
-
-@Riverpod(keepAlive: true)
 PdfOutlineReader pdfOutlineReader(Ref ref) => const PdfOutlineReader();
 
 /// PDFs and links shared from other apps. Tests override it.
@@ -62,6 +58,27 @@ class SourceActions extends _$SourceActions {
       .read(sourceRepositoryProvider)
       .update(id, title: Value(title.trim()))
       .then((_) {});
+
+  /// Edit details (D51): title, link and total pages or minutes, as one
+  /// undoable change. Replans when the total changed.
+  Future<void> saveDetails(
+    String id, {
+    required String title,
+    String? uri,
+    int? totalUnits,
+  }) async {
+    final repo = ref.read(sourceRepositoryProvider);
+    final before = await repo.watch(id).first;
+    await repo.update(
+      id,
+      title: Value(title.trim()),
+      uri: Value(uri),
+      totalUnits: Value(totalUnits),
+    );
+    if (before?.totalUnits != totalUnits) {
+      await ref.read(plannerProvider.notifier).replanNow();
+    }
+  }
 
   /// How many tasks removing source [id] takes with it.
   Future<int> taskCount(String id) async =>

@@ -251,47 +251,6 @@ final class FileStoreProvider
 
 String _$fileStoreHash() => r'b8fb743f97aa6fc84c494e9436ac1e921fbb8557';
 
-@ProviderFor(pdfPicker)
-final pdfPickerProvider = PdfPickerProvider._();
-
-final class PdfPickerProvider
-    extends $FunctionalProvider<PdfPicker, PdfPicker, PdfPicker>
-    with $Provider<PdfPicker> {
-  PdfPickerProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'pdfPickerProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$pdfPickerHash();
-
-  @$internal
-  @override
-  $ProviderElement<PdfPicker> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  PdfPicker create(Ref ref) {
-    return pdfPicker(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(PdfPicker value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<PdfPicker>(value),
-    );
-  }
-}
-
-String _$pdfPickerHash() => r'cf6c1042a4de958e703782a793651db1a15ffba5';
-
 @ProviderFor(pdfOutlineReader)
 final pdfOutlineReaderProvider = PdfOutlineReaderProvider._();
 
@@ -423,7 +382,7 @@ final class SourceActionsProvider
   }
 }
 
-String _$sourceActionsHash() => r'8510a7ba4984dfc30f9b58be5bb2dd78eaf883a2';
+String _$sourceActionsHash() => r'6edffdaafd07b3346f20cbbe83bd1b70c016dbb6';
 
 /// Rename, remove and undo from the Sources list. Kept alive: removing
 /// awaits, then replans.

@@ -15,6 +15,7 @@ import '../../../platform/share_in/share_in.dart';
 import '../../../theme/tokens/app_tokens.dart';
 import '../state/add_source_controller.dart';
 import 'source_labels.dart';
+import 'study_folder_dialogs.dart';
 
 /// Add source (design/notes/add-source.md): type, details, then a chapter
 /// split, saved as one undoable operation. Opens pre-filled with
@@ -65,7 +66,14 @@ class _AddSourceScreenState extends ConsumerState<AddSourceScreen> {
     super.dispose();
   }
 
+  /// A PDF lives in the study folder (D51): choose one first if needed.
+  Future<void> _pickPdf() async {
+    if (await ensureStudyFolder(context, ref)) await _ctl.pickPdf();
+  }
+
   Future<void> _save({required bool survey}) async {
+    final pdf = ref.read(addSourceControllerProvider).type == SourceType.pdf;
+    if (pdf && !await ensureStudyFolder(context, ref)) return;
     final id = await _ctl.save();
     if (id == null || !mounted) return;
     context.pushReplacement(
@@ -92,6 +100,7 @@ class _AddSourceScreenState extends ConsumerState<AddSourceScreen> {
           link: _link,
           paste: _paste,
           controller: _ctl,
+          onPickPdf: _pickPdf,
           onSave: () => _save(survey: false),
           onSaveAndSurvey: () => _save(survey: true),
           onOpenDuplicate: (id) =>
@@ -119,8 +128,12 @@ class AddSourceBody extends StatelessWidget {
     required this.onSave,
     required this.onSaveAndSurvey,
     required this.onOpenDuplicate,
+    this.onPickPdf,
     super.key,
   });
+
+  /// Choosing a PDF; defaults to the controller's picker.
+  final VoidCallback? onPickPdf;
 
   final AddSourceState state;
   final TextEditingController title;
@@ -332,7 +345,7 @@ class AddSourceBody extends StatelessWidget {
           if (pdf == null)
             SecondaryButton(
               label: l10n.addSourceChoosePdf,
-              onPressed: controller.pickPdf,
+              onPressed: onPickPdf ?? controller.pickPdf,
             )
           else ...[
             if (!state.readingPdf && state.duplicateId == null) ...[
@@ -346,7 +359,9 @@ class AddSourceBody extends StatelessWidget {
               alignment: AlignmentDirectional.centerStart,
               child: TextLinkButton(
                 label: l10n.addSourceChooseOther,
-                onPressed: state.readingPdf ? null : controller.pickPdf,
+                onPressed: state.readingPdf
+                    ? null
+                    : onPickPdf ?? controller.pickPdf,
               ),
             ),
           ],

@@ -71,8 +71,8 @@ test/  integration_test/
 - **Reviews are append-only.** `ReviewRepository.record()` writes the Review and updates TaskState through the review engine in one transaction.
 - **Rebuild:** replays all Review rows to regenerate TaskState; must match exactly.
 - **Migrations:** Drift step-by-step migrations, schema snapshots committed, a test per migration.
-- **Files:** imported PDFs are copied to `<app documents>/sources/<uuid>.pdf`, SHA-256 de-duplicated. The database stores only the relative path.
-- **Backup:** export zips the SQLite file and the sources folder; import replaces both after a version check.
+- **Files (D51):** PDFs live only in the student's study folder (`lib/platform/files/study_folder.dart`: Storage Access Framework on Android through the `prepbelt/folder` channel in `MainActivity.kt`; a folder in app storage on iOS for now, and a temporary one in tests). A PDF picked inside the folder is used in place, others are copied in as `<title>.pdf`; SHA-256 de-duplicated. The database stores the path inside the folder (`SourceFile.place = folder`); older rows (`app`) are `<app documents>/sources/<uuid>.pdf` until a folder is chosen.
+- **Backup:** automatic backups (version 2, database only) go to the study folder's `Backups/`; export zips the SQLite file (version 1 files also held the sources folder); import replaces the database after a version check.
 
 ## Domain engines
 
@@ -123,7 +123,7 @@ test/  integration_test/
 
 - Android: intent filters for `application/pdf` and `text/plain` (links).
 - iOS: a Share Extension target as receive_sharing_intent describes, passing files through an App Group.
-- Read the initial shared item on cold start and listen to the stream while running; route to Add source pre-filled and copy the file into app storage.
+- Read the initial shared item on cold start and listen to the stream while running; route to Add source pre-filled and copy the file into the study folder.
 - The package is vendored with Android fixes (D32, `third_party/receive_sharing_intent/PATCHES.md`). `lib/platform/share_in/` turns a share into a PDF, a link or nothing usable; `lib/app/share_receiver.dart` opens Add source.
 
 **PDF outline**

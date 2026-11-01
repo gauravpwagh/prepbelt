@@ -1476,6 +1476,16 @@ class $SourceFilesTable extends SourceFiles
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  @override
+  late final GeneratedColumnWithTypeConverter<FilePlace, String> place =
+      GeneratedColumn<String>(
+        'place',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('app'),
+      ).withConverter<FilePlace>($SourceFilesTable.$converterplace);
   static const VerificationMeta _bytesMeta = const VerificationMeta('bytes');
   @override
   late final GeneratedColumn<int> bytes = GeneratedColumn<int>(
@@ -1504,6 +1514,7 @@ class $SourceFilesTable extends SourceFiles
     deviceId,
     sourceId,
     localPath,
+    place,
     bytes,
     sha256,
   ];
@@ -1635,6 +1646,12 @@ class $SourceFilesTable extends SourceFiles
         DriftSqlType.string,
         data['${effectivePrefix}local_path'],
       )!,
+      place: $SourceFilesTable.$converterplace.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}place'],
+        )!,
+      ),
       bytes: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}bytes'],
@@ -1650,6 +1667,9 @@ class $SourceFilesTable extends SourceFiles
   $SourceFilesTable createAlias(String alias) {
     return $SourceFilesTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<FilePlace, String, String> $converterplace =
+      const EnumNameConverter<FilePlace>(FilePlace.values);
 }
 
 class SourceFile extends DataClass implements Insertable<SourceFile> {
@@ -1664,8 +1684,10 @@ class SourceFile extends DataClass implements Insertable<SourceFile> {
   final String deviceId;
   final String sourceId;
 
-  /// Relative to the app documents directory.
+  /// Inside the study folder ("Physics/Optics.pdf") when [place] is
+  /// folder; relative to the app documents directory when it is app (D51).
   final String localPath;
+  final FilePlace place;
   final int bytes;
   final String sha256;
   const SourceFile({
@@ -1677,6 +1699,7 @@ class SourceFile extends DataClass implements Insertable<SourceFile> {
     required this.deviceId,
     required this.sourceId,
     required this.localPath,
+    required this.place,
     required this.bytes,
     required this.sha256,
   });
@@ -1693,6 +1716,11 @@ class SourceFile extends DataClass implements Insertable<SourceFile> {
     map['device_id'] = Variable<String>(deviceId);
     map['source_id'] = Variable<String>(sourceId);
     map['local_path'] = Variable<String>(localPath);
+    {
+      map['place'] = Variable<String>(
+        $SourceFilesTable.$converterplace.toSql(place),
+      );
+    }
     map['bytes'] = Variable<int>(bytes);
     map['sha256'] = Variable<String>(sha256);
     return map;
@@ -1710,6 +1738,7 @@ class SourceFile extends DataClass implements Insertable<SourceFile> {
       deviceId: Value(deviceId),
       sourceId: Value(sourceId),
       localPath: Value(localPath),
+      place: Value(place),
       bytes: Value(bytes),
       sha256: Value(sha256),
     );
@@ -1729,6 +1758,9 @@ class SourceFile extends DataClass implements Insertable<SourceFile> {
       deviceId: serializer.fromJson<String>(json['deviceId']),
       sourceId: serializer.fromJson<String>(json['sourceId']),
       localPath: serializer.fromJson<String>(json['localPath']),
+      place: $SourceFilesTable.$converterplace.fromJson(
+        serializer.fromJson<String>(json['place']),
+      ),
       bytes: serializer.fromJson<int>(json['bytes']),
       sha256: serializer.fromJson<String>(json['sha256']),
     );
@@ -1745,6 +1777,9 @@ class SourceFile extends DataClass implements Insertable<SourceFile> {
       'deviceId': serializer.toJson<String>(deviceId),
       'sourceId': serializer.toJson<String>(sourceId),
       'localPath': serializer.toJson<String>(localPath),
+      'place': serializer.toJson<String>(
+        $SourceFilesTable.$converterplace.toJson(place),
+      ),
       'bytes': serializer.toJson<int>(bytes),
       'sha256': serializer.toJson<String>(sha256),
     };
@@ -1759,6 +1794,7 @@ class SourceFile extends DataClass implements Insertable<SourceFile> {
     String? deviceId,
     String? sourceId,
     String? localPath,
+    FilePlace? place,
     int? bytes,
     String? sha256,
   }) => SourceFile(
@@ -1770,6 +1806,7 @@ class SourceFile extends DataClass implements Insertable<SourceFile> {
     deviceId: deviceId ?? this.deviceId,
     sourceId: sourceId ?? this.sourceId,
     localPath: localPath ?? this.localPath,
+    place: place ?? this.place,
     bytes: bytes ?? this.bytes,
     sha256: sha256 ?? this.sha256,
   );
@@ -1783,6 +1820,7 @@ class SourceFile extends DataClass implements Insertable<SourceFile> {
       deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
       sourceId: data.sourceId.present ? data.sourceId.value : this.sourceId,
       localPath: data.localPath.present ? data.localPath.value : this.localPath,
+      place: data.place.present ? data.place.value : this.place,
       bytes: data.bytes.present ? data.bytes.value : this.bytes,
       sha256: data.sha256.present ? data.sha256.value : this.sha256,
     );
@@ -1799,6 +1837,7 @@ class SourceFile extends DataClass implements Insertable<SourceFile> {
           ..write('deviceId: $deviceId, ')
           ..write('sourceId: $sourceId, ')
           ..write('localPath: $localPath, ')
+          ..write('place: $place, ')
           ..write('bytes: $bytes, ')
           ..write('sha256: $sha256')
           ..write(')'))
@@ -1815,6 +1854,7 @@ class SourceFile extends DataClass implements Insertable<SourceFile> {
     deviceId,
     sourceId,
     localPath,
+    place,
     bytes,
     sha256,
   );
@@ -1830,6 +1870,7 @@ class SourceFile extends DataClass implements Insertable<SourceFile> {
           other.deviceId == this.deviceId &&
           other.sourceId == this.sourceId &&
           other.localPath == this.localPath &&
+          other.place == this.place &&
           other.bytes == this.bytes &&
           other.sha256 == this.sha256);
 }
@@ -1843,6 +1884,7 @@ class SourceFilesCompanion extends UpdateCompanion<SourceFile> {
   final Value<String> deviceId;
   final Value<String> sourceId;
   final Value<String> localPath;
+  final Value<FilePlace> place;
   final Value<int> bytes;
   final Value<String> sha256;
   final Value<int> rowid;
@@ -1855,6 +1897,7 @@ class SourceFilesCompanion extends UpdateCompanion<SourceFile> {
     this.deviceId = const Value.absent(),
     this.sourceId = const Value.absent(),
     this.localPath = const Value.absent(),
+    this.place = const Value.absent(),
     this.bytes = const Value.absent(),
     this.sha256 = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -1868,6 +1911,7 @@ class SourceFilesCompanion extends UpdateCompanion<SourceFile> {
     required String deviceId,
     required String sourceId,
     required String localPath,
+    this.place = const Value.absent(),
     required int bytes,
     required String sha256,
     this.rowid = const Value.absent(),
@@ -1889,6 +1933,7 @@ class SourceFilesCompanion extends UpdateCompanion<SourceFile> {
     Expression<String>? deviceId,
     Expression<String>? sourceId,
     Expression<String>? localPath,
+    Expression<String>? place,
     Expression<int>? bytes,
     Expression<String>? sha256,
     Expression<int>? rowid,
@@ -1902,6 +1947,7 @@ class SourceFilesCompanion extends UpdateCompanion<SourceFile> {
       if (deviceId != null) 'device_id': deviceId,
       if (sourceId != null) 'source_id': sourceId,
       if (localPath != null) 'local_path': localPath,
+      if (place != null) 'place': place,
       if (bytes != null) 'bytes': bytes,
       if (sha256 != null) 'sha256': sha256,
       if (rowid != null) 'rowid': rowid,
@@ -1917,6 +1963,7 @@ class SourceFilesCompanion extends UpdateCompanion<SourceFile> {
     Value<String>? deviceId,
     Value<String>? sourceId,
     Value<String>? localPath,
+    Value<FilePlace>? place,
     Value<int>? bytes,
     Value<String>? sha256,
     Value<int>? rowid,
@@ -1930,6 +1977,7 @@ class SourceFilesCompanion extends UpdateCompanion<SourceFile> {
       deviceId: deviceId ?? this.deviceId,
       sourceId: sourceId ?? this.sourceId,
       localPath: localPath ?? this.localPath,
+      place: place ?? this.place,
       bytes: bytes ?? this.bytes,
       sha256: sha256 ?? this.sha256,
       rowid: rowid ?? this.rowid,
@@ -1963,6 +2011,11 @@ class SourceFilesCompanion extends UpdateCompanion<SourceFile> {
     if (localPath.present) {
       map['local_path'] = Variable<String>(localPath.value);
     }
+    if (place.present) {
+      map['place'] = Variable<String>(
+        $SourceFilesTable.$converterplace.toSql(place.value),
+      );
+    }
     if (bytes.present) {
       map['bytes'] = Variable<int>(bytes.value);
     }
@@ -1986,6 +2039,7 @@ class SourceFilesCompanion extends UpdateCompanion<SourceFile> {
           ..write('deviceId: $deviceId, ')
           ..write('sourceId: $sourceId, ')
           ..write('localPath: $localPath, ')
+          ..write('place: $place, ')
           ..write('bytes: $bytes, ')
           ..write('sha256: $sha256, ')
           ..write('rowid: $rowid')
@@ -19349,6 +19403,7 @@ typedef $$SourceFilesTableCreateCompanionBuilder =
       required String deviceId,
       required String sourceId,
       required String localPath,
+      Value<FilePlace> place,
       required int bytes,
       required String sha256,
       Value<int> rowid,
@@ -19363,6 +19418,7 @@ typedef $$SourceFilesTableUpdateCompanionBuilder =
       Value<String> deviceId,
       Value<String> sourceId,
       Value<String> localPath,
+      Value<FilePlace> place,
       Value<int> bytes,
       Value<String> sha256,
       Value<int> rowid,
@@ -19435,6 +19491,12 @@ class $$SourceFilesTableFilterComposer
     column: $table.localPath,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnWithTypeConverterFilters<FilePlace, FilePlace, String> get place =>
+      $composableBuilder(
+        column: $table.place,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
   ColumnFilters<int> get bytes => $composableBuilder(
     column: $table.bytes,
@@ -19514,6 +19576,11 @@ class $$SourceFilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get place => $composableBuilder(
+    column: $table.place,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get bytes => $composableBuilder(
     column: $table.bytes,
     builder: (column) => ColumnOrderings(column),
@@ -19577,6 +19644,9 @@ class $$SourceFilesTableAnnotationComposer
 
   GeneratedColumn<String> get localPath =>
       $composableBuilder(column: $table.localPath, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<FilePlace, String> get place =>
+      $composableBuilder(column: $table.place, builder: (column) => column);
 
   GeneratedColumn<int> get bytes =>
       $composableBuilder(column: $table.bytes, builder: (column) => column);
@@ -19644,6 +19714,7 @@ class $$SourceFilesTableTableManager
                 Value<String> deviceId = const Value.absent(),
                 Value<String> sourceId = const Value.absent(),
                 Value<String> localPath = const Value.absent(),
+                Value<FilePlace> place = const Value.absent(),
                 Value<int> bytes = const Value.absent(),
                 Value<String> sha256 = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -19656,6 +19727,7 @@ class $$SourceFilesTableTableManager
                 deviceId: deviceId,
                 sourceId: sourceId,
                 localPath: localPath,
+                place: place,
                 bytes: bytes,
                 sha256: sha256,
                 rowid: rowid,
@@ -19670,6 +19742,7 @@ class $$SourceFilesTableTableManager
                 required String deviceId,
                 required String sourceId,
                 required String localPath,
+                Value<FilePlace> place = const Value.absent(),
                 required int bytes,
                 required String sha256,
                 Value<int> rowid = const Value.absent(),
@@ -19682,6 +19755,7 @@ class $$SourceFilesTableTableManager
                 deviceId: deviceId,
                 sourceId: sourceId,
                 localPath: localPath,
+                place: place,
                 bytes: bytes,
                 sha256: sha256,
                 rowid: rowid,

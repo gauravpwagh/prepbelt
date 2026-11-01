@@ -14,6 +14,7 @@ Widget step(int i) => Scaffold(
     minutes: 105,
     onMinutes: (_) {},
     onContinue: () {},
+    onFolder: (_) {},
     onReminder: (_) {},
     onAddExam: () {},
     onSkip: () {},
@@ -21,7 +22,7 @@ Widget step(int i) => Scaffold(
 );
 
 void main() {
-  for (final i in [0, 1, 2]) {
+  for (final i in [0, 1, 2, 3]) {
     goldenBoth('onboarding_$i', () => step(i), height: 844);
   }
   goldenBoth('onboarding_0_360', () => step(0), width: 360, height: 760);

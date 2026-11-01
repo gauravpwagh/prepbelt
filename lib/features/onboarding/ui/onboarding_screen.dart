@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,7 +13,9 @@ import '../../../core/ui/fields.dart';
 import '../../../core/ui/value_stepper.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../theme/tokens/app_tokens.dart';
+import '../../settings/state/auto_backup.dart';
 import '../../settings/ui/settings_screen.dart';
+import '../../sources/state/study_files.dart';
 import '../../sources/ui/source_labels.dart';
 import '../state/onboarding_providers.dart';
 
@@ -52,6 +57,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
   }
 
+  /// Step 2: the study folder (D51). A folder holding backups offers the
+  /// newest one.
+  Future<void> _chooseFolder() async {
+    final folder = await ref.read(studyFilesProvider.notifier).choose();
+    if (folder == null || !mounted) return;
+    final backup = ref.read(autoBackupProvider.notifier);
+    final latest = (await backup.list(folder)).firstOrNull;
+    if (latest == null || !mounted) return;
+    await restoreBackup(
+      context,
+      ref,
+      stage: () => backup.stage(folder, latest),
+    );
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     body: SafeArea(
@@ -62,13 +82,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         busy: _busy,
         failed: _failed,
         onMinutes: (m) => setState(() => _minutes = m),
+        localFolder: kIsWeb || !Platform.isAndroid,
         onContinue: () => _run(() async {
           await _actions.saveProfile(name: _name.text, minutes: _minutes);
           setState(() => _step = 1);
         }),
+        onFolder: (choose) => _run(() async {
+          if (choose) await _chooseFolder();
+          if (mounted) setState(() => _step = 2);
+        }),
         onReminder: (on) => _run(() async {
           await _actions.setReminder(on: on);
-          setState(() => _step = 2);
+          setState(() => _step = 3);
         }),
         onAddExam: () => context.go(Routes.newExam),
         onSkip: () => context.go(Routes.today),
@@ -78,7 +103,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   );
 }
 
-/// The three steps. Public so goldens can render each one.
+/// The four steps. Public so goldens can render each one.
 class OnboardingBody extends StatelessWidget {
   const OnboardingBody({
     required this.step,
@@ -86,17 +111,25 @@ class OnboardingBody extends StatelessWidget {
     required this.minutes,
     required this.onMinutes,
     required this.onContinue,
+    required this.onFolder,
     required this.onReminder,
     required this.onAddExam,
     required this.onSkip,
     this.onRestore,
+    this.localFolder = false,
     this.busy = false,
     this.failed = false,
     super.key,
   });
 
-  /// 0 welcome, 1 reminder, 2 exam.
+  /// 0 welcome, 1 folder, 2 reminder, 3 exam.
   final int step;
+
+  /// No folder picker (iOS for now): the app's own folder is used.
+  final bool localFolder;
+
+  /// True chooses the study folder, false skips it.
+  final ValueChanged<bool> onFolder;
   final TextEditingController name;
   final int minutes;
   final bool busy;
@@ -111,6 +144,7 @@ class OnboardingBody extends StatelessWidget {
   final VoidCallback? onRestore;
 
   static const _step = 15;
+  static const _steps = 4;
   static const _max = 8 * 60;
 
   @override
@@ -119,11 +153,11 @@ class OnboardingBody extends StatelessWidget {
     final c = context.colors;
 
     final dots = Semantics(
-      label: l10n.onboardStep(step + 1),
+      label: l10n.onboardStep(step + 1, _steps),
       excludeSemantics: true,
       child: Row(
         children: [
-          for (var i = 0; i < 3; i++) ...[
+          for (var i = 0; i < _steps; i++) ...[
             if (i > 0) const SizedBox(width: AppSpace.sm),
             Container(
               width: i == step ? 24 : 8,
@@ -206,6 +240,38 @@ class OnboardingBody extends StatelessWidget {
             ),
         ];
       case 1:
+        content = [
+          const SizedBox(height: 48),
+          Center(
+            child: AppIconView(AppIcon.sources, color: c.accentText, size: 48),
+          ),
+          const SizedBox(height: AppSpace.xl),
+          Text(
+            l10n.onboardFolderTitle,
+            textAlign: TextAlign.center,
+            style: AppText.display.copyWith(color: c.ink, fontSize: 26),
+          ),
+          const SizedBox(height: AppSpace.md),
+          Text(
+            localFolder ? l10n.onboardFolderBodyLocal : l10n.onboardFolderBody,
+            textAlign: TextAlign.center,
+            style: AppText.body.copyWith(color: c.muted),
+          ),
+        ];
+        actions = [
+          PrimaryButton(
+            label: localFolder ? l10n.onboardContinue : l10n.folderChoose,
+            onPressed: busy ? null : () => onFolder(true),
+          ),
+          if (!localFolder)
+            Align(
+              child: TextLinkButton(
+                label: l10n.onboardFolderNotNow,
+                onPressed: busy ? null : () => onFolder(false),
+              ),
+            ),
+        ];
+      case 2:
         content = [
           const SizedBox(height: 48),
           Center(child: AppIconView(AppIcon.flame, color: c.flame, size: 48)),

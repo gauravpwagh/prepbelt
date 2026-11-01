@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n/gen/app_localizations.dart';
 import '../theme/app_theme.dart';
+import 'backup_keeper.dart';
 import 'onboarding_gate.dart';
 import 'router.dart';
 import 'share_receiver.dart';
@@ -27,7 +28,9 @@ class PrepBeltApp extends ConsumerWidget {
     supportedLocales: AppLocalizations.supportedLocales,
     routerConfig: ref.watch(routerProvider),
     builder: (context, child) => OnboardingGate(
-      child: SourceReturn(child: ShareReceiver(child: child!)),
+      child: BackupKeeper(
+        child: SourceReturn(child: ShareReceiver(child: child!)),
+      ),
     ),
   );
 }

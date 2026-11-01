@@ -397,9 +397,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sourceCardHintOpen => 'Open its chapters';
 
   @override
-  String get sourceRename => 'Rename';
-
-  @override
   String get sourceMenu => 'Source options';
 
   @override
@@ -2050,12 +2047,172 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardSkip => 'Skip for now';
 
   @override
-  String onboardStep(int step) {
-    return 'Step $step of 3';
+  String onboardStep(int step, int steps) {
+    return 'Step $step of $steps';
   }
 
   @override
   String get onboardFailed => 'Couldn\'t save. Try again.';
+
+  @override
+  String get folderAskTitle => 'Choose your PrepBelt folder';
+
+  @override
+  String get folderAskBody =>
+      'Your PDFs live in a folder you choose, and a backup is saved there every day. Pick or create one, for example Documents/PrepBelt.';
+
+  @override
+  String get folderGoneTitle => 'Your PrepBelt folder isn\'t available';
+
+  @override
+  String get folderGoneBody =>
+      'It may have been moved or deleted, or PrepBelt lost access to it. Choose it again, or choose a new one.';
+
+  @override
+  String get folderChoose => 'Choose folder';
+
+  @override
+  String fileMissingTitle(String name) {
+    return 'Can\'t find $name';
+  }
+
+  @override
+  String get fileMissingBody =>
+      'It may have been moved, renamed or deleted from your PrepBelt folder.';
+
+  @override
+  String get fileFind => 'Find the file';
+
+  @override
+  String get fileDifferentTitle => 'A different file';
+
+  @override
+  String get fileDifferentBody =>
+      'This isn\'t the same file as before. Its pages may differ; the chapters stay as they are. Use it anyway?';
+
+  @override
+  String get fileUseAnyway => 'Use it';
+
+  @override
+  String fileUsedBy(String title) {
+    return 'This file is already the source $title.';
+  }
+
+  @override
+  String fileRelinked(String name) {
+    return 'Linked to $name.';
+  }
+
+  @override
+  String get onboardFolderTitle => 'Where should PrepBelt keep your files?';
+
+  @override
+  String get onboardFolderBody =>
+      'Pick or create a folder, for example Documents/PrepBelt. Your PDFs live there, and a backup is saved there every day. If you reinstall PrepBelt, pick the same folder to get everything back.';
+
+  @override
+  String get onboardFolderBodyLocal =>
+      'Your PDFs and a daily backup are kept inside PrepBelt on this phone. To keep a copy elsewhere, export a backup from Settings.';
+
+  @override
+  String get onboardFolderNotNow => 'Not now';
+
+  @override
+  String get settingsFolder => 'PrepBelt folder';
+
+  @override
+  String get settingsFolderNone =>
+      'Not chosen: PDFs can\'t be added and nothing is backed up';
+
+  @override
+  String get settingsFolderGone => 'Not available: choose it again';
+
+  @override
+  String settingsFolderMoved(String folder) {
+    return 'Your PDFs are now in $folder.';
+  }
+
+  @override
+  String get settingsAutoBackup => 'Automatic backup';
+
+  @override
+  String get settingsAutoBackupOff => 'Off: choose a folder first';
+
+  @override
+  String settingsAutoBackupLast(String every, String when) {
+    return '$every · last $when';
+  }
+
+  @override
+  String settingsAutoBackupNone(String every) {
+    return '$every · none yet';
+  }
+
+  @override
+  String settingsAutoBackupFailed(String every) {
+    return '$every · last backup failed';
+  }
+
+  @override
+  String backupEvery(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Every $days days',
+      one: 'Every day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupEveryWeek => 'Every week';
+
+  @override
+  String get settingsBackupNow => 'Back up now';
+
+  @override
+  String get settingsBackupNowHint => 'Saves your data to your PrepBelt folder';
+
+  @override
+  String get settingsBackupNowDone => 'Backed up to your PrepBelt folder.';
+
+  @override
+  String get settingsBackupNowFailed =>
+      'Couldn\'t back up. Check your PrepBelt folder.';
+
+  @override
+  String get todayFolderCard => 'Choose a folder for your PDFs and backups.';
+
+  @override
+  String get todayFolderChoose => 'Choose';
+
+  @override
+  String get sourceEditDetails => 'Edit details';
+
+  @override
+  String get sourceEditTitle => 'Edit source';
+
+  @override
+  String get sourceEditTotalMinutes => 'Total minutes';
+
+  @override
+  String sourceEditTotalTooSmall(int n) {
+    return 'At least $n: the last chapter ends there.';
+  }
+
+  @override
+  String get sourceEditFile => 'File';
+
+  @override
+  String get sourceEditChangeFile => 'Choose another file';
+
+  @override
+  String get sourceEditFileMissing => 'Not found in your PrepBelt folder';
+
+  @override
+  String sourceEdited(String title) {
+    return 'Saved $title';
+  }
 
   @override
   String get settingsStudy => 'STUDY';
@@ -2098,7 +2255,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsExport => 'Export a backup';
 
   @override
-  String get settingsExportHint => 'One file with everything, sources included';
+  String get settingsExportHint =>
+      'One file with your data. Your PDFs stay in your folder';
 
   @override
   String get settingsRestore => 'Restore from a backup';

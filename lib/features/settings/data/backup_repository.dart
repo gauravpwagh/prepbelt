@@ -18,7 +18,7 @@ final class BackupRepository {
   final Directory documents;
   final Clock clock;
 
-  /// A zip of everything: the database and the sources folder.
+  /// A zip of the database, with any source files still in app storage.
   Future<Uint8List> export() async {
     final tmp = Directory.systemTemp.createTempSync('prepbelt-backup');
     final copy = File(p.join(tmp.path, Backup.dbName));
@@ -34,6 +34,16 @@ final class BackupRepository {
     } finally {
       tmp.deleteSync(recursive: true);
     }
+  }
+
+  /// Something was written after [atMs] (UTC ms).
+  Future<bool> changedSince(int atMs) async {
+    final latest =
+        await (db.select(db.events)
+              ..orderBy([(e) => OrderingTerm.desc(e.createdAt)])
+              ..limit(1))
+            .getSingleOrNull();
+    return latest != null && latest.createdAt > atMs;
   }
 
   /// Checks a backup and stages it for the next start. Returns when it

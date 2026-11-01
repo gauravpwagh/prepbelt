@@ -15,7 +15,9 @@ import '../../../theme/level_theme.dart';
 import '../../../theme/tokens/app_tokens.dart';
 import '../../session/state/session_providers.dart';
 import '../../sources/state/reading_providers.dart';
+import '../../sources/state/study_files.dart';
 import '../../sources/ui/source_labels.dart';
+import '../../sources/ui/study_folder_dialogs.dart';
 import '../state/today_providers.dart';
 
 /// Today (docs/06-screens.md §1): the streak, the exam, and the sessions
@@ -32,11 +34,23 @@ class TodayScreen extends ConsumerWidget {
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
     try {
-      final result = await ref
-          .read(sessionActionsProvider.notifier)
-          .start(taskId);
-      if (result == StartResult.notOpened) {
-        messenger.showSnackBar(SnackBar(content: Text(l10n.sessionNotOpened)));
+      final actions = ref.read(sessionActionsProvider.notifier);
+      final result = await actions.start(taskId);
+      final sourceId = await actions.sourceOf(taskId);
+      if (sourceId == null) {
+        if (result != StartResult.opened) {
+          messenger.showSnackBar(
+            SnackBar(content: Text(l10n.sessionNotOpened)),
+          );
+        }
+      } else if (context.mounted) {
+        await afterStart(
+          context,
+          ref,
+          result,
+          sourceId: sourceId,
+          notOpened: l10n.sessionNotOpened,
+        );
       }
       await router.push(Routes.session(taskId));
     } on InvalidOperationError {
@@ -56,8 +70,14 @@ class TodayScreen extends ConsumerWidget {
       final result = await ref
           .read(readingActionsProvider.notifier)
           .start(sourceId);
-      if (result == StartResult.notOpened) {
-        messenger.showSnackBar(SnackBar(content: Text(l10n.readingNotOpened)));
+      if (result != StartResult.opened && context.mounted) {
+        await afterStart(
+          context,
+          ref,
+          result,
+          sourceId: sourceId,
+          notOpened: l10n.readingNotOpened,
+        );
         await router.push(Routes.sourceChapters(sourceId));
       }
     } on InvalidOperationError {
@@ -73,6 +93,9 @@ class TodayScreen extends ConsumerWidget {
         onStart: (id) => _start(context, ref, id),
         onStartReading: (id) => _read(context, ref, id),
         onOpenTask: (id) => context.push(Routes.task(id)),
+        onChooseFolder: ref.watch(needsFolderProvider).value ?? false
+            ? () => ensureStudyFolder(context, ref)
+            : null,
         onOpenSource: (id) => context.push(Routes.sourceChapters(id)),
         onOpenExam: (id) => context.push(Routes.exam(id)),
         onAddSource: () => context.push(Routes.newSource),
@@ -95,8 +118,12 @@ class TodayBody extends StatelessWidget {
     required this.onAddSource,
     required this.onRetry,
     this.onSettings,
+    this.onChooseFolder,
     super.key,
   });
+
+  /// Shows "Choose a folder for your PDFs and backups" (D51) when set.
+  final VoidCallback? onChooseFolder;
 
   final AsyncValue<TodayView> view;
   final VoidCallback? onSettings;
@@ -118,6 +145,13 @@ class TodayBody extends StatelessWidget {
     final children = <Widget>[
       _Header(view: v, onSettings: onSettings),
       const SizedBox(height: AppSpace.xl),
+      if (onChooseFolder case final choose?) ...[
+        WarningCard(
+          message: l10n.todayFolderCard,
+          action: SmallButton(label: l10n.todayFolderChoose, onPressed: choose),
+        ),
+        const SizedBox(height: AppSpace.xl),
+      ],
     ];
     switch (view) {
       case AsyncData(value: final v):

@@ -12,6 +12,7 @@ import '../features/redefine/ui/redefine_sheet.dart';
 import '../features/session/ui/session_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
 import '../features/sources/ui/add_source_screen.dart';
+import '../features/sources/ui/edit_source_screen.dart';
 import '../features/sources/ui/reading_sheet.dart';
 import '../features/sources/ui/source_chapters_screen.dart';
 import '../features/sources/ui/sources_screen.dart';
@@ -82,6 +83,11 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
         path: Routes.reading,
         pageBuilder: (_, state) =>
             SheetPage<void>(key: state.pageKey, child: const ReadingSheet()),
+      ),
+      GoRoute(
+        path: '/sources/:id/edit',
+        builder: (_, state) =>
+            EditSourceScreen(sourceId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/sources/:id/survey',

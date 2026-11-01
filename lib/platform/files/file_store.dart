@@ -3,25 +3,30 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
 
+import '../../core/db/enums.dart';
 import '../../core/ids/ids.dart';
 
-/// A file already copied into app storage.
+/// A source file where it is kept: in the study folder, or in app storage
+/// for installs from before it (D51).
 final class StoredFile {
   const StoredFile({
     required this.relativePath,
     required this.bytes,
     required this.sha256,
+    this.place = FilePlace.app,
   });
 
-  /// Relative to the app documents directory, e.g. `sources/<uuid>.pdf`.
+  /// Inside the study folder, or relative to the app documents directory
+  /// (`sources/<uuid>.pdf`), by [place].
   final String relativePath;
+  final FilePlace place;
   final int bytes;
   final String sha256;
 }
 
-/// Copies source files into app storage (docs/05-architecture.md, "Files").
-/// The database keeps only the relative path, so a backup or a new device
-/// can move the folder as a whole.
+/// Source files in app storage, from before the study folder (D51). Kept
+/// to read those until a folder is chosen and they move into it, and for
+/// hashing.
 final class FileStore {
   FileStore({required this.root, required this.ids});
 

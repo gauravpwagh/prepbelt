@@ -123,6 +123,21 @@ void main() {
     await restored.close();
   });
 
+  test('a backup without source files (D51) leaves app storage alone', () async {
+    final db = open(phoneA);
+    final bytes = await BackupRepository(
+      db,
+      documents: phoneA,
+      clock: FakeClock(DateTime.utc(2026, 11, 1)),
+    ).export();
+    await db.close();
+    final kept = File(p.join(phoneB.path, Backup.sourcesFolder, 'old.pdf'))
+      ..createSync(recursive: true);
+    Backup.stage(bytes, documents: phoneB, currentSchema: 5);
+    expect(Backup.applyPendingRestore(phoneB), isTrue);
+    expect(kept.existsSync(), isTrue);
+  });
+
   test('a file that is not a backup, or one from a newer app, is refused', () {
     expect(
       () => Backup.stage(

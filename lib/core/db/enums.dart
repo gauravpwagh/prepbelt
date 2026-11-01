@@ -6,6 +6,10 @@ enum SourceType { pdf, book, video, link, notes, qbank }
 
 enum UnitType { page, minute, question, item }
 
+/// Where a source file lives (D51): app storage (installs from before the
+/// study folder) or the study folder.
+enum FilePlace { app, folder }
+
 enum TaskKind { learn, practice }
 
 enum TaskStatus { active, paused, archived }

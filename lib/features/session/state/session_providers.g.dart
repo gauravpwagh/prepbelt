@@ -209,7 +209,7 @@ final class SessionActionsProvider
   }
 }
 
-String _$sessionActionsHash() => r'60051b6c9a61d9f3293c6ed2b61e785da3425390';
+String _$sessionActionsHash() => r'ca7c467b8696b00ea867ed42430e90c49f178c9b';
 
 /// Starting, finishing and leaving a session. Kept alive: these run past
 /// the screen that called them.

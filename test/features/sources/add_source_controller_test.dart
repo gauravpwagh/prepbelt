@@ -7,11 +7,13 @@ import 'package:prepbelt/core/providers/core_providers.dart';
 import 'package:prepbelt/features/sources/data/source_repository.dart';
 import 'package:prepbelt/features/sources/state/add_source_controller.dart';
 import 'package:prepbelt/features/sources/state/source_providers.dart';
+import 'package:prepbelt/features/sources/state/study_files.dart';
 import 'package:prepbelt/platform/files/file_picking.dart';
 import 'package:prepbelt/platform/files/file_store.dart';
 import 'package:prepbelt/platform/pdf_outline/pdf_outline.dart';
 import 'package:prepbelt/platform/share_in/share_in.dart';
 
+import '../../support/study_folder.dart';
 import '../../support/test_db.dart';
 
 class _Picker implements PdfPicker {
@@ -20,7 +22,7 @@ class _Picker implements PdfPicker {
   final File file;
 
   @override
-  Future<PickedFile?> pickPdf() async => PickedFile(
+  Future<PickedFile?> pickPdf(String folder) async => PickedFile(
     path: file.path,
     name: 'HC Verma Vol 1.pdf',
     bytes: file.lengthSync(),
@@ -57,6 +59,7 @@ void main() {
           (ref) async =>
               FileStore(root: Directory('${tmp.path}/app'), ids: t.ctx.ids),
         ),
+        ...overrideStudyFolder(tmp, appStorage: false),
         pdfPickerProvider.overrideWithValue(_Picker(pdf)),
         pdfOutlineReaderProvider.overrideWithValue(_Reader(info)),
       ],
@@ -104,7 +107,12 @@ void main() {
     final files = await db.select(db.sourceFiles).get();
     expect(files.single.sourceId, id);
     expect(
-      File('${tmp.path}/app/${files.single.localPath}').existsSync(),
+      (files.single.localPath, files.single.place),
+      ('HC Verma Vol 1.pdf', FilePlace.folder),
+      reason: 'copied into the study folder, named by title',
+    );
+    expect(
+      File('${tmp.path}/folder/${files.single.localPath}').existsSync(),
       isTrue,
     );
     expect(await db.select(db.chunks).get(), hasLength(4));

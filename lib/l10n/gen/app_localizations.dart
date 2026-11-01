@@ -646,12 +646,6 @@ abstract class AppLocalizations {
   /// **'Open its chapters'**
   String get sourceCardHintOpen;
 
-  /// No description provided for @sourceRename.
-  ///
-  /// In en, this message translates to:
-  /// **'Rename'**
-  String get sourceRename;
-
   /// No description provided for @sourceMenu.
   ///
   /// In en, this message translates to:
@@ -2922,14 +2916,266 @@ abstract class AppLocalizations {
   /// No description provided for @onboardStep.
   ///
   /// In en, this message translates to:
-  /// **'Step {step} of 3'**
-  String onboardStep(int step);
+  /// **'Step {step} of {steps}'**
+  String onboardStep(int step, int steps);
 
   /// No description provided for @onboardFailed.
   ///
   /// In en, this message translates to:
   /// **'Couldn\'t save. Try again.'**
   String get onboardFailed;
+
+  /// No description provided for @folderAskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your PrepBelt folder'**
+  String get folderAskTitle;
+
+  /// No description provided for @folderAskBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your PDFs live in a folder you choose, and a backup is saved there every day. Pick or create one, for example Documents/PrepBelt.'**
+  String get folderAskBody;
+
+  /// No description provided for @folderGoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your PrepBelt folder isn\'t available'**
+  String get folderGoneTitle;
+
+  /// No description provided for @folderGoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It may have been moved or deleted, or PrepBelt lost access to it. Choose it again, or choose a new one.'**
+  String get folderGoneBody;
+
+  /// No description provided for @folderChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose folder'**
+  String get folderChoose;
+
+  /// No description provided for @fileMissingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t find {name}'**
+  String fileMissingTitle(String name);
+
+  /// No description provided for @fileMissingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It may have been moved, renamed or deleted from your PrepBelt folder.'**
+  String get fileMissingBody;
+
+  /// No description provided for @fileFind.
+  ///
+  /// In en, this message translates to:
+  /// **'Find the file'**
+  String get fileFind;
+
+  /// No description provided for @fileDifferentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A different file'**
+  String get fileDifferentTitle;
+
+  /// No description provided for @fileDifferentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This isn\'t the same file as before. Its pages may differ; the chapters stay as they are. Use it anyway?'**
+  String get fileDifferentBody;
+
+  /// No description provided for @fileUseAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Use it'**
+  String get fileUseAnyway;
+
+  /// No description provided for @fileUsedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is already the source {title}.'**
+  String fileUsedBy(String title);
+
+  /// No description provided for @fileRelinked.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked to {name}.'**
+  String fileRelinked(String name);
+
+  /// No description provided for @onboardFolderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where should PrepBelt keep your files?'**
+  String get onboardFolderTitle;
+
+  /// No description provided for @onboardFolderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick or create a folder, for example Documents/PrepBelt. Your PDFs live there, and a backup is saved there every day. If you reinstall PrepBelt, pick the same folder to get everything back.'**
+  String get onboardFolderBody;
+
+  /// No description provided for @onboardFolderBodyLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Your PDFs and a daily backup are kept inside PrepBelt on this phone. To keep a copy elsewhere, export a backup from Settings.'**
+  String get onboardFolderBodyLocal;
+
+  /// No description provided for @onboardFolderNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get onboardFolderNotNow;
+
+  /// No description provided for @settingsFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'PrepBelt folder'**
+  String get settingsFolder;
+
+  /// No description provided for @settingsFolderNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Not chosen: PDFs can\'t be added and nothing is backed up'**
+  String get settingsFolderNone;
+
+  /// No description provided for @settingsFolderGone.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available: choose it again'**
+  String get settingsFolderGone;
+
+  /// No description provided for @settingsFolderMoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your PDFs are now in {folder}.'**
+  String settingsFolderMoved(String folder);
+
+  /// No description provided for @settingsAutoBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic backup'**
+  String get settingsAutoBackup;
+
+  /// No description provided for @settingsAutoBackupOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off: choose a folder first'**
+  String get settingsAutoBackupOff;
+
+  /// No description provided for @settingsAutoBackupLast.
+  ///
+  /// In en, this message translates to:
+  /// **'{every} · last {when}'**
+  String settingsAutoBackupLast(String every, String when);
+
+  /// No description provided for @settingsAutoBackupNone.
+  ///
+  /// In en, this message translates to:
+  /// **'{every} · none yet'**
+  String settingsAutoBackupNone(String every);
+
+  /// No description provided for @settingsAutoBackupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{every} · last backup failed'**
+  String settingsAutoBackupFailed(String every);
+
+  /// No description provided for @backupEvery.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Every day} other{Every {days} days}}'**
+  String backupEvery(int days);
+
+  /// No description provided for @backupEveryWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Every week'**
+  String get backupEveryWeek;
+
+  /// No description provided for @settingsBackupNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up now'**
+  String get settingsBackupNow;
+
+  /// No description provided for @settingsBackupNowHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Saves your data to your PrepBelt folder'**
+  String get settingsBackupNowHint;
+
+  /// No description provided for @settingsBackupNowDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Backed up to your PrepBelt folder.'**
+  String get settingsBackupNowDone;
+
+  /// No description provided for @settingsBackupNowFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t back up. Check your PrepBelt folder.'**
+  String get settingsBackupNowFailed;
+
+  /// No description provided for @todayFolderCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a folder for your PDFs and backups.'**
+  String get todayFolderCard;
+
+  /// No description provided for @todayFolderChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get todayFolderChoose;
+
+  /// No description provided for @sourceEditDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit details'**
+  String get sourceEditDetails;
+
+  /// No description provided for @sourceEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit source'**
+  String get sourceEditTitle;
+
+  /// No description provided for @sourceEditTotalMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Total minutes'**
+  String get sourceEditTotalMinutes;
+
+  /// No description provided for @sourceEditTotalTooSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'At least {n}: the last chapter ends there.'**
+  String sourceEditTotalTooSmall(int n);
+
+  /// No description provided for @sourceEditFile.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get sourceEditFile;
+
+  /// No description provided for @sourceEditChangeFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another file'**
+  String get sourceEditChangeFile;
+
+  /// No description provided for @sourceEditFileMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Not found in your PrepBelt folder'**
+  String get sourceEditFileMissing;
+
+  /// No description provided for @sourceEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {title}'**
+  String sourceEdited(String title);
 
   /// No description provided for @settingsStudy.
   ///
@@ -3012,7 +3258,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsExportHint.
   ///
   /// In en, this message translates to:
-  /// **'One file with everything, sources included'**
+  /// **'One file with your data. Your PDFs stay in your folder'**
   String get settingsExportHint;
 
   /// No description provided for @settingsRestore.

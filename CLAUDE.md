@@ -74,7 +74,7 @@ There is no separate designer for 1.0. You own the UI:
 - One exam at a time in 1.0; multiple exams in 1.1.
 - A task belongs to exactly one topic. Merging across topics is blocked.
 - Reviews: after the first read, one per belt above White up to the task's exam target, at most 5 (High 5, Medium 4, Low 3), growing gaps fitted before the exam; Good earns the next belt (Black always by an extra review), Forgot/Hard dims and repeats the step next day; any task may be reviewed early and it counts.
-- Source files are copied into app storage on every platform.
+- Source files live only in a study folder the student chooses, with an automatic database backup in it (D51, replacing "copied into app storage").
 - Sources open in external apps; there is no in-app PDF reader.
 - Flashcards and practice questions are optional and arrive in 1.2.
 - Overdue reviews always come first in a day; there is no backlog cap.

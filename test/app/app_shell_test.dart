@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,14 +19,26 @@ import 'package:prepbelt/platform/notifications/reminder_scheduler.dart';
 import 'package:prepbelt/platform/share_in/share_in.dart';
 
 import '../support/pump.dart';
+import '../support/study_folder.dart';
 import '../support/test_db.dart';
 
 void main() {
   late AppDatabase db;
+  late Directory tmp;
   final clock = FakeClock(DateTime.utc(2026, 10, 28, 9));
 
-  setUp(() => db = openTestDatabase());
-  tearDown(() => db.close());
+  setUp(() {
+    db = openTestDatabase();
+    tmp = Directory.systemTemp.createTempSync('app_shell');
+  });
+  tearDown(() async {
+    await db.close();
+    try {
+      tmp.deleteSync(recursive: true);
+    } on FileSystemException {
+      // An automatic backup may still be writing; the OS cleans temp.
+    }
+  });
 
   /// Lets Drift streams deliver (they run on real async), then settles.
   Future<void> settle(WidgetTester tester) async {
@@ -61,6 +75,7 @@ void main() {
           writeContextProvider.overrideWithValue(ctx!),
           shareInboxProvider.overrideWithValue(const NoShareInbox()),
           reminderSchedulerProvider.overrideWithValue(const NoReminders()),
+          ...overrideStudyFolder(tmp, chosen: onboarded),
         ],
         child: const PrepBeltApp(),
       ),
@@ -82,6 +97,15 @@ void main() {
     expect(find.text('1 h 45 min'), findsOneWidget);
     await tester.tap(find.text('Continue'));
     await settle(tester);
+    expect(find.text('Where should PrepBelt keep your files?'), findsOneWidget);
+    // No folder picker on this platform: the app's own folder is used.
+    await tester.tap(find.text('Continue'));
+    // Choosing the folder writes files: give real IO a few turns.
+    final reminder = find.text('A nudge each evening?');
+    for (var i = 0; i < 10 && reminder.evaluate().isEmpty; i++) {
+      await settle(tester);
+    }
+    await settle(tester);
     expect(find.text('A nudge each evening?'), findsOneWidget);
     await tester.tap(find.text('Not now'));
     await settle(tester);
@@ -101,6 +125,10 @@ void main() {
         settings[SettingKeys.reminderEnabled],
       ),
       ('Asha', true, false),
+    );
+    expect(
+      File('${tmp.path}/device/device.json').readAsStringSync(),
+      contains('folder'),
     );
     final week = await tester.runAsync(
       () => db.select(db.availabilities).get(),

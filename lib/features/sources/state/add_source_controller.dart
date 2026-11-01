@@ -12,6 +12,7 @@ import '../../../platform/pdf_outline/pdf_outline.dart';
 import '../../../platform/share_in/share_in.dart';
 import '../data/chapter_split.dart';
 import 'source_providers.dart';
+import 'study_files.dart';
 
 part 'add_source_controller.g.dart';
 
@@ -156,7 +157,7 @@ class AddSourceController extends _$AddSourceController {
   int? _totalUnits;
   String _link = '';
   PdfSummary? _pdf;
-  String? _pdfPath;
+  PickedFile? _picked;
   String? _sha;
   bool _reading = false;
   String? _duplicateId;
@@ -248,10 +249,11 @@ class AddSourceController extends _$AddSourceController {
     _emit();
   }
 
-  /// Lets the student choose a PDF, rejects one already added, and reads
-  /// its page count and bookmarks.
+  /// Lets the student choose a PDF in the study folder, rejects one
+  /// already added, and reads its page count and bookmarks. The screen
+  /// makes sure a folder is chosen first.
   Future<void> pickPdf() async {
-    final picked = await ref.read(pdfPickerProvider).pickPdf();
+    final picked = await ref.read(studyFilesProvider.notifier).pickPdf();
     if (picked == null) return;
     await _usePdf(picked);
   }
@@ -275,7 +277,7 @@ class AddSourceController extends _$AddSourceController {
   Future<void> _usePdf(PickedFile picked) async {
     _clearPdf();
     _pdf = PdfSummary(name: picked.name, bytes: picked.bytes);
-    _pdfPath = picked.path;
+    _picked = picked;
     _reading = true;
     _emit();
 
@@ -330,12 +332,11 @@ class AddSourceController extends _$AddSourceController {
     _saveFailed = false;
     _emit();
     StoredFile? stored;
-    final store = _type == SourceType.pdf
-        ? await ref.read(fileStoreProvider.future)
-        : null;
+    final files = ref.read(studyFilesProvider.notifier);
+    final picked = _type == SourceType.pdf ? _picked : null;
     try {
-      if (store != null) {
-        stored = await store.copyIn(File(_pdfPath!), sha: _sha);
+      if (picked != null) {
+        stored = await files.keep(picked, title: _title.trim(), sha256: _sha!);
       }
       final source = await ref
           .read(sourceRepositoryProvider)
@@ -354,7 +355,7 @@ class AddSourceController extends _$AddSourceController {
       _emit();
       return source.id;
     } on Object {
-      if (stored != null) await store!.remove(stored.relativePath);
+      if (stored != null) await files.discard(picked!, stored);
       _saving = false;
       _saveFailed = true;
       _emit();
@@ -365,7 +366,7 @@ class AddSourceController extends _$AddSourceController {
   void _clearPdf() {
     _fileFailed = false;
     _pdf = null;
-    _pdfPath = null;
+    _picked = null;
     _sha = null;
     _duplicateId = null;
     _duplicateTitle = null;

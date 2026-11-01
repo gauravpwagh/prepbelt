@@ -90,6 +90,7 @@ final class SourceRepository extends EventSourcedRepository {
               id: Value(rec.newId()),
               sourceId: Value(id),
               localPath: Value(file.relativePath),
+              place: Value(file.place),
               bytes: Value(file.bytes),
               sha256: Value(file.sha256),
             ),
@@ -144,6 +145,64 @@ final class SourceRepository extends EventSourcedRepository {
             ..where((f) => f.sourceId.equals(sourceId) & f.deletedAt.isNull())
             ..limit(1))
           .getSingleOrNull();
+
+  /// Every live source file, for moving them into a study folder.
+  Future<List<SourceFile>> allFiles() async {
+    final rows =
+        await (db.select(db.sourceFiles).join([
+              innerJoin(
+                db.sources,
+                db.sources.id.equalsExp(db.sourceFiles.sourceId),
+              ),
+            ])..where(
+              db.sourceFiles.deletedAt.isNull() & db.sources.deletedAt.isNull(),
+            ))
+            .get();
+    return [for (final r in rows) r.readTable(db.sourceFiles)];
+  }
+
+  /// Points source [sourceId]'s file somewhere else: moved into the study
+  /// folder, found again, or relinked by the student (D51). [action] names
+  /// it in the Event.
+  Future<void> setFile(
+    String sourceId,
+    StoredFile file, {
+    required String action,
+  }) async {
+    final existing = await fileOf(sourceId);
+    await mutate(
+      entity: entity,
+      entityId: sourceId,
+      op: EventOp.update,
+      data: {'action': action},
+      body: (rec) async {
+        if (existing == null) {
+          await rec.insert(
+            db.sourceFiles,
+            SourceFilesCompanion(
+              id: Value(rec.newId()),
+              sourceId: Value(sourceId),
+              localPath: Value(file.relativePath),
+              place: Value(file.place),
+              bytes: Value(file.bytes),
+              sha256: Value(file.sha256),
+            ),
+          );
+        } else {
+          await rec.update(
+            db.sourceFiles,
+            existing.id,
+            SourceFilesCompanion(
+              localPath: Value(file.relativePath),
+              place: Value(file.place),
+              bytes: Value(file.bytes),
+              sha256: Value(file.sha256),
+            ),
+          );
+        }
+      },
+    );
+  }
 
   /// A source's chapters in reading order, top level first then parts.
   Stream<List<Chunk>> watchChunks(String sourceId) =>

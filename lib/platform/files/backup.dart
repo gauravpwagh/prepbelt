@@ -6,14 +6,16 @@ import 'package:archive/archive.dart';
 import 'package:path/path.dart' as p;
 
 /// A whole-device backup (docs/05-architecture.md, "Backup"): a zip with
-/// `manifest.json`, the SQLite database and the `sources/` folder.
+/// `manifest.json`, the SQLite database and the `sources/` folder of app
+/// storage. Since the study folder (D51, version 2) PDFs live there, so
+/// that folder is empty or holds only files not moved yet.
 ///
 /// Restore is staged: the backup is unpacked next to the database and
 /// swapped in by [applyPendingRestore] on the next start, before the
 /// database opens, so no open connection ever sees the file change.
 abstract final class Backup {
   static const format = 'prepbelt-backup';
-  static const version = 1;
+  static const version = 2;
   static const dbName = 'prepbelt.sqlite';
   static const sourcesFolder = 'sources';
   static const _staging = 'restore';
@@ -84,7 +86,10 @@ abstract final class Backup {
       throw const BackupError(BackupProblem.notABackup);
     }
     final schema = manifest['schemaVersion'];
-    if (schema is! int || schema > currentSchema) {
+    final backupVersion = manifest['version'];
+    if (schema is! int ||
+        schema > currentSchema ||
+        (backupVersion is int && backupVersion > version)) {
       throw const BackupError(BackupProblem.tooNew);
     }
 
@@ -125,10 +130,14 @@ abstract final class Backup {
       if (f.existsSync()) f.deleteSync();
     }
     File(p.join(staging.path, dbName)).copySync(db.path);
+    // Files in app storage come back only from a backup that holds some
+    // (version 1); the study folder keeps its own.
     final sources = Directory(p.join(documents.path, sourcesFolder));
-    if (sources.existsSync()) sources.deleteSync(recursive: true);
     final staged = Directory(p.join(staging.path, sourcesFolder));
-    if (staged.existsSync()) staged.renameSync(sources.path);
+    if (staged.existsSync()) {
+      if (sources.existsSync()) sources.deleteSync(recursive: true);
+      staged.renameSync(sources.path);
+    }
     staging.deleteSync(recursive: true);
     return true;
   }

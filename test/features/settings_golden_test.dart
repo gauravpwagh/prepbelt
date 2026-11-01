@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:prepbelt/core/config/defaults.dart';
 import 'package:prepbelt/features/settings/ui/settings_screen.dart';
+import 'package:prepbelt/features/sources/state/study_files.dart';
 
 import '../support/pump.dart';
 
@@ -17,6 +18,15 @@ Widget settings({String? busy}) => Scaffold(
       SettingKeys.reminderTime: '19:30',
     },
     week: const [90, 90, 90, 90, 90, 90, 240],
+    folder: const FolderStatus(
+      folder: 'folder',
+      label: 'Documents/PrepBelt',
+      available: true,
+    ),
+    device: DeviceState(
+      folder: 'folder',
+      backupAt: DateTime(2026, 11, 1, 8, 12).millisecondsSinceEpoch,
+    ),
     busy: busy,
     onBack: () {},
     onEditWeek: () {},

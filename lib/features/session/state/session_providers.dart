@@ -108,13 +108,15 @@ class SessionActions extends _$SessionActions {
     return openAgain(taskId);
   }
 
+  /// The source of task [taskId]'s first part.
+  Future<String?> sourceOf(String taskId) async =>
+      (await _repo.load(taskId)).source?.id;
+
   /// Opens the task's source again from the session screen.
   Future<StartResult> openAgain(String taskId) async {
     final source = (await _repo.load(taskId)).source;
     if (source == null) return StartResult.notOpened;
-    return await openSource(ref, source.id)
-        ? StartResult.opened
-        : StartResult.notOpened;
+    return startResultOf(await openSource(ref, source.id));
   }
 
   Future<Review> finish({

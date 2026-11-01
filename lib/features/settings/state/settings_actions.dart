@@ -61,6 +61,11 @@ class SettingsActions extends _$SettingsActions {
     await ref.read(plannerProvider.notifier).replanNow();
   }
 
+  /// Days between automatic backups (D51).
+  Future<void> setBackupEvery(int days) => ref
+      .read(settingsRepositoryProvider)
+      .set(SettingKeys.backupEveryDays, days);
+
   /// Exports a backup through the save dialog. False if cancelled.
   Future<bool> exportBackup() async {
     final repo = await ref.read(backupRepositoryProvider.future);

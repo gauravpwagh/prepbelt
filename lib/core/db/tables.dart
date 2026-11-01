@@ -53,8 +53,11 @@ class Sources extends Table with SyncColumns {
 class SourceFiles extends Table with SyncColumns {
   TextColumn get sourceId => text().references(Sources, #id)();
 
-  /// Relative to the app documents directory.
+  /// Inside the study folder ("Physics/Optics.pdf") when [place] is
+  /// folder; relative to the app documents directory when it is app (D51).
   TextColumn get localPath => text()();
+  TextColumn get place =>
+      textEnum<FilePlace>().withDefault(const Constant('app'))();
   IntColumn get bytes => integer()();
   TextColumn get sha256 => text()();
 }

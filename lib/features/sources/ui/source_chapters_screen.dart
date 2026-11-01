@@ -15,6 +15,7 @@ import '../state/reading_providers.dart';
 import 'add_task_sheet.dart';
 import 'source_labels.dart';
 import 'source_menu.dart';
+import 'study_folder_dialogs.dart';
 
 /// Source chapters (design/notes/source-chapters.md): read as you go,
 /// survey if you like, and turn chapters into tasks.
@@ -52,7 +53,15 @@ class SourceChaptersScreen extends ConsumerWidget {
         return;
       }
       final result = await actions.start(sourceId);
-      if (result == StartResult.notOpened) snack(l10n.readingNotOpened);
+      if (context.mounted) {
+        await afterStart(
+          context,
+          ref,
+          result,
+          sourceId: sourceId,
+          notOpened: l10n.readingNotOpened,
+        );
+      }
     }
 
     Future<void> setFinished(SourceChaptersView v, bool finished) async {
