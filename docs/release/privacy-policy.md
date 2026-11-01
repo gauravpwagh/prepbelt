@@ -1,6 +1,6 @@
 # PrepBelt privacy policy
 
-Last updated: 29 October 2026
+Last updated: 1 November 2026
 
 PrepBelt is an exam-preparation app. This policy explains what happens to your information when you use it.
 
@@ -14,7 +14,7 @@ PrepBelt stores on your phone what you put into it:
 - your tasks;
 - your reviews and their timings.
 
-PDF files you add are copied into the app's private storage on your phone.
+PDF files you add are kept in a study folder you choose on your phone (on Android; on iPhone they stay in the app's own storage). PrepBelt also saves a backup of your progress into that folder, at the frequency you set in Settings. The backup contains the information listed above, but not the PDF files.
 
 ## What leaves your phone
 
@@ -36,7 +36,7 @@ PrepBelt is meant for students preparing for exams and is not directed at childr
 
 ## Deleting your information
 
-Uninstalling PrepBelt deletes everything it stored. Within the app, you can remove sources and tasks at any time.
+Uninstalling PrepBelt deletes everything it stored inside the app. Your study folder, its PDFs and its backups stay on your phone until you delete them. Within the app, you can remove sources and tasks at any time.
 
 ## Changes
 

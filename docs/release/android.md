@@ -54,8 +54,7 @@ Release builds are shrunk by R8. The reminder's icon (`res/drawable/ic_notificat
    | Government app / financial features / health | No. |
 
 5. **Store listing** (only needed before a public release; internal testing works without a full listing):
-   - Short description: "Exam prep, belt by belt: plan, study and review every chapter before exam day."
-   - Icon: `assets/brand/icon.png` (1024 px). Play asks for 512 px, so export it from `design/brand/`.
+   - All text, graphics and release notes are in `listing.md`.
 
 ### Internal testing
 
