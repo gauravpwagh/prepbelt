@@ -53,10 +53,14 @@ Future<AddTaskRequest?> showAddTaskSheet(
   ),
   builder: (sheet) => Padding(
     padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(sheet).bottom),
-    child: AddTaskSheet(
-      view: view,
-      index: index,
-      onCreate: (r) => Navigator.of(sheet).pop(r),
+    // Above the system navigation bar; useSafeArea covers only the top.
+    child: SafeArea(
+      top: false,
+      child: AddTaskSheet(
+        view: view,
+        index: index,
+        onCreate: (r) => Navigator.of(sheet).pop(r),
+      ),
     ),
   ),
 );

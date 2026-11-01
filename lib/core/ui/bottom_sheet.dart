@@ -91,9 +91,11 @@ class SheetPage<T> extends Page<T> {
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.sheet)),
     ),
+    // useSafeArea only keeps clear of the top; SafeArea keeps the buttons
+    // above the system navigation bar (three-button navigation).
     builder: (sheet) => Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(sheet).bottom),
-      child: child,
+      child: SafeArea(top: false, child: child),
     ),
   );
 }
