@@ -35,3 +35,18 @@ Paused tasks appear in no box.
 ## Data effects
 
 None. The boxes read task states, the stored plan and sources.
+
+## Colours and folding (D54)
+
+Each box has its own soft tint, border and count pill, so the three read apart at a glance. The rows stay white session cards on top.
+
+| Box | Meaning | Light bg / border / pill text | Dark bg / border / pill text |
+| --- | --- | --- | --- |
+| Reviews due | Do it now (warm, like the streak flame) | #FFF4E6 / #F6D9B4 / #8A4A00 | #2A2013 / #5C4220 / #F5C98A |
+| Not started | New learning (the accent's indigo) | #EEF0FF / #D5D9FB / #3730A3 | #1C2046 / #353C7A / #B9BEFF |
+| Reviews ahead | Later (calm teal) | #E9F7F3 / #C3E8DD / #0F6B57 | #11262A / #22484A / #7FD6C3 |
+
+Title, muted text and links keep at least 5.2:1 on every tint. The count is never shown by colour alone: each box has its title.
+
+**Reviews due** always shows every row: they are today's work. **Not started** and **Reviews ahead** show their first 3 rows, with "Show all N" / "Show fewer".
+

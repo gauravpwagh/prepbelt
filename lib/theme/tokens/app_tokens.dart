@@ -38,6 +38,18 @@ final class AppColors extends ThemeExtension<AppColors> {
     required this.partB,
     required this.partBBg,
     required this.partBText,
+    required this.dueBg,
+    required this.dueBorder,
+    required this.duePill,
+    required this.dueText,
+    required this.freshBg,
+    required this.freshBorder,
+    required this.freshPill,
+    required this.freshText,
+    required this.aheadBg,
+    required this.aheadBorder,
+    required this.aheadPill,
+    required this.aheadText,
   });
 
   /// Light values, exactly as in the mockups.
@@ -75,6 +87,18 @@ final class AppColors extends ThemeExtension<AppColors> {
     partB: Color(0xFFFED7AA),
     partBBg: Color(0xFFFFF8F1),
     partBText: Color(0xFF9A3412),
+    dueBg: Color(0xFFFFF4E6),
+    dueBorder: Color(0xFFF6D9B4),
+    duePill: Color(0xFFFDE3C2),
+    dueText: Color(0xFF8A4A00),
+    freshBg: Color(0xFFEEF0FF),
+    freshBorder: Color(0xFFD5D9FB),
+    freshPill: Color(0xFFDDE1FF),
+    freshText: Color(0xFF3730A3),
+    aheadBg: Color(0xFFE9F7F3),
+    aheadBorder: Color(0xFFC3E8DD),
+    aheadPill: Color(0xFFCDEFE5),
+    aheadText: Color(0xFF0F6B57),
   );
 
   /// Dark values, derived: same hues, text kept at 4.5:1 or better on
@@ -113,6 +137,18 @@ final class AppColors extends ThemeExtension<AppColors> {
     partB: Color(0xFF8A5626),
     partBBg: Color(0xFF2B2118),
     partBText: Color(0xFFFFC08A),
+    dueBg: Color(0xFF2A2013),
+    dueBorder: Color(0xFF5C4220),
+    duePill: Color(0xFF4A3418),
+    dueText: Color(0xFFF5C98A),
+    freshBg: Color(0xFF1C2046),
+    freshBorder: Color(0xFF353C7A),
+    freshPill: Color(0xFF2D3370),
+    freshText: Color(0xFFB9BEFF),
+    aheadBg: Color(0xFF11262A),
+    aheadBorder: Color(0xFF22484A),
+    aheadPill: Color(0xFF1C3D3F),
+    aheadText: Color(0xFF7FD6C3),
   );
 
   /// Primary text, dark cards, selected chips.
@@ -181,6 +217,24 @@ final class AppColors extends ThemeExtension<AppColors> {
   final Color partBBg;
   final Color partBText;
 
+  /// Today's "Reviews due" box (D54): warm amber, do it now.
+  final Color dueBg;
+  final Color dueBorder;
+  final Color duePill;
+  final Color dueText;
+
+  /// "Not started" box: indigo, new learning.
+  final Color freshBg;
+  final Color freshBorder;
+  final Color freshPill;
+  final Color freshText;
+
+  /// "Reviews ahead" box: calm teal, later.
+  final Color aheadBg;
+  final Color aheadBorder;
+  final Color aheadPill;
+  final Color aheadText;
+
   @override
   AppColors copyWith() => this;
 
@@ -222,6 +276,18 @@ final class AppColors extends ThemeExtension<AppColors> {
       partB: l(partB, other.partB),
       partBBg: l(partBBg, other.partBBg),
       partBText: l(partBText, other.partBText),
+      dueBg: l(dueBg, other.dueBg),
+      dueBorder: l(dueBorder, other.dueBorder),
+      duePill: l(duePill, other.duePill),
+      dueText: l(dueText, other.dueText),
+      freshBg: l(freshBg, other.freshBg),
+      freshBorder: l(freshBorder, other.freshBorder),
+      freshPill: l(freshPill, other.freshPill),
+      freshText: l(freshText, other.freshText),
+      aheadBg: l(aheadBg, other.aheadBg),
+      aheadBorder: l(aheadBorder, other.aheadBorder),
+      aheadPill: l(aheadPill, other.aheadPill),
+      aheadText: l(aheadText, other.aheadText),
     );
   }
 }

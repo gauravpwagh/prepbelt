@@ -200,6 +200,9 @@ class TodayBody extends StatelessWidget {
               _Box(
                 title: l10n.todayBoxDue,
                 empty: l10n.todayBoxDueEmpty,
+                tone: _BoxTone.due,
+                // Every review due shows: they are today's work (D53).
+                collapsed: false,
                 rows: [for (final card in v.due) row(card)],
               ),
             )
@@ -208,6 +211,7 @@ class TodayBody extends StatelessWidget {
               _Box(
                 title: l10n.todayBoxFresh,
                 empty: l10n.todayBoxFreshEmpty,
+                tone: _BoxTone.fresh,
                 rows: [for (final card in v.fresh) row(card)],
               ),
             )
@@ -216,6 +220,7 @@ class TodayBody extends StatelessWidget {
               _Box(
                 title: l10n.todayBoxAhead,
                 empty: l10n.todayBoxAheadEmpty,
+                tone: _BoxTone.ahead,
                 rows: [for (final card in v.ahead) row(card)],
               ),
             );
@@ -438,14 +443,27 @@ class _ExamCard extends StatelessWidget {
   }
 }
 
-/// One of Today's three boxes (D50): a title with a count, the first
-/// [Defaults.todayBoxVisible] rows, and "Show all" for the rest.
+/// Each box's colours (D54): amber for what is due, indigo for new
+/// learning, teal for what comes later.
+enum _BoxTone { due, fresh, ahead }
+
+/// One of Today's three boxes (D50, D54): a tinted card with a title and a
+/// count, then its rows. A [collapsed] box shows the first
+/// [Defaults.todayBoxVisible] rows and "Show all" for the rest.
 class _Box extends StatefulWidget {
-  const _Box({required this.title, required this.empty, required this.rows});
+  const _Box({
+    required this.title,
+    required this.empty,
+    required this.tone,
+    required this.rows,
+    this.collapsed = true,
+  });
 
   final String title;
   final String empty;
+  final _BoxTone tone;
   final List<Widget> rows;
+  final bool collapsed;
 
   @override
   State<_Box> createState() => _BoxState();
@@ -459,13 +477,21 @@ class _BoxState extends State<_Box> {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
     final rows = widget.rows;
-    final shown = _all ? rows : rows.take(Defaults.todayBoxVisible).toList();
+    final folds = widget.collapsed && rows.length > Defaults.todayBoxVisible;
+    final shown = folds && !_all
+        ? rows.take(Defaults.todayBoxVisible).toList()
+        : rows;
+    final (bg, border, pill, pillText) = switch (widget.tone) {
+      _BoxTone.due => (c.dueBg, c.dueBorder, c.duePill, c.dueText),
+      _BoxTone.fresh => (c.freshBg, c.freshBorder, c.freshPill, c.freshText),
+      _BoxTone.ahead => (c.aheadBg, c.aheadBorder, c.aheadPill, c.aheadText),
+    };
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: bg,
         borderRadius: BorderRadius.circular(AppRadii.card),
-        border: Border.all(color: c.line),
+        border: Border.all(color: border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -486,13 +512,13 @@ class _BoxState extends State<_Box> {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: c.accentSoft,
+                    color: pill,
                     borderRadius: BorderRadius.circular(AppRadii.pill),
                   ),
                   child: Text(
                     '${rows.length}',
                     style: AppText.caption.copyWith(
-                      color: c.accentText,
+                      color: pillText,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -508,7 +534,7 @@ class _BoxState extends State<_Box> {
               if (i > 0) const SizedBox(height: AppSpace.sm),
               r,
             ],
-          if (rows.length > Defaults.todayBoxVisible)
+          if (folds)
             Center(
               child: TextLinkButton(
                 label: _all
