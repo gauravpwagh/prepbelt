@@ -87,6 +87,18 @@ Use sample data (a realistic exam and sources), never a tester's real name. Ever
 
 Each release has its own notes (500 characters max per language).
 
+### 0.1.0 (6)
+
+```
+• Simpler reviews: rate Forgot, Shaky or Solid. Solid earns the next belt.
+• Review gaps of 1, 3, 7, 14, 30 and 60 days, editable in Settings.
+• At least 5 reviews before your exam, closer together when it is near.
+• Every review due is listed, most important first.
+• Today's boxes have their own colours.
+• Settings tab in the bottom bar.
+• Sheet buttons stay above the Android navigation bar.
+```
+
 ### 0.1.0 (5)
 
 ```
