@@ -15,7 +15,6 @@ final class SurveyChapter {
     required this.title,
     this.startUnit,
     this.endUnit,
-    this.difficulty,
     this.familiarity,
     this.importance,
   });
@@ -25,16 +24,13 @@ final class SurveyChapter {
   final int? startUnit;
   final int? endUnit;
 
-  /// 1 Easy .. 3 Hard; null until surveyed.
-  final int? difficulty;
-
   /// 0 New .. 2 Comfortable; null until surveyed.
   final int? familiarity;
 
   /// For the current exam; null without an exam or before it is set.
   final Importance? importance;
 
-  bool get surveyed => difficulty != null && familiarity != null;
+  bool get surveyed => familiarity != null;
 
   int? get sizeUnits =>
       startUnit == null || endUnit == null ? null : endUnit! - startUnit! + 1;
@@ -88,7 +84,6 @@ Stream<SurveyView> surveyView(Ref ref, String sourceId) async* {
                 title: i.chunk.title,
                 startUnit: i.chunk.startUnit,
                 endUnit: i.chunk.endUnit,
-                difficulty: i.survey?.difficulty,
                 familiarity: i.survey?.familiarity,
                 importance: i.importance,
               ),
@@ -105,7 +100,6 @@ class SurveyActions extends _$SurveyActions {
 
   Future<void> answer(
     String chunkId, {
-    required int difficulty,
     required int familiarity,
     String? examId,
     Importance? importance,
@@ -113,19 +107,17 @@ class SurveyActions extends _$SurveyActions {
       .read(surveyRepositoryProvider)
       .answer(
         chunkId,
-        difficulty: difficulty,
         familiarity: familiarity,
         examId: examId,
         importance: importance,
       );
 
-  /// "Mark the other N as Medium": Medium importance and difficulty, New
-  /// familiarity — the planner's defaults.
+  /// "Mark the other N as Medium": Medium importance and New familiarity,
+  /// the planner's defaults.
   Future<int> markRestMedium(String sourceId, {String? examId}) => ref
       .read(surveyRepositoryProvider)
       .answerRemaining(
         sourceId,
-        difficulty: 2,
         familiarity: 0,
         examId: examId,
         importance: examId == null ? null : Importance.medium,

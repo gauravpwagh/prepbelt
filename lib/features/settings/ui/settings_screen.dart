@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/config/app_info.dart';
 import '../../../core/config/defaults.dart';
+import '../../../core/config/review_config.dart';
 import '../../../core/ui/app_icons.dart';
 import '../../../core/ui/bottom_sheet.dart';
 import '../../../core/ui/buttons.dart';
@@ -21,6 +22,7 @@ import '../../today/ui/reminder_text.dart';
 import '../state/auto_backup.dart';
 import '../state/settings_actions.dart';
 import '../state/settings_providers.dart';
+import 'review_gaps_sheet.dart';
 
 /// Picks a backup, checks it, asks to confirm, and stages it for the next
 /// start (design/notes/settings.md). Used by Settings and first launch.
@@ -200,6 +202,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   week: week,
                   onSave: _actions.setWeek,
                 ),
+          onReviewGaps: () => showReviewGapsSheet(
+            context,
+            gaps: reviewGapsOf(settings),
+            onSave: _actions.setReviewGaps,
+          ),
           onReminder: (on) => _actions.setReminder(on: on, text: text),
           onReminderTime: () async {
             final current = _time(settings[SettingKeys.reminderTime]);
@@ -261,6 +268,11 @@ TimeOfDay _time(Object? value) {
 String backupEveryLabel(AppLocalizations l10n, int days) =>
     days == 7 ? l10n.backupEveryWeek : l10n.backupEvery(days);
 
+/// The review gaps in [settings], or the defaults (D53).
+List<int> reviewGapsOf(Map<String, Object?> settings) =>
+    ReviewConfig.validGapDays(settings[SettingKeys.reviewGapDays]) ??
+    Defaults.reviewGapDays;
+
 /// The settings page for given values. Public so goldens can render it.
 class SettingsBody extends StatelessWidget {
   const SettingsBody({
@@ -278,6 +290,7 @@ class SettingsBody extends StatelessWidget {
     this.onBackupNow,
     this.week,
     this.onEditWeek,
+    this.onReviewGaps,
     this.onRebuild,
     this.busy,
     this.showDebug = false,
@@ -293,6 +306,7 @@ class SettingsBody extends StatelessWidget {
   final VoidCallback? onBackupEvery;
   final VoidCallback? onBackupNow;
   final List<int>? week;
+  final VoidCallback? onReviewGaps;
   final String? busy;
   final bool showDebug;
 
@@ -394,6 +408,11 @@ class SettingsBody extends StatelessWidget {
             title: l10n.examStudyTime,
             subtitle: week == null ? '' : weekSummary(l10n, locale, week!),
             onTap: idle ? onEditWeek : null,
+          ),
+          _Row(
+            title: l10n.reviewGapsRow,
+            subtitle: reviewGapsLabel(l10n, reviewGapsOf(settings)),
+            onTap: idle ? onReviewGaps : null,
           ),
         ]),
         section(l10n.settingsReminder, [

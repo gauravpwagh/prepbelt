@@ -30,7 +30,7 @@ class _Opener implements SourceOpener {
 }
 
 void main() {
-  testWidgets('Today → Start → leave → back → rate Good → Done', (
+  testWidgets('Today → Start → leave → back → Done (a first read is not rated)', (
     tester,
   ) async {
     tester.view
@@ -99,10 +99,8 @@ void main() {
 
     expect(find.text('Welcome back'), findsOneWidget);
     expect(find.text('First read'), findsOneWidget);
-    expect(find.text('Pick a rating to finish'), findsOneWidget);
-
-    await tester.tap(find.text('Good'));
-    await settle();
+    // A first read is not rated (D53): White is earned at once.
+    expect(find.text('Solid'), findsNothing);
     expect(find.text('White belt earned'), findsOneWidget);
 
     await tester.tap(find.text('Done · back to Today'));

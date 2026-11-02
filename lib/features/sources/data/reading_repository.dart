@@ -840,9 +840,6 @@ final class ReadingRepository extends EventSourcedRepository {
     final context = drafts.isEmpty && reads.isEmpty && !makePart
         ? null
         : await _writer.firstReadContext();
-    final targets = {
-      for (final id in reads.keys) id: await _targetLevel(id, examId),
-    };
 
     final created = <String>[];
     await mutate<void>(
@@ -872,7 +869,6 @@ final class ReadingRepository extends EventSourcedRepository {
             taskId,
             seconds: seconds,
             context: context!,
-            targetLevel: targets[taskId],
           );
         }
         if (part != null && !p.source.progressive) {
@@ -1055,19 +1051,6 @@ final class ReadingRepository extends EventSourcedRepository {
 
   /// Undoes the latest change to the source (a save, an added task).
   Future<void> undo(String sourceId) => undoLatest(entity, sourceId);
-
-  Future<int?> _targetLevel(String taskId, String? examId) async {
-    if (examId == null) return null;
-    final link =
-        await (db.select(db.examTasks)..where(
-              (e) =>
-                  e.examId.equals(examId) &
-                  e.taskId.equals(taskId) &
-                  e.deletedAt.isNull(),
-            ))
-            .getSingleOrNull();
-    return link?.targetLevel;
-  }
 
   Future<ReadingSession> _session(String id) async {
     final s = await (db.select(

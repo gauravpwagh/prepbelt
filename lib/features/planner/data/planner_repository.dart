@@ -48,15 +48,12 @@ final class PlannerRepository extends EventSourcedRepository {
           .getSingleOrNull();
 
   /// The planner's input for today, or null without an upcoming exam.
-  /// [alsoKeep] marks extra tasks as kept, for "what would keeping this
-  /// task cut instead?".
-  Future<PlannerInput?> input({Set<String> alsoKeep = const {}}) async {
+  Future<PlannerInput?> input() async {
     final exam = await upcomingExam();
     if (exam == null) return null;
     final today = dayKey(ctx.clock.now().toLocal());
     final examDay = dayKey(DateTime.parse(exam.date));
     if (!examDay.isAfter(today)) return null;
-    final engine = await reviews.loadEngine();
 
     final week = List.filled(7, Defaults.defaultDailyMinutes);
     for (final a in await (db.select(
@@ -150,21 +147,17 @@ final class PlannerRepository extends EventSourcedRepository {
         chapterMinutes: chapterMinutes,
       );
       final first = parts.isEmpty ? null : parts.first;
-      final survey = first == null ? null : surveys[first.chunk.id];
       if (first != null) sourceIds.add(first.source.id);
       tasks.add(
         PlanTask(
           id: state.taskId,
           state: ReviewRepository.toReviewState(state),
           importance: importance,
-          planned: engine.plannedReviewsFor(link?.targetLevel),
           firstReadMinutes: read < 1 ? 15 : read,
           reviewMinutes: _reviewMinutesOf(read),
-          difficulty: survey?.difficulty ?? 2,
           subject: first?.source.id ?? '',
           sourceKey: first?.source.id ?? '',
           sourceOrder: first?.chunk.startUnit ?? 0,
-          keep: (link?.triageKeep ?? false) || alsoKeep.contains(state.taskId),
         ),
       );
     }
@@ -202,10 +195,13 @@ final class PlannerRepository extends EventSourcedRepository {
   /// Plans from today and stores it. Returns the result, or null without
   /// an upcoming exam (then any planned rows from today on are cleared).
   Future<TriageResult?> replan() async {
+    // Schedules follow the current review settings and exam date (D53).
+    await reviews.refitIfChanged();
     final exam = await upcomingExam();
     final input = await this.input();
     final engine = await reviews.loadEngine();
-    // Off the UI thread: a tight plan runs triage's search many times.
+    // Off the UI thread: a plan that does not fit searches for the
+    // minutes that would fit it.
     final triaged = input == null
         ? null
         : await _triageInBackground(input, engine);
@@ -219,7 +215,6 @@ final class PlannerRepository extends EventSourcedRepository {
         'action': 'replan',
         'items': result?.entries.length ?? 0,
         'fits': result?.fits,
-        'cuts': triaged?.cuts.length ?? 0,
       },
       body: (rec) async {
         // Missed sessions on earlier days become "moved".
@@ -269,14 +264,6 @@ final class PlannerRepository extends EventSourcedRepository {
       },
     );
     return triaged;
-  }
-
-  /// Triage as it would be with [taskId] kept in full (nothing written).
-  Future<TriageResult?> previewKeep(String taskId) async {
-    final input = await this.input(alsoKeep: {taskId});
-    if (input == null) return null;
-    final engine = await reviews.loadEngine();
-    return _triageInBackground(input, engine);
   }
 
   /// Today's plan items in order, re-read whenever the plan changes.

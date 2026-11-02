@@ -8,7 +8,6 @@ final class EffortConfig {
     this.paceVideoMinute = Defaults.paceVideoMinuteMin,
     this.paceQuestion = Defaults.paceQuestionMin,
     this.paceItem = Defaults.paceItemMin,
-    this.difficultyFactors = Defaults.difficultyFactors,
     this.familiarityFactors = Defaults.familiarityFactors,
     this.maxReadingSession = Defaults.maxReadingSessionMinutes,
     this.firstReviewShare = Defaults.firstReviewShare,
@@ -21,9 +20,6 @@ final class EffortConfig {
   final double paceVideoMinute;
   final double paceQuestion;
   final double paceItem;
-
-  /// Easy, Medium, Hard.
-  final List<double> difficultyFactors;
 
   /// New, Seen it, Comfortable.
   final List<double> familiarityFactors;

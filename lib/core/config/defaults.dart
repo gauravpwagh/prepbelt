@@ -13,19 +13,25 @@ library;
 abstract final class Defaults {
   // ---------------------------------------------------------------- Review
 
-  /// Scheduled reviews per task after the first read. Each Good one earns
-  /// the next belt, so 5 take White to Brown; Black needs one more,
-  /// voluntary review.
-  static const int scheduledReviews = 5;
+  /// Days before each scheduled review (D53): the first a day after the
+  /// first read, each later one after the review before it. Each Solid
+  /// review earns the next belt, so six reach Black; after the last gap
+  /// reviews repeat at it.
+  static const List<int> reviewGapDays = [1, 3, 7, 14, 30, 60];
 
-  /// Relative sizes of the gaps before each scheduled review. Gaps are
-  /// fitted to the time left before the exam in these proportions.
-  static const List<int> reviewGapWeights = [1, 2, 3, 5, 8];
+  /// Reviews every task gets before the exam: when fewer of the gaps fit,
+  /// the first this many are squeezed to fit.
+  static const int minReviewsBeforeExam = 5;
 
-  /// Gaps in days when no exam is set.
-  static const List<int> reviewGapDaysWithoutExam = [1, 3, 7, 14, 30];
+  /// After [minReviewsBeforeExam] reviews, when the next gap would pass the
+  /// exam, one final review is added if at least this many days are left.
+  static const int finalReviewMinDays = 7;
 
-  /// A review that is not Good is repeated after this many days.
+  /// Bounds for gaps a student types in Settings.
+  static const int reviewGapMaxDays = 365;
+  static const int reviewGapsMax = 10;
+
+  /// A review that is not Solid is repeated after this many days.
   static const int retryGapDays = 1;
 
   /// The last review falls at least this many days before the exam day.
@@ -50,9 +56,6 @@ abstract final class Defaults {
 
   /// Pace for `item` units, which the spec does not price. Same as a page.
   static const double paceItemMin = 3;
-
-  /// Effort multipliers by surveyed difficulty (Easy, Medium, Hard).
-  static const List<double> difficultyFactors = [0.67, 1.0, 1.33];
 
   /// Effort multipliers by familiarity (New, Seen it, Comfortable).
   static const List<double> familiarityFactors = [1.0, 0.7, 0.45];
@@ -84,23 +87,15 @@ abstract final class Defaults {
   static const List<int> finalWindowMedium = [2, 5];
   static const List<int> finalWindowLow = [3, 7];
 
-  /// A review may move this many days earlier or later than due.
-  static const int smoothingDaysEarlier = 2;
-  static const int smoothingDaysLater = 1;
-
   /// Variety: max first reads from one subject per day when there is an alternative.
   static const int maxFirstReadsPerSubjectPerDay = 2;
-
-  /// Triage skim: share of the first-read estimate kept.
-  static const double skimShare = 0.40;
 
   /// Replans triggered within this window collapse into one run.
   static const int plannerDebounceMs = 500;
 
-  /// Belt targets by importance (High, Medium, Low).
-  static const int targetLevelHigh = 7;
-  static const int targetLevelMedium = 5;
-  static const int targetLevelLow = 4;
+  /// The belt every exam task aims at (D53). Readiness counts Brown, which
+  /// the minimum of [minReviewsBeforeExam] reviews always reaches.
+  static const int examTargetLevel = 7;
 
   /// Exam priority weights for capacity shares (1.1): low, normal, high.
   static const List<double> examPriorityWeights = [1, 1.5, 2];
@@ -199,9 +194,9 @@ abstract final class Defaults {
   /// XP per review = [xpPerRatingWeight] × rating weight + promotion bonus.
   static const int xpPerRatingWeight = 10;
 
-  /// Rating weights (Forgot, Hard, Good, Easy). The spec names the formula
+  /// Rating weights (Forgot, Shaky, Solid). The spec names the formula
   /// but not the weights; these are placeholders to tune in the pilot.
-  static const List<int> xpRatingWeights = [1, 2, 3, 4];
+  static const List<int> xpRatingWeights = [1, 2, 3];
 
   /// Promotion bonus; the Back-from-source mockup shows "+40 XP" on a
   /// promotion, so 10 x Good (3) + 10.
@@ -223,9 +218,12 @@ abstract final class Defaults {
 
 /// Keys of `Setting` rows that override [Defaults]. Values are JSON.
 abstract final class SettingKeys {
-  static const scheduledReviews = 'review.scheduledReviews';
-  static const reviewGapWeights = 'review.gapWeights';
-  static const reviewGapDaysWithoutExam = 'review.gapDaysWithoutExam';
+  static const reviewGapDays = 'review.gapDays';
+  static const minReviewsBeforeExam = 'review.minReviewsBeforeExam';
+  static const finalReviewMinDays = 'review.finalReviewMinDays';
+
+  /// The review settings and deadline task schedules were last fitted to.
+  static const reviewFittedFor = 'review.fittedFor';
   static const retryGapDays = 'review.retryGapDays';
   static const lastReviewDaysBeforeExam = 'review.lastReviewDaysBeforeExam';
   static const overdueDaysPerDimStep = 'review.overdueDaysPerDimStep';

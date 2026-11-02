@@ -114,7 +114,7 @@ final class SurveyViewProvider
   }
 }
 
-String _$surveyViewHash() => r'9e657817f3ed12374052e214aa09b1007309fa9e';
+String _$surveyViewHash() => r'cf449f8d80c3030d7a028b94e88e5936ca7fc47f';
 
 /// The survey of one source against the current exam.
 
@@ -174,7 +174,7 @@ final class SurveyActionsProvider
   }
 }
 
-String _$surveyActionsHash() => r'06a246b2ab7ff9fdaae94b426f5e420aedcdce4f';
+String _$surveyActionsHash() => r'a2462c672eceae33baaf069a852907b25fb908e7';
 
 /// Survey actions for the screen.
 

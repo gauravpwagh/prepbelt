@@ -2,22 +2,27 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'review_types.freezed.dart';
 
-/// How well the student recalled a task. Values match `Review.rating`.
+/// How well the student recalled a task (D53). Values match
+/// `Review.rating`.
 enum Rating {
   forgot(1),
-  hard(2),
-  good(3),
-  easy(4);
+  shaky(2),
+  solid(3);
 
   const Rating(this.value);
 
   final int value;
 
-  /// Good and Easy earn the next belt; Forgot and Hard do not.
-  bool get passed => this == good || this == easy;
+  /// Solid earns the next belt; Forgot and Shaky do not.
+  bool get passed => this == solid;
 
-  static Rating fromValue(int value) =>
-      values.firstWhere((r) => r.value == value);
+  /// Before D53 ratings were Forgot 1, Hard 2, Good 3 and Easy 4: Hard
+  /// reads as Shaky, Good and Easy as Solid.
+  static Rating fromValue(int value) => switch (value) {
+    <= 1 => forgot,
+    2 => shaky,
+    _ => solid,
+  };
 }
 
 /// The review engine's view of one task: the fields of the `TaskState`
@@ -28,11 +33,10 @@ abstract class ReviewState with _$ReviewState {
     /// 0 = not started, 1..7 = belt.
     @Default(0) int level,
 
-    /// Scheduled reviews passed so far (beyond the schedule, voluntary
-    /// reviews keep counting).
+    /// Solid reviews so far: the step of the review schedule reached.
     @Default(0) int step,
 
-    /// Dim steps from reviews that were not Good. Reset by a Good review.
+    /// Dim steps from reviews that were not Solid. Reset by a Solid review.
     /// Above 0 means the current step is being retried.
     @Default(0) int dim,
 

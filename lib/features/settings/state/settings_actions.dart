@@ -61,6 +61,14 @@ class SettingsActions extends _$SettingsActions {
     await ref.read(plannerProvider.notifier).replanNow();
   }
 
+  /// The review gaps (D53). The next replan re-fits every schedule.
+  Future<void> setReviewGaps(List<int> gaps) async {
+    await ref
+        .read(settingsRepositoryProvider)
+        .set(SettingKeys.reviewGapDays, gaps);
+    await ref.read(plannerProvider.notifier).replanNow();
+  }
+
   /// Days between automatic backups (D51).
   Future<void> setBackupEvery(int days) => ref
       .read(settingsRepositoryProvider)

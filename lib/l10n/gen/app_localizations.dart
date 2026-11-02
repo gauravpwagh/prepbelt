@@ -388,12 +388,6 @@ abstract class AppLocalizations {
   /// **'Importance for {exam}'**
   String surveyImportanceFor(String exam);
 
-  /// No description provided for @surveyDifficulty.
-  ///
-  /// In en, this message translates to:
-  /// **'How hard does it look?'**
-  String get surveyDifficulty;
-
   /// No description provided for @surveyFamiliarity.
   ///
   /// In en, this message translates to:
@@ -418,24 +412,6 @@ abstract class AppLocalizations {
   /// **'Low'**
   String get importanceLow;
 
-  /// No description provided for @difficultyEasy.
-  ///
-  /// In en, this message translates to:
-  /// **'Easy'**
-  String get difficultyEasy;
-
-  /// No description provided for @difficultyMedium.
-  ///
-  /// In en, this message translates to:
-  /// **'Medium'**
-  String get difficultyMedium;
-
-  /// No description provided for @difficultyHard.
-  ///
-  /// In en, this message translates to:
-  /// **'Hard'**
-  String get difficultyHard;
-
   /// No description provided for @familiarityNew.
   ///
   /// In en, this message translates to:
@@ -459,12 +435,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'First read'**
   String get surveyFirstRead;
-
-  /// No description provided for @surveyTarget.
-  ///
-  /// In en, this message translates to:
-  /// **'Target'**
-  String get surveyTarget;
 
   /// No description provided for @durationHoursMinutes.
   ///
@@ -1528,41 +1498,23 @@ abstract class AppLocalizations {
   /// **'How well could you recall it?'**
   String get sessionHowWell;
 
-  /// No description provided for @sessionHowFirstRead.
-  ///
-  /// In en, this message translates to:
-  /// **'How did the first read go?'**
-  String get sessionHowFirstRead;
-
-  /// No description provided for @sessionFirstReadHint.
-  ///
-  /// In en, this message translates to:
-  /// **'A first read earns White whatever you choose.'**
-  String get sessionFirstReadHint;
-
   /// No description provided for @rateForgot.
   ///
   /// In en, this message translates to:
   /// **'Forgot'**
   String get rateForgot;
 
-  /// No description provided for @rateHard.
+  /// No description provided for @rateShaky.
   ///
   /// In en, this message translates to:
-  /// **'Hard'**
-  String get rateHard;
+  /// **'Shaky'**
+  String get rateShaky;
 
-  /// No description provided for @rateGood.
+  /// No description provided for @rateSolid.
   ///
   /// In en, this message translates to:
-  /// **'Good'**
-  String get rateGood;
-
-  /// No description provided for @rateEasy.
-  ///
-  /// In en, this message translates to:
-  /// **'Easy'**
-  String get rateEasy;
+  /// **'Solid'**
+  String get rateSolid;
 
   /// No description provided for @sessionBackTomorrow.
   ///
@@ -1911,12 +1863,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Level {level} of 7'**
   String taskLevelLine(int level);
-
-  /// No description provided for @taskLevelTargetLine.
-  ///
-  /// In en, this message translates to:
-  /// **'Level {level} of 7 · target {target}'**
-  String taskLevelTargetLine(int level, String target);
 
   /// No description provided for @taskSteps.
   ///
@@ -2325,53 +2271,11 @@ abstract class AppLocalizations {
   /// **'More time'**
   String get addExamMore;
 
-  /// No description provided for @triageTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Plan trimmed to fit'**
-  String get triageTitle;
-
-  /// No description provided for @triageBody.
-  ///
-  /// In en, this message translates to:
-  /// **'The least important work was cut first. Keep any task in full and the plan cuts something else.'**
-  String get triageBody;
-
-  /// No description provided for @triageStepDropFinalLow.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{Final review dropped · 1 Low task} other{Final review dropped · {count} Low tasks}}'**
-  String triageStepDropFinalLow(int count);
-
-  /// No description provided for @triageStepLowToYellow.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{Aim for Yellow · 1 Low task} other{Aim for Yellow · {count} Low tasks}}'**
-  String triageStepLowToYellow(int count);
-
-  /// No description provided for @triageStepSkim.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{Skim instead of read · 1 easy Low task} other{Skim instead of read · {count} easy Low tasks}}'**
-  String triageStepSkim(int count);
-
-  /// No description provided for @triageStepLowerMedium.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{One belt lower · 1 Medium task} other{One belt lower · {count} Medium tasks}}'**
-  String triageStepLowerMedium(int count);
-
   /// No description provided for @triageDroppedRow.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, =1{Dropped by you · 1 task} other{Dropped by you · {count} tasks}}'**
   String triageDroppedRow(int count);
-
-  /// No description provided for @triageKeepAction.
-  ///
-  /// In en, this message translates to:
-  /// **'Keep {title} in full'**
-  String triageKeepAction(String title);
 
   /// No description provided for @triageRestoreAction.
   ///
@@ -2385,58 +2289,22 @@ abstract class AppLocalizations {
   /// **'Drop {title}'**
   String triageDropAction(String title);
 
-  /// No description provided for @triageKeepTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Keep {title} in full?'**
-  String triageKeepTitle(String title);
-
-  /// No description provided for @triageKeepNext.
-  ///
-  /// In en, this message translates to:
-  /// **'To make room, the plan also cuts:'**
-  String get triageKeepNext;
-
-  /// No description provided for @triageKeepNothing.
-  ///
-  /// In en, this message translates to:
-  /// **'Nothing else needs to change.'**
-  String get triageKeepNothing;
-
-  /// No description provided for @triageKeepConfirm.
-  ///
-  /// In en, this message translates to:
-  /// **'Keep it'**
-  String get triageKeepConfirm;
-
-  /// No description provided for @triageCancel.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get triageCancel;
-
   /// No description provided for @triageNeedsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Still doesn\'t fit'**
+  /// **'First reads don\'t fit'**
   String get triageNeedsTitle;
-
-  /// No description provided for @triageNeedsReduced.
-  ///
-  /// In en, this message translates to:
-  /// **'About {minutes} more minutes a day keeps this reduced plan.'**
-  String triageNeedsReduced(int minutes);
 
   /// No description provided for @triageNeedsFull.
   ///
   /// In en, this message translates to:
-  /// **'About {minutes} more keeps everything.'**
+  /// **'About {minutes} more minutes a day fits every first read before the exam. Every review is planned either way.'**
   String triageNeedsFull(int minutes);
 
   /// No description provided for @triageNeedsNoTime.
   ///
   /// In en, this message translates to:
-  /// **'More time alone can\'t fit it. Drop some tasks, or accept a lower belt.'**
+  /// **'More time alone can\'t fit every first read. Drop some tasks, or go on and read what you can.'**
   String get triageNeedsNoTime;
 
   /// No description provided for @triageAddMinutes.
@@ -2460,20 +2328,14 @@ abstract class AppLocalizations {
   /// No description provided for @triageAccept.
   ///
   /// In en, this message translates to:
-  /// **'Accept a lower belt'**
+  /// **'Go on as it is'**
   String get triageAccept;
 
   /// No description provided for @triageAccepted.
   ///
   /// In en, this message translates to:
-  /// **'Reduced plan accepted. You can still add time or drop tasks.'**
+  /// **'Going on as it is. You can still add time or drop tasks.'**
   String get triageAccepted;
-
-  /// No description provided for @triageReview.
-  ///
-  /// In en, this message translates to:
-  /// **'Review cuts in {step}'**
-  String triageReview(String step);
 
   /// No description provided for @examStudyTime.
   ///
@@ -2510,6 +2372,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save'**
   String get weekSave;
+
+  /// No description provided for @reviewGapsRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Review schedule'**
+  String get reviewGapsRow;
+
+  /// No description provided for @reviewGapsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days'**
+  String reviewGapsValue(String days);
+
+  /// No description provided for @reviewGapsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review schedule'**
+  String get reviewGapsTitle;
+
+  /// No description provided for @reviewGapsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Days before each review, counted from the one before. Every task gets at least {count} reviews before the exam: when they don\'t fit, the gaps are squeezed. After the last gap, reviews repeat at it.'**
+  String reviewGapsHint(int count);
+
+  /// No description provided for @reviewGapsReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review {n}'**
+  String reviewGapsReview(int n);
+
+  /// No description provided for @reviewGapsDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String reviewGapsDays(int count);
+
+  /// No description provided for @reviewGapsLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Shorter gap before review {n}'**
+  String reviewGapsLess(int n);
+
+  /// No description provided for @reviewGapsMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Longer gap before review {n}'**
+  String reviewGapsMore(int n);
+
+  /// No description provided for @reviewGapsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a review'**
+  String get reviewGapsAdd;
+
+  /// No description provided for @reviewGapsRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the last'**
+  String get reviewGapsRemove;
+
+  /// No description provided for @reviewGapsReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to {days}'**
+  String reviewGapsReset(String days);
+
+  /// No description provided for @reviewGapsSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get reviewGapsSave;
 
   /// No description provided for @weekLess.
   ///
@@ -2601,11 +2535,11 @@ abstract class AppLocalizations {
   /// **'Importance for {exam}'**
   String editImportance(String exam);
 
-  /// No description provided for @editImpact.
+  /// No description provided for @editImpactOrder.
   ///
   /// In en, this message translates to:
-  /// **'Target {belt} · {count, plural, =1{1 review planned} other{{count} reviews planned}}'**
-  String editImpact(String belt, int count);
+  /// **'{importance} importance sets its place in the day\'s order. The review schedule stays the same.'**
+  String editImpactOrder(String importance);
 
   /// No description provided for @editNoChange.
   ///
@@ -2670,7 +2604,7 @@ abstract class AppLocalizations {
   /// No description provided for @scopeGrowKeepImpact.
   ///
   /// In en, this message translates to:
-  /// **'The belt dims one step until the next Good review.'**
+  /// **'The belt dims one step until the next Solid review.'**
   String get scopeGrowKeepImpact;
 
   /// No description provided for @scopeSave.

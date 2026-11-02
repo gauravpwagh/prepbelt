@@ -115,7 +115,7 @@ final class ExamViewProvider
   }
 }
 
-String _$examViewHash() => r'89f8282e52ed11248e333aa3add72b21e78e1e31';
+String _$examViewHash() => r'0c54dafd6bc8f3a881cce1cc3126e65a4024f553';
 
 /// The Exam screen for [examId], or the upcoming exam when null. Null when
 /// there is no such exam.
@@ -215,7 +215,7 @@ final class ExamActionsProvider extends $NotifierProvider<ExamActions, void> {
   }
 }
 
-String _$examActionsHash() => r'a183c39543fa140afcb212d17024bfe152ad9f74';
+String _$examActionsHash() => r'72ab8ae0219766fd460771a9092064aeffc713ef';
 
 /// Adds an exam with its task links and daily minutes (D38).
 

@@ -88,7 +88,7 @@ void main() {
     );
 
     final review = await sessions.finish(
-      rating: Rating.hard,
+      rating: Rating.shaky,
       minutes: 22,
       stopUnit: 12,
     );
@@ -110,11 +110,11 @@ void main() {
     () async {
       final (_, ids) = await book();
       await sessions.start(ids.first);
-      await sessions.finish(rating: Rating.good, minutes: 30);
+      await sessions.finish(rating: Rating.solid, minutes: 30);
       clock.advance(const Duration(days: 1));
 
       final preview = await sessions.preview(ids.first);
-      expect(preview[Rating.good]!.levelAfter, 2);
+      expect(preview[Rating.solid]!.levelAfter, 2);
       expect(preview[Rating.forgot]!.levelAfter, 1);
       expect(preview[Rating.forgot]!.state.dim, 1);
       expect(
@@ -123,7 +123,7 @@ void main() {
       );
 
       await sessions.start(ids.first);
-      final r = await sessions.finish(rating: Rating.good, minutes: 8);
+      final r = await sessions.finish(rating: Rating.solid, minutes: 8);
       expect((r.kind, r.levelBefore, r.levelAfter), (ReviewKind.review, 1, 2));
     },
   );

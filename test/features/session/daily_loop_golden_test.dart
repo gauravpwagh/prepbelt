@@ -134,7 +134,6 @@ SessionView _sessionView(SessionTask t) {
           r,
           _now,
           deadline: DateTime.utc(2027, 1, 10),
-          planned: 5,
         ),
     },
     maxMinutes: 180,
@@ -333,18 +332,18 @@ Widget detail(AsyncValue<TaskDetailView?> v) => Scaffold(
 );
 
 final _history = [
-  _review(1, Rating.good, 3, 4, 3),
-  _review(9, Rating.good, 2, 3, 2),
+  _review(1, Rating.solid, 3, 4, 3),
+  _review(9, Rating.solid, 2, 3, 2),
   _review(12, Rating.forgot, 2, 2, 1),
-  _review(20, Rating.good, 1, 2, 1),
-  _review(30, Rating.easy, 0, 1, 0),
+  _review(20, Rating.solid, 1, 2, 1),
+  _review(30, Rating.solid, 0, 1, 0),
 ];
 
 void main() {
   goldenBoth('session_390', () => session(_thermo, stop: 226), height: 844);
   goldenBoth(
     'session_rated_good_390',
-    () => session(_thermo, rating: Rating.good),
+    () => session(_thermo, rating: Rating.solid),
     height: 900,
   );
   goldenBoth(
@@ -357,7 +356,7 @@ void main() {
     'session_first_read',
     () => session(
       _task('t4', 'Rotational motion', source: _hcv2, start: 166, end: 197),
-      rating: Rating.hard,
+      rating: Rating.shaky,
     ),
     height: 940,
   );
@@ -403,7 +402,7 @@ void main() {
   );
 
   for (final (name, child) in [
-    ('session', () => session(_thermo, rating: Rating.good)),
+    ('session', () => session(_thermo, rating: Rating.solid)),
     ('today', () => today(AsyncData(_todayView()))),
     ('task_detail', () => detail(AsyncData(_detail(_thermo, _history)))),
   ]) {
@@ -433,7 +432,7 @@ void main() {
       ..devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     for (final w in [
-      session(_thermo, rating: Rating.good),
+      session(_thermo, rating: Rating.solid),
       today(AsyncData(_todayView())),
       detail(AsyncData(_detail(_thermo, _history))),
     ]) {

@@ -4,9 +4,9 @@ import 'defaults.dart';
 /// `Setting` table. Pure Dart, so engines may depend on it.
 final class ReviewConfig {
   const ReviewConfig({
-    this.scheduledReviews = Defaults.scheduledReviews,
-    this.gapWeights = Defaults.reviewGapWeights,
-    this.gapDaysWithoutExam = Defaults.reviewGapDaysWithoutExam,
+    this.gapDays = Defaults.reviewGapDays,
+    this.minReviews = Defaults.minReviewsBeforeExam,
+    this.finalReviewMinDays = Defaults.finalReviewMinDays,
     this.retryGapDays = Defaults.retryGapDays,
     this.lastReviewDaysBeforeExam = Defaults.lastReviewDaysBeforeExam,
     this.overdueDaysPerDimStep = Defaults.overdueDaysPerDimStep,
@@ -20,21 +20,15 @@ final class ReviewConfig {
       final num v => v.toInt(),
       _ => null,
     };
-    List<int>? list(String key) => switch (settings[key]) {
-      final List<Object?> v when v.isNotEmpty && v.every((e) => e is num) => [
-        for (final e in v) (e! as num).toInt(),
-      ],
-      _ => null,
-    };
 
     return ReviewConfig(
-      scheduledReviews:
-          i(SettingKeys.scheduledReviews) ?? Defaults.scheduledReviews,
-      gapWeights:
-          list(SettingKeys.reviewGapWeights) ?? Defaults.reviewGapWeights,
-      gapDaysWithoutExam:
-          list(SettingKeys.reviewGapDaysWithoutExam) ??
-          Defaults.reviewGapDaysWithoutExam,
+      gapDays:
+          validGapDays(settings[SettingKeys.reviewGapDays]) ??
+          Defaults.reviewGapDays,
+      minReviews:
+          i(SettingKeys.minReviewsBeforeExam) ?? Defaults.minReviewsBeforeExam,
+      finalReviewMinDays:
+          i(SettingKeys.finalReviewMinDays) ?? Defaults.finalReviewMinDays,
       retryGapDays: i(SettingKeys.retryGapDays) ?? Defaults.retryGapDays,
       lastReviewDaysBeforeExam:
           i(SettingKeys.lastReviewDaysBeforeExam) ??
@@ -46,14 +40,35 @@ final class ReviewConfig {
     );
   }
 
-  /// Scheduled reviews after the first read.
-  final int scheduledReviews;
+  /// [value] as review gaps when it is a usable list: 1 to
+  /// [Defaults.reviewGapsMax] whole days, each 1 to
+  /// [Defaults.reviewGapMaxDays] and none shorter than the one before.
+  static List<int>? validGapDays(Object? value) {
+    if (value is! List<Object?> ||
+        value.isEmpty ||
+        value.length > Defaults.reviewGapsMax) {
+      return null;
+    }
+    final days = <int>[];
+    for (final v in value) {
+      if (v is! num || v != v.roundToDouble()) return null;
+      final d = v.toInt();
+      if (d < 1 || d > Defaults.reviewGapMaxDays) return null;
+      if (days.isNotEmpty && d < days.last) return null;
+      days.add(d);
+    }
+    return days;
+  }
 
-  /// Relative gap sizes before each scheduled review.
-  final List<int> gapWeights;
+  /// Days before each scheduled review; after the last, it repeats.
+  final List<int> gapDays;
 
-  /// Gap days before each scheduled review when there is no exam.
-  final List<int> gapDaysWithoutExam;
+  /// Reviews squeezed in before the exam when the gaps do not fit.
+  final int minReviews;
+
+  /// A final review is added before the exam only with this many days
+  /// left since the last review.
+  final int finalReviewMinDays;
   final int retryGapDays;
   final int lastReviewDaysBeforeExam;
   final int overdueDaysPerDimStep;

@@ -112,7 +112,7 @@ final class RedefineViewProvider
   }
 }
 
-String _$redefineViewHash() => r'733a5e97c829d61762735defd744b913e2027c1a';
+String _$redefineViewHash() => r'6120602ca9e9d18e8164d5d40c8ed7991ed635ec';
 
 final class RedefineViewFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<RedefineView>, String> {
@@ -254,7 +254,7 @@ final class RedefineActionsProvider
   }
 }
 
-String _$redefineActionsHash() => r'7dea20341a6c39ae5c6bb5cd351e3a7828f1b9e1';
+String _$redefineActionsHash() => r'bc6c91605254a16df8b736cf3c2ab998c79a87a4';
 
 /// The redefinitions, each followed by a replan. Kept alive: they run
 /// past the sheet that started them.

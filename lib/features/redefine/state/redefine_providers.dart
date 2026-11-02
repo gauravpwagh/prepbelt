@@ -24,7 +24,6 @@ final class RedefineView {
   const RedefineView({
     required this.info,
     required this.display,
-    required this.planned,
     this.examId,
     this.examName,
     this.importance,
@@ -33,8 +32,6 @@ final class RedefineView {
   final SessionTask info;
   final LevelDisplay display;
 
-  /// Reviews planned for its current target.
-  final int planned;
   final String? examId;
   final String? examName;
   final Importance? importance;
@@ -54,7 +51,6 @@ Future<RedefineView> redefineView(Ref ref, String taskId) async {
   return RedefineView(
     info: detail.info,
     display: detail.display,
-    planned: detail.detail.planned,
     examId: detail.detail.exam?.id,
     examName: detail.detail.exam?.name,
     importance: detail.detail.examLink?.importance,
@@ -135,10 +131,4 @@ class RedefineActions extends _$RedefineActions {
       (await _repo.undoable(taskId))?.action;
 
   Future<void> undo(String taskId) => _then(() => _repo.undo(taskId));
-
-  /// Planned reviews for [importance], for Edit's impact line.
-  Future<int> plannedFor(Importance importance) async {
-    final engine = await ref.read(reviewRepositoryProvider).loadEngine();
-    return engine.plannedReviewsFor(TaskWriter.targetLevelFor(importance));
-  }
 }

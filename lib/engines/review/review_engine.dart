@@ -3,16 +3,15 @@ import 'dart:math';
 import '../../core/config/review_config.dart';
 import 'review_types.dart';
 
-/// Belt and review-schedule rules of docs/02-data-model.md. Pure: every
-/// time comes in as a parameter, every number from [config].
+/// Belt and review-schedule rules of docs/02-data-model.md (D53). Pure:
+/// every time comes in as a parameter, every number from [config].
 ///
-/// A task is first read (White), then reviewed a planned number of times
-/// (see [plannedReviewsFor]) with growing gaps that all fit before the
-/// exam. Each Good review earns the next belt; one that is not Good keeps
-/// the belt, dims it and repeats the step. [deadline] is the latest time a
-/// review may be due (the end of the day before the exam), or null when
-/// there is no exam. `planned` is the task's planned review count; it
-/// defaults to [ReviewConfig.scheduledReviews].
+/// A task is first read (White), then reviewed at the gaps of
+/// [ReviewConfig.gapDays], at least [ReviewConfig.minReviews] times before
+/// the exam. Each Solid review earns the next belt; one that is not Solid
+/// keeps the belt, dims it and repeats the step. [deadline] is the latest
+/// time a review may be due (the start of the exam day), or null when
+/// there is no exam.
 final class ReviewEngine {
   ReviewEngine(this.config);
 
@@ -20,13 +19,23 @@ final class ReviewEngine {
 
   static const _maxLevel = 7;
 
-  /// Reviews to plan for a task whose belt target is [targetLevel]: one per
-  /// belt above White, at most [ReviewConfig.scheduledReviews] and at least
-  /// one. With no target, the full schedule. A Black target therefore plans
-  /// the full schedule (Brown); Black itself takes a review by choice.
-  int plannedReviewsFor(int? targetLevel) => targetLevel == null
-      ? config.scheduledReviews
-      : (targetLevel - 1).clamp(1, config.scheduledReviews);
+  /// How many reviews the task will have had by the exam if every one
+  /// from now is Solid and done when due: those done so far plus the ones
+  /// still scheduled. A task not started counts from a first read at
+  /// [now]. Without an exam, the reviews up to Black.
+  int plannedReviews(ReviewState state, DateTime now, {DateTime? deadline}) {
+    const toBlack = _maxLevel - 1;
+    if (deadline == null) return max(state.step, toBlack);
+    var s = state.started ? state : applyReview(state, Rating.solid, now).state;
+    var count = s.step;
+    for (var i = 0; i < 100; i++) {
+      final due = dueFor(s.copyWith(dim: 0), deadline: deadline);
+      if (due == null) break;
+      s = applyReview(s.copyWith(dim: 0), Rating.solid, due).state;
+      count++;
+    }
+    return count;
+  }
 
   /// Applies one review at [at]. Reviewing before the due date is allowed
   /// and counts as the next step; the remaining gaps re-fit.
@@ -35,7 +44,6 @@ final class ReviewEngine {
     Rating rating,
     DateTime at, {
     DateTime? deadline,
-    int? planned,
   }) {
     if (state.paused) {
       throw StateError('Resume a paused task before reviewing it');
@@ -58,7 +66,7 @@ final class ReviewEngine {
     }
     final reviewed = next.copyWith(reps: state.reps + 1, lastReviewAt: at);
     final scheduled = reviewed.copyWith(
-      dueAt: dueFor(reviewed, deadline: deadline, planned: planned),
+      dueAt: dueFor(reviewed, deadline: deadline),
     );
     return ReviewOutcome(
       state: scheduled,
@@ -69,48 +77,56 @@ final class ReviewEngine {
     );
   }
 
-  /// When the next review is due: a retry after [ReviewConfig.retryGapDays]
-  /// if the last review was not Good, otherwise the next scheduled step,
-  /// with the remaining gaps fitted before [deadline] in the proportions of
-  /// [ReviewConfig.gapWeights]. Null when nothing is left to schedule.
-  DateTime? dueFor(ReviewState state, {DateTime? deadline, int? planned}) {
-    final reviews = planned ?? config.scheduledReviews;
+  /// When the next review is due (D53): a retry after
+  /// [ReviewConfig.retryGapDays] if the last review was not Solid,
+  /// otherwise the next gap of [ReviewConfig.gapDays] (the last one
+  /// repeating). Before an exam:
+  ///
+  /// - while fewer than [ReviewConfig.minReviews] reviews are done and the
+  ///   gaps up to that many do not fit before [deadline], those gaps are
+  ///   squeezed in proportion, at least a day apart;
+  /// - once that many are done, a gap that would pass [deadline] becomes
+  ///   one final review at [deadline], when at least
+  ///   [ReviewConfig.finalReviewMinDays] are left.
+  ///
+  /// Null when nothing more fits before the exam.
+  DateTime? dueFor(ReviewState state, {DateTime? deadline}) {
     final last = state.lastReviewAt;
     if (last == null) return null;
-
-    // No review is scheduled after the deadline; past it, nothing is due.
-    DateTime? capped(DateTime due) {
-      if (deadline == null) return due;
-      if (!deadline.isAfter(last)) return null;
-      return due.isAfter(deadline) ? deadline : due;
-    }
+    final gaps = config.gapDays;
+    int gapAt(int i) => gaps[min(i, gaps.length - 1)];
 
     if (state.dim > 0) {
-      return capped(last.add(Duration(days: config.retryGapDays)));
+      final retry = last.add(Duration(days: config.retryGapDays));
+      if (deadline == null) return retry;
+      if (!deadline.isAfter(last)) return null;
+      return retry.isAfter(deadline) ? deadline : retry;
     }
-    final remaining = reviews - state.step;
-    if (remaining <= 0) return null;
 
-    if (deadline == null) {
-      final gaps = config.gapDaysWithoutExam;
-      return last.add(Duration(days: gaps[min(state.step, gaps.length - 1)]));
-    }
+    final step = state.step;
+    final next = last.add(Duration(days: gapAt(step)));
+    if (deadline == null) return next;
 
     final daysLeft = deadline.difference(last).inDays;
-    if (daysLeft < 1) return deadline.isAfter(last) ? deadline : null;
-    final weights = [
-      for (var i = state.step; i < reviews; i++)
-        config.gapWeights[min(i, config.gapWeights.length - 1)],
-    ];
+    if (daysLeft < 1) return null;
+
+    final need = config.minReviews - step;
+    if (need <= 0) {
+      if (!next.isAfter(deadline)) return next;
+      return daysLeft >= config.finalReviewMinDays ? deadline : null;
+    }
+
+    final weights = [for (var i = 0; i < need; i++) gapAt(step + i)];
     final total = weights.reduce((a, b) => a + b);
+    if (total <= daysLeft) return next;
+    // Squeeze: keep the proportions, leave a day for each later review.
     final share = (daysLeft * weights.first / total).round();
-    // Leave at least a day for each later review when time allows.
-    final gap = max(1, min(share, daysLeft - (remaining - 1)));
+    final gap = max(1, min(share, daysLeft - (need - 1)));
     return last.add(Duration(days: gap));
   }
 
   /// How far the belt is dimmed at [now]: one step per review that was not
-  /// Good, plus one once a review is overdue and another every
+  /// Solid, plus one once a review is overdue and another every
   /// [ReviewConfig.overdueDaysPerDimStep] days after. Paused tasks do not
   /// fade.
   int dimAt(ReviewState state, DateTime now) {
@@ -156,12 +172,7 @@ final class ReviewEngine {
   /// Ends a pause at [at]. The last review time moves later by the paused
   /// duration and the schedule re-fits from there (decision D6): without
   /// an exam the due date moves by exactly the paused time.
-  ReviewState resume(
-    ReviewState state,
-    DateTime at, {
-    DateTime? deadline,
-    int? planned,
-  }) {
+  ReviewState resume(ReviewState state, DateTime at, {DateTime? deadline}) {
     final pausedAt = state.pausedAt;
     if (pausedAt == null) return state;
     final shifted = state.copyWith(
@@ -169,7 +180,7 @@ final class ReviewEngine {
       lastReviewAt: state.lastReviewAt?.add(at.difference(pausedAt)),
     );
     return shifted.copyWith(
-      dueAt: dueFor(shifted, deadline: deadline, planned: planned),
+      dueAt: dueFor(shifted, deadline: deadline),
     );
   }
 
@@ -180,7 +191,6 @@ final class ReviewEngine {
     List<ReviewRecord> reviews, {
     List<PauseInterval> pauses = const [],
     DateTime? deadline,
-    int? planned,
   }) {
     final events = <_Event>[
       for (final r in reviews) _Event(r.at, r.order, 1, review: r),
@@ -198,10 +208,9 @@ final class ReviewEngine {
           r.rating,
           r.at,
           deadline: deadline,
-          planned: planned,
         ).state,
         _Event(pause: true) => pause(state, e.at),
-        _ => resume(state, e.at, deadline: deadline, planned: planned),
+        _ => resume(state, e.at, deadline: deadline),
       };
     }
     return state;

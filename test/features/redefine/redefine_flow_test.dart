@@ -43,7 +43,7 @@ void main() {
       await ReviewRepository(
         t.ctx,
         config: () async => const ReviewConfig(),
-      ).record(taskId: taskId, rating: Rating.good, kind: ReviewKind.firstRead);
+      ).record(taskId: taskId, rating: Rating.solid, kind: ReviewKind.firstRead);
     });
 
     Future<void> settle() async {

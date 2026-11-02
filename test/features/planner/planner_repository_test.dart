@@ -123,7 +123,7 @@ void main() {
 
     await sessions.start(first.taskId!);
     clock.advance(const Duration(minutes: 30));
-    await sessions.finish(rating: Rating.good, minutes: 30);
+    await sessions.finish(rating: Rating.solid, minutes: 30);
     await planner.replan();
 
     final today = (await items()).where((p) => p.date == '2026-10-28');
@@ -182,8 +182,8 @@ void main() {
   });
 
   test(
-    'triage choices: a dropped task leaves the plan, a kept one is '
-    'marked for the planner, and adding minutes changes every weekday',
+    'triage choices: a dropped task leaves the plan, restoring brings it '
+    'back, and adding minutes changes every weekday',
     () async {
       final exam = await exams.create(name: 'JEE Main', date: '2027-01-10');
       await book(exam.id);
@@ -194,9 +194,9 @@ void main() {
       var input = await planner.input();
       expect(input!.tasks.map((t) => t.id), isNot(contains(first)));
 
-      await exams.setTriage(exam.id, first, dropped: false, keep: true);
+      await exams.setTriage(exam.id, first, dropped: false);
       input = await planner.input();
-      expect(input!.tasks.firstWhere((t) => t.id == first).keep, isTrue);
+      expect(input!.tasks.map((t) => t.id), contains(first));
 
       await exams.addDailyMinutes(exam.id, 20);
       input = await planner.input();
@@ -209,17 +209,12 @@ void main() {
     },
   );
 
-  test('a tight plan comes back with cuts, and previewing a keep runs '
-      'triage without writing', () async {
+  test('a tight plan still plans every review and asks the student about '
+      'first reads that do not fit (D53)', () async {
     final exam = await exams.create(name: 'JEE Main', date: '2026-11-08');
     await book(exam.id);
-    final before = await items();
     final result = await planner.replan();
     expect(result, isNotNull);
-    final preview = await planner.previewKeep(
-      (await db.select(db.examTasks).get()).first.taskId,
-    );
-    expect(preview, isNotNull);
-    expect((await items()).length, greaterThanOrEqualTo(before.length));
+    expect(result!.plan.entries, isNotEmpty);
   });
 }

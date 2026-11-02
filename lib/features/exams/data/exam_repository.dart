@@ -121,13 +121,12 @@ final class ExamRepository extends EventSourcedRepository {
     );
   }
 
-  /// Triage choices on one task of the exam: [keep] plans it in full
-  /// (restores a cut); [dropped] takes it out of the plan (step 5).
+  /// Takes one task of the exam out of the plan ([dropped]) or puts it
+  /// back (docs/04-planner-spec.md, "When time runs out").
   Future<void> setTriage(
     String examId,
     String taskId, {
-    bool? keep,
-    bool? dropped,
+    required bool dropped,
   }) async {
     final link =
         await (db.select(db.examTasks)..where(
@@ -144,15 +143,13 @@ final class ExamRepository extends EventSourcedRepository {
       data: {
         'action': 'triage',
         'taskId': taskId,
-        'keep': keep,
         'dropped': dropped,
       },
       body: (rec) => rec.update(
         db.examTasks,
         link.id,
         ExamTasksCompanion(
-          triageKeep: keep == null ? const Value.absent() : Value(keep),
-          dropped: dropped == null ? const Value.absent() : Value(dropped),
+          dropped: Value(dropped),
         ),
       ),
     );

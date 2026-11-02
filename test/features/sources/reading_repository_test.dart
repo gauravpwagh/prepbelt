@@ -65,7 +65,6 @@ void main() {
     final book = await addBook();
     await survey.answer(
       (await reading.progress(book.id))!.chapters[1].chunk.id,
-      difficulty: 2,
       familiarity: 0,
       examId: exam.id,
       importance: Importance.high,

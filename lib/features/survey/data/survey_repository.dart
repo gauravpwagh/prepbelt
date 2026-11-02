@@ -18,20 +18,19 @@ final class SurveyItem {
   bool get surveyed => survey != null;
 }
 
-/// Writes survey answers: difficulty and familiarity (personal, on
-/// ChunkSurvey) and importance (per exam, on ExamChunk). Answers for one
+/// Writes survey answers: familiarity (personal, on ChunkSurvey) and
+/// importance (per exam, on ExamChunk). Difficulty is no longer asked
+/// (D53); new rows store Medium. Answers for one
 /// chapter are one undoable operation under the chunk's id.
 final class SurveyRepository extends EventSourcedRepository {
   SurveyRepository(super.ctx);
 
   static const entity = 'chunk';
 
-  /// Sets any of the three answers for [chunkId]. A chapter counts as
-  /// surveyed once it has difficulty and familiarity; missing ones default
-  /// to Medium and New (docs/04-planner-spec.md).
+  /// Sets either answer for [chunkId]. A chapter counts as surveyed once
+  /// it has a familiarity (docs/04-planner-spec.md).
   Future<void> answer(
     String chunkId, {
-    int? difficulty,
     int? familiarity,
     String? examId,
     Importance? importance,
@@ -42,7 +41,6 @@ final class SurveyRepository extends EventSourcedRepository {
     body: (rec) => _answer(
       rec,
       chunkId,
-      difficulty: difficulty,
       familiarity: familiarity,
       examId: examId,
       importance: importance,
@@ -54,7 +52,6 @@ final class SurveyRepository extends EventSourcedRepository {
   /// Returns how many chapters it answered.
   Future<int> answerRemaining(
     String sourceId, {
-    required int difficulty,
     required int familiarity,
     String? examId,
     Importance? importance,
@@ -74,7 +71,6 @@ final class SurveyRepository extends EventSourcedRepository {
           await _answer(
             rec,
             id,
-            difficulty: difficulty,
             familiarity: familiarity,
             examId: examId,
             importance: importance,
@@ -149,7 +145,7 @@ final class SurveyRepository extends EventSourcedRepository {
             e.id,
             ExamTasksCompanion(
               importance: Value(importance),
-              targetLevel: Value(targetLevelFor(importance)),
+              targetLevel: Value(TaskWriter.targetLevelFor(importance)),
             ),
           );
         }
@@ -158,22 +154,17 @@ final class SurveyRepository extends EventSourcedRepository {
     return toCreate.length;
   }
 
-  /// The belt target an importance sets; see [TaskWriter.targetLevelFor].
-  static int targetLevelFor(Importance importance) =>
-      TaskWriter.targetLevelFor(importance);
-
   /// Undoes the latest survey change to one chapter.
   Future<void> undo(String chunkId) => undoLatest(entity, chunkId);
 
   Future<void> _answer(
     ChangeRecorder rec,
     String chunkId, {
-    int? difficulty,
     int? familiarity,
     String? examId,
     Importance? importance,
   }) async {
-    if (difficulty != null || familiarity != null) {
+    if (familiarity != null) {
       final existing = await (db.select(
         db.chunkSurveys,
       )..where((s) => s.chunkId.equals(chunkId))).getSingleOrNull();
@@ -183,8 +174,8 @@ final class SurveyRepository extends EventSourcedRepository {
           ChunkSurveysCompanion(
             id: Value(rec.newId()),
             chunkId: Value(chunkId),
-            difficulty: Value(difficulty ?? 2),
-            familiarity: Value(familiarity ?? 0),
+            difficulty: const Value(2),
+            familiarity: Value(familiarity),
             surveyedAt: Value(rec.now),
           ),
         );
@@ -193,12 +184,7 @@ final class SurveyRepository extends EventSourcedRepository {
           db.chunkSurveys,
           existing.id,
           ChunkSurveysCompanion(
-            difficulty: difficulty == null
-                ? const Value.absent()
-                : Value(difficulty),
-            familiarity: familiarity == null
-                ? const Value.absent()
-                : Value(familiarity),
+            familiarity: Value(familiarity),
             surveyedAt: Value(rec.now),
             deletedAt: const Value(null),
           ),

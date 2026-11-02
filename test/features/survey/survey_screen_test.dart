@@ -67,11 +67,11 @@ void main() {
     expect(find.text('Pages 1–20'), findsOneWidget);
     expect(find.text('Mark the other 2 as Medium'), findsOneWidget);
 
-    await tester.tap(find.text('Hard'));
+    expect(find.text('How hard does it look?'), findsNothing, reason: 'D53');
+    await tester.tap(find.text('Seen it'));
     await tester.tap(find.text('High'));
     await tester.pump();
-    expect(find.text('≈ 1 h 20 min'), findsOneWidget, reason: '20 × 3 × 1.33');
-    expect(find.text('Black belt'), findsOneWidget);
+    expect(find.text('≈ 40 min'), findsOneWidget, reason: '20 × 3 × 0.7');
 
     await tester.tap(find.text('Next chapter'));
     await settle(tester);
@@ -86,9 +86,9 @@ void main() {
       () => SurveyRepository(t.ctx).items(ids.source, examId: ids.exam),
     );
     expect(items!.every((i) => i.surveyed), isTrue);
-    expect(items.first.survey!.difficulty, 3);
+    expect(items.first.survey!.familiarity, 1);
     expect(items.first.importance, Importance.high);
-    expect(items[1].survey!.difficulty, 3, reason: 'carried from chapter 1');
+    expect(items[1].survey!.familiarity, 1, reason: 'carried from chapter 1');
     expect(items[2].importance, Importance.medium);
 
     // Unmount so drift's stream timers finish before the test ends.

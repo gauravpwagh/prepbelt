@@ -57,13 +57,8 @@ final class TaskWriter {
   /// Needed only to record first reads.
   final ReviewRepository? reviews;
 
-  /// The belt target an importance sets (docs/01-product.md, "Source
-  /// survey"). The planner caps it by the time left before the exam.
-  static int targetLevelFor(Importance importance) => switch (importance) {
-    Importance.high => Defaults.targetLevelHigh,
-    Importance.medium => Defaults.targetLevelMedium,
-    Importance.low => Defaults.targetLevelLow,
-  };
+  /// The belt target of an exam task: Black for every importance (D53).
+  static int targetLevelFor(Importance importance) => Defaults.examTargetLevel;
 
   /// The highest of [values], or null when there are none.
   static Importance? highest(Iterable<Importance?> values) {
@@ -127,7 +122,6 @@ final class TaskWriter {
       );
     }
     final importance = draft.importance ?? Importance.medium;
-    final target = examId == null ? null : targetLevelFor(importance);
     if (examId != null) {
       await rec.insert(
         db.examTasks,
@@ -136,7 +130,7 @@ final class TaskWriter {
           examId: Value(examId),
           taskId: Value(taskId),
           importance: Value(importance),
-          targetLevel: Value(target!),
+          targetLevel: Value(targetLevelFor(importance)),
         ),
       );
     }
@@ -145,7 +139,6 @@ final class TaskWriter {
         rec,
         taskId,
         seconds: seconds,
-        targetLevel: target,
         context: firstRead!,
       );
     }
@@ -158,15 +151,13 @@ final class TaskWriter {
     String taskId, {
     required int seconds,
     required FirstReadContext context,
-    int? targetLevel,
   }) => reviews!.recordIn(
     rec,
     taskId: taskId,
-    rating: Rating.good,
+    rating: Rating.solid,
     kind: ReviewKind.firstRead,
     durationSec: seconds,
     engine: context.engine,
     deadline: context.deadline,
-    planned: context.engine.plannedReviewsFor(targetLevel),
   );
 }

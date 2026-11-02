@@ -17,7 +17,7 @@ Everything a student could act on, in three places: what is due, what has not be
 
 | Box | Title | Rows, in order | Row action |
 | --- | --- | --- | --- |
-| 1 | Reviews due | Every task with a review due by the end of today, however many: overdue first (most overdue first), then due today. Kind line "OVERDUE 2 DAYS · 15 MIN", "REVIEW · 10 MIN" or "FINAL REVIEW". | Start |
+| 1 | Reviews due | Every task with a review due by the end of today, however many: by importance (High first), then due date (most overdue first) (D53). Kind line "OVERDUE 2 DAYS · 15 MIN", "REVIEW · 10 MIN" or "FINAL REVIEW". | Start |
 | 2 | Not started | Tasks without a first read and sources with reading left. Today's planned first reads and "Continue reading" first, marked "PLANNED TODAY · FIRST READ · 45 MIN"; then the rest by their planned date, importance, source and position. Sources with chapters but no tasks and nothing left to read show "8 chapters without tasks". | Start (task), Read (source), or open the source |
 | 3 | Reviews ahead | Each task's next review, soonest first, no grouping. Kind line "TOMORROW", "IN 3 DAYS", "IN 18 DAYS · 16 NOV" (date after 13 days). | No Start: a tap opens the task. Early reviews stay possible from the task (they count, but are not one tap away here). |
 

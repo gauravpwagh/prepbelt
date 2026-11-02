@@ -15,9 +15,8 @@ T _$identity<T>(T value) => value;
 mixin _$ReviewState {
 
 /// 0 = not started, 1..7 = belt.
- int get level;/// Scheduled reviews passed so far (beyond the schedule, voluntary
-/// reviews keep counting).
- int get step;/// Dim steps from reviews that were not Good. Reset by a Good review.
+ int get level;/// Solid reviews so far: the step of the review schedule reached.
+ int get step;/// Dim steps from reviews that were not Solid. Reset by a Solid review.
 /// Above 0 means the current step is being retried.
  int get dim;/// Time of the last review. Shifted forward by pauses (decision D6).
  DateTime? get lastReviewAt;/// When the next review is due; null when none is scheduled.
@@ -225,10 +224,9 @@ class _ReviewState extends ReviewState {
 
 /// 0 = not started, 1..7 = belt.
 @override@JsonKey() final  int level;
-/// Scheduled reviews passed so far (beyond the schedule, voluntary
-/// reviews keep counting).
+/// Solid reviews so far: the step of the review schedule reached.
 @override@JsonKey() final  int step;
-/// Dim steps from reviews that were not Good. Reset by a Good review.
+/// Dim steps from reviews that were not Solid. Reset by a Solid review.
 /// Above 0 means the current step is being retried.
 @override@JsonKey() final  int dim;
 /// Time of the last review. Shifted forward by pauses (decision D6).

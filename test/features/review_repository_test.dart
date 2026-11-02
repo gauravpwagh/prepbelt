@@ -43,7 +43,7 @@ void main() {
 
   Future<void> goodUntilDue(String taskId, int times) async {
     for (var i = 0; i < times; i++) {
-      await reviews.record(taskId: taskId, rating: Rating.good);
+      await reviews.record(taskId: taskId, rating: Rating.solid);
       final due = (await stateOf(taskId)).dueAt;
       if (due != null) clock.set(due);
     }
@@ -55,7 +55,7 @@ void main() {
       final task = await tasks.create(title: 'Thermodynamics');
       final review = await reviews.record(
         taskId: task.id,
-        rating: Rating.good,
+        rating: Rating.solid,
         kind: ReviewKind.firstRead,
         durationSec: 1320,
         resumeUnit: 228,
@@ -81,7 +81,7 @@ void main() {
 
   test('a failed record writes nothing', () async {
     await expectLater(
-      reviews.record(taskId: 'missing', rating: Rating.good),
+      reviews.record(taskId: 'missing', rating: Rating.solid),
       throwsA(isA<NotFoundError>()),
     );
     expect(await db.select(db.reviews).get(), isEmpty);
@@ -110,14 +110,14 @@ void main() {
 
   test('pausing for 10 days then resuming shifts dueAt by 10 days', () async {
     final task = await tasks.create(title: 'Rotational motion');
-    await reviews.record(taskId: task.id, rating: Rating.good);
+    await reviews.record(taskId: task.id, rating: Rating.solid);
     final due = (await stateOf(task.id)).dueAt!;
 
     clock.advance(const Duration(hours: 2));
     await reviews.pause(task.id);
     expect((await tasks.watch(task.id).first)!.status, TaskStatus.paused);
     await expectLater(
-      reviews.record(taskId: task.id, rating: Rating.good),
+      reviews.record(taskId: task.id, rating: Rating.solid),
       throwsA(isA<InvalidOperationError>()),
     );
 
@@ -131,7 +131,7 @@ void main() {
 
   test('pause and resume can be undone, and rebuild still agrees', () async {
     final task = await tasks.create(title: 'SN1 and SN2');
-    await reviews.record(taskId: task.id, rating: Rating.good);
+    await reviews.record(taskId: task.id, rating: Rating.solid);
     clock.advance(const Duration(days: 1));
     final beforePause = await stateOf(task.id);
     await reviews.pause(task.id);
@@ -172,7 +172,7 @@ void main() {
         } else {
           await reviews.record(
             taskId: task.id,
-            rating: Rating.values[random.nextInt(4)],
+            rating: Rating.values[random.nextInt(3)],
           );
         }
       }
@@ -202,9 +202,9 @@ void main() {
       await ExamRepository(ctx).create(name: 'JEE Main', date: '2027-01-10');
       final deadline = (await reviews.deadline())!;
       final task = await tasks.create(title: 'Optics');
-      await goodUntilDue(task.id, 6); // first read + 5 reviews
+      await goodUntilDue(task.id, 7); // first read + 6 reviews
       final state = await stateOf(task.id);
-      expect(state.level, 6, reason: 'Brown after 5 Good reviews');
+      expect(state.level, 7, reason: 'Black after 6 Solid reviews');
       expect(state.dueAt, isNull);
       for (final r in await reviews.reviewsFor(task.id)) {
         expect(fromUtcMs(r.at).isAfter(deadline), isFalse);
@@ -213,20 +213,38 @@ void main() {
   );
 
   test('settings change the schedule', () async {
-    await settings.set(SettingKeys.scheduledReviews, 2);
+    await settings.set(SettingKeys.reviewGapDays, [2, 4]);
     final task = await tasks.create(title: 'Optics');
-    await goodUntilDue(task.id, 3); // first read + 2 reviews
-    expect((await stateOf(task.id)).dueAt, isNull);
-    expect((await stateOf(task.id)).level, 3);
+    await goodUntilDue(task.id, 4); // first read + 3 reviews
+    final times = [
+      for (final r in await reviews.reviewsFor(task.id)) fromUtcMs(r.at),
+    ];
+    expect([
+      for (var i = 1; i < times.length; i++)
+        times[i].difference(times[i - 1]).inDays,
+    ], [2, 4, 4]);
+    expect((await stateOf(task.id)).level, 4);
   });
 
-  test('an exam target sets how many reviews a task gets', () async {
+  test('a schedule is re-fitted once when the gaps change', () async {
+    final task = await tasks.create(title: 'Optics');
+    await reviews.record(taskId: task.id, rating: Rating.solid);
+    final before = (await stateOf(task.id)).dueAt!;
+    expect(await reviews.refitIfChanged(), isTrue, reason: 'first fit');
+    expect(await reviews.refitIfChanged(), isFalse);
+    await settings.set(SettingKeys.reviewGapDays, [5]);
+    expect(await reviews.refitIfChanged(), isTrue);
+    expect(
+      (await stateOf(task.id)).dueAt,
+      before.add(const Duration(days: 4)),
+    );
+  });
+
+  test('importance does not change how many reviews a task gets', () async {
     final exam = await ExamRepository(
       ctx,
     ).create(name: 'JEE Main', date: '2027-01-10');
     final task = await tasks.create(title: 'Optics');
-    // Low importance, target Green. ExamTask writes arrive with the
-    // survey in milestone 3; the test inserts the row directly.
     await db
         .into(db.examTasks)
         .insert(
@@ -242,11 +260,6 @@ void main() {
             targetLevel: 4,
           ),
         );
-    expect(await reviews.plannedReviews(task.id), 3);
-    await goodUntilDue(task.id, 4); // first read + 3 reviews
-    final state = await stateOf(task.id);
-    expect(state.level, 4, reason: 'Green');
-    expect(state.dueAt, isNull, reason: 'plan complete');
-    expect(await reviews.rebuildState(task.id), state);
+    expect(await reviews.plannedReviews(task.id), 6);
   });
 }

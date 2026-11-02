@@ -6,7 +6,7 @@ Phase 1 is fully offline and ships in three releases. 1.0 proves the core loop f
 
 | Release | Goal | Adds |
 | --- | --- | --- |
-| 1.0 | One student, one exam, the daily loop works and feels good (Android and iOS) | Sources (share-in + manual), survey, tasks, open externally, review with 4 ratings, 5-review schedule, belts (Dojo theme), one exam, planner, Today screen, exam belt + readiness, activity grid, redefine (edit, scope, split, pause), undo, settings |
+| 1.0 | One student, one exam, the daily loop works and feels good (Android and iOS) | Sources (share-in + manual), survey, tasks, open externally, review with 3 ratings (Forgot, Shaky, Solid), review schedule of 1–3–7–14–30–60 days with at least 5 before the exam, belts (Dojo theme), one exam, planner, Today screen, exam belt + readiness, activity grid, redefine (edit, scope, split, pause), undo, settings |
 | 1.1 | Real exam season: several exams and sharing with friends | Web build, multiple exams with capacity split, triage view, mastery timeline, merge and swap source, `.belt` template export and import, rest tokens, daily quests, XP |
 | 1.2 | Depth and delight | Optional flashcards and questions, gem theme and palette picker, achievements and vault, community difficulty hints, belt ceremony polish, home-screen widget |
 
@@ -19,7 +19,7 @@ The data model already covers all three, so no release needs a schema redesign.
 | First launch | Pick name and daily study minutes, then add an exam or skip; under 60 seconds | No |
 | Add exam | Name, date, minutes per weekday; link sources now or later | No |
 | Today | Ordered sessions with time and belt; one tap to start; streak; exam card | Yes |
-| Back from source | Where you stopped, time spent, 4 ratings, promotion moment | Yes |
+| Back from source | Where you stopped, time spent, 3 ratings, promotion moment | Yes |
 | Sources | List with survey progress; add by file, link or share sheet | No |
 | Add source | Type, title, file or URL; read PDF bookmarks or paste the chapter list; split by page ranges | No |
 | Survey | Per chapter: importance, difficulty, familiarity; live estimate; bulk-set | Yes |

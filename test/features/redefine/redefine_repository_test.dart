@@ -51,7 +51,7 @@ void main() {
       ReviewKind.review,
       ReviewKind.review,
     ]) {
-      await reviews.record(taskId: taskId, rating: Rating.good, kind: kind);
+      await reviews.record(taskId: taskId, rating: Rating.solid, kind: kind);
       clock.advance(const Duration(days: 5));
     }
   });
@@ -140,7 +140,7 @@ void main() {
       titleB: 'B',
     );
     clock.advance(const Duration(days: 1));
-    await reviews.record(taskId: a, rating: Rating.good);
+    await reviews.record(taskId: a, rating: Rating.solid);
     expect(await redefine.undoable(a), isNull);
     expect(() => redefine.undo(a), throwsA(isA<NothingToUndoError>()));
   });

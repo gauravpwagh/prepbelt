@@ -70,7 +70,6 @@ void main() {
     if (examId != null) {
       await survey.answer(
         chunks.last.id,
-        difficulty: 2,
         familiarity: 0,
         examId: examId,
         importance: Importance.high,
@@ -83,29 +82,37 @@ void main() {
     ];
   }
 
-  test('overdue first, then due today, then two first reads by importance; '
-      'paused and not-yet-due tasks stay off', () async {
+  test('reviews due by importance, then the most overdue (D53), then two '
+      'first reads by importance; paused tasks stay off', () async {
     final exam = await exams.create(name: 'JEE Main', date: '2027-01-10');
     final ids = await tasks(examId: exam.id);
 
-    // Ch 1 read 10 days ago, Ch 2 read 2 days ago (first review due
-    // later), Ch 3 read yesterday and paused.
+    // Ch 1 read 10 days ago, Ch 2 read 2 days ago (its first review was
+    // due yesterday), Ch 3 read yesterday and paused, Ch 6 (High) read
+    // 3 days ago.
+    clock.advance(const Duration(days: -3));
+    await reviews.record(
+      taskId: ids[5],
+      rating: Rating.solid,
+      kind: ReviewKind.firstRead,
+    );
+    clock.advance(const Duration(days: 3));
     clock.advance(const Duration(days: -10));
     await reviews.record(
       taskId: ids[0],
-      rating: Rating.good,
+      rating: Rating.solid,
       kind: ReviewKind.firstRead,
     );
     clock.advance(const Duration(days: 8));
     await reviews.record(
       taskId: ids[1],
-      rating: Rating.good,
+      rating: Rating.solid,
       kind: ReviewKind.firstRead,
     );
     clock.advance(const Duration(days: 1));
     await reviews.record(
       taskId: ids[2],
-      rating: Rating.good,
+      rating: Rating.solid,
       kind: ReviewKind.firstRead,
     );
     await reviews.pause(ids[2]);
@@ -117,14 +124,15 @@ void main() {
     )..where((s) => s.taskId.equals(ids[0]))).getSingle();
     expect(state0.dueAt! < clock.nowMs(), isTrue, reason: 'Ch 1 is overdue');
 
-    // Ch 2's first review is days away (the gaps fit 74 days before the
-    // exam), so it is not on today's list.
+    // Ch 6 is High, so it leads although Ch 1 is more overdue.
     expect(list.map((i) => (i.kind, i.info!.task.id)).toList(), [
+      (TodayKind.overdue, ids[5]),
       (TodayKind.overdue, ids[0]),
-      (TodayKind.firstRead, ids[5]),
+      (TodayKind.overdue, ids[1]),
       (TodayKind.firstRead, ids[3]),
+      (TodayKind.firstRead, ids[4]),
     ]);
-    expect(list.first.overdueDays, greaterThan(0));
+    expect(list[1].overdueDays, greaterThan(list[2].overdueDays));
     // 10 pages at 3 min a page = 30 min first read; first review 35%.
     expect(list.first.minutes, 11);
     expect(list.last.minutes, 30);
@@ -136,19 +144,19 @@ void main() {
     clock.advance(const Duration(days: -10));
     await reviews.record(
       taskId: ids[0],
-      rating: Rating.good,
+      rating: Rating.solid,
       kind: ReviewKind.firstRead,
     );
     clock.advance(const Duration(days: 10));
     // Read today: their first reviews are on later days.
     await reviews.record(
       taskId: ids[1],
-      rating: Rating.good,
+      rating: Rating.solid,
       kind: ReviewKind.firstRead,
     );
     await reviews.record(
       taskId: ids[2],
-      rating: Rating.good,
+      rating: Rating.solid,
       kind: ReviewKind.firstRead,
     );
     await reviews.pause(ids[3]);

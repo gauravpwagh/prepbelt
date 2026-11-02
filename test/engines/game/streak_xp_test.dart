@@ -28,11 +28,11 @@ void main() {
     expect(
       [
         xp(Rating.forgot),
-        xp(Rating.hard),
-        xp(Rating.good, promoted: true),
-        xp(Rating.easy, promoted: true),
+        xp(Rating.shaky),
+        xp(Rating.solid),
+        xp(Rating.solid, promoted: true),
       ],
-      [10, 20, 40, 50],
+      [10, 20, 30, 40],
       reason: 'the Back-from-source mockup',
     );
   });

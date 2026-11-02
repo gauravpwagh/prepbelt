@@ -313,12 +313,8 @@ class _BeltCard extends StatelessWidget {
     final name = started
         ? l10n.beltName(levels.levelName(l10n, d.level))
         : l10n.beltNotStarted;
-    final target = view.target;
-    final levelLine = !started
-        ? null
-        : target == null
-        ? l10n.taskLevelLine(d.level)
-        : l10n.taskLevelTargetLine(d.level, levels.levelName(l10n, target));
+    // Every task aims at Black (D53), so there is no target to show.
+    final levelLine = started ? l10n.taskLevelLine(d.level) : null;
     final planned = view.detail.planned;
     final done = view.stepsDone;
     final steps = l10n.taskSteps(done, planned);
@@ -553,9 +549,8 @@ class _HistoryRow extends StatelessWidget {
     final rating = Rating.fromValue(review.rating);
     final ratingLabel = switch (rating) {
       Rating.forgot => l10n.rateForgot,
-      Rating.hard => l10n.rateHard,
-      Rating.good => l10n.rateGood,
-      Rating.easy => l10n.rateEasy,
+      Rating.shaky => l10n.rateShaky,
+      Rating.solid => l10n.rateSolid,
     };
     final time = formatMinutes(l10n, (review.durationSec / 60).round());
     final promoted = review.levelAfter > review.levelBefore;

@@ -7,15 +7,13 @@ import '../../core/config/effort_config.dart';
 enum EffortUnit { page, minute, question, item }
 
 /// First-read estimate in minutes (docs/04-planner-spec.md):
-/// `units × pace × d[difficulty] × f[familiarity]`.
+/// `units × pace × f[familiarity]`. Difficulty is not used (D53).
 ///
-/// [difficulty] is 1 Easy .. 3 Hard and [familiarity] 0 New .. 2
-/// Comfortable, as stored in ChunkSurvey; unsurveyed chunks count as
-/// Medium and New.
+/// [familiarity] is 0 New .. 2 Comfortable, as stored in ChunkSurvey;
+/// unsurveyed chunks count as New.
 double firstReadMinutes({
   required int units,
   required EffortUnit unit,
-  int difficulty = 2,
   int familiarity = 0,
   EffortConfig config = const EffortConfig(),
   double? pace,
@@ -30,7 +28,6 @@ double firstReadMinutes({
       };
   return max(0, units) *
       perUnit *
-      config.difficultyFactors[(difficulty - 1).clamp(0, 2)] *
       config.familiarityFactors[familiarity.clamp(0, 2)];
 }
 

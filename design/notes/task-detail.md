@@ -43,7 +43,7 @@ One task: how strong it is, when it comes back, what it covers, and how its revi
    - One row per review, newest first:
      - date "Wed 28 Oct";
      - kind "Review 3" / "Retry" / "First read";
-     - a rating chip: Forgot, Hard, Good or Easy (Good and Easy in accent soft, the others in warning bg);
+     - a rating chip: Forgot, Shaky or Solid (Solid in accent soft, the others in warning bg);
      - minutes;
      - the small belt badge after the review.
    - A row that earned a belt adds "→ Green" in accent.
@@ -63,7 +63,7 @@ One task: how strong it is, when it comes back, what it covers, and how its revi
 ## Accessibility
 
 - The belt card is one Semantics node: "Green belt, level 4 of 7, 2 stripes, 3 of 5 reviews done, target Black."
-- History rows read as one sentence: "28 October, review 3, rated Good, 22 minutes, promoted to Green."
+- History rows read as one sentence: "28 October, review 3, rated Solid, 22 minutes, promoted to Green."
 - Every button is at least 44 px; text sizes reflow at 1.3×. The belt card stacks the badge above the text when the text would wrap past 3 lines.
 
 ## Data

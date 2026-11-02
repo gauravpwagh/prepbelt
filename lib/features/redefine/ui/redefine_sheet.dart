@@ -363,7 +363,6 @@ class _EditState extends State<_Edit> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
-    final levels = context.levels;
     final v = widget.view;
     final changedImportance = _importance != v.importance;
     final changed =
@@ -374,18 +373,6 @@ class _EditState extends State<_Edit> {
       Importance.high => l10n.importanceHigh,
       Importance.medium => l10n.importanceMedium,
       Importance.low => l10n.importanceLow,
-    };
-    final target = switch (_importance) {
-      Importance.high => 7,
-      Importance.medium => 5,
-      Importance.low => 4,
-      null => null,
-    };
-    final planned = switch (_importance) {
-      Importance.high => 5,
-      Importance.medium => 4,
-      Importance.low => 3,
-      null => v.planned,
     };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -421,13 +408,10 @@ class _EditState extends State<_Edit> {
         const SizedBox(height: AppSpace.xl),
         _WhatHappens(
           rows: [
-            if (changedImportance && target != null)
+            if (changedImportance && _importance != null)
               (
                 _icon(context, AppIcon.exams),
-                l10n.editImpact(
-                  l10n.beltName(levels.levelName(l10n, target)),
-                  planned,
-                ),
+                l10n.editImpactOrder(label(_importance!)),
               )
             else
               (_icon(context, AppIcon.check), l10n.editNoChange),

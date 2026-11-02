@@ -26,7 +26,6 @@ SurveyView mockupView({bool withExam = true}) => SurveyView(
         title: i == 8 ? 'Work and Energy' : 'Chapter $i',
         startUnit: i == 8 ? 130 : i * 10,
         endUnit: i == 8 ? 158 : i * 10 + 9,
-        difficulty: i < 8 ? 3 : null,
         familiarity: i < 8 ? 1 : null,
         importance: i < 8 ? Importance.high : null,
       ),

@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/config/defaults.dart';
 import '../../../core/db/enums.dart';
 import '../../../core/ui/buttons.dart';
 import '../../../core/ui/chips.dart';
 import '../../../engines/planner/estimate.dart';
 import '../../../l10n/gen/app_localizations.dart';
-import '../../../theme/level_theme.dart';
 import '../../../theme/tokens/app_tokens.dart';
 import '../state/survey_providers.dart';
 
 /// Source survey (design/mockups/3-survey.html): per chapter, importance
-/// for the exam, difficulty and familiarity, with a live first-read
+/// for the exam and familiarity (D53), with a live first-read
 /// estimate and target belt.
 class SurveyScreen extends ConsumerWidget {
   const SurveyScreen({required this.sourceId, this.onDone, super.key});
@@ -63,7 +61,6 @@ class _SurveyBodyState extends ConsumerState<SurveyBody> {
 
   late int _index;
   late Importance _importance;
-  late int _difficulty;
   late int _familiarity;
   bool _busy = false;
 
@@ -78,7 +75,7 @@ class _SurveyBodyState extends ConsumerState<SurveyBody> {
 
   /// Shows chapter [index] with its saved answers. An unsurveyed chapter
   /// starts from the answers just given ([carry]), else the previous
-  /// chapter's saved ones, else Medium, Medium, New.
+  /// chapter's saved ones, else Medium and New.
   void _show(int index, {bool carry = false}) {
     if (_chapters.isEmpty) {
       _index = index;
@@ -87,11 +84,9 @@ class _SurveyBodyState extends ConsumerState<SurveyBody> {
     final c = _chapters[index];
     final prev = index > 0 ? _chapters[index - 1] : null;
     final Importance? lastImportance = carry ? _importance : prev?.importance;
-    final int? lastDifficulty = carry ? _difficulty : prev?.difficulty;
     final int? lastFamiliarity = carry ? _familiarity : prev?.familiarity;
     _index = index;
     _importance = c.importance ?? lastImportance ?? Importance.medium;
-    _difficulty = c.difficulty ?? lastDifficulty ?? 2;
     _familiarity = c.familiarity ?? lastFamiliarity ?? 0;
   }
 
@@ -99,7 +94,6 @@ class _SurveyBodyState extends ConsumerState<SurveyBody> {
       .read(surveyActionsProvider.notifier)
       .answer(
         _chapters[_index].id,
-        difficulty: _difficulty,
         familiarity: _familiarity,
         examId: widget.view.examId,
         importance: widget.view.examId == null ? null : _importance,
@@ -248,10 +242,8 @@ class _SurveyBodyState extends ConsumerState<SurveyBody> {
                   unitType: view.unitType,
                   examName: view.examName,
                   importance: _importance,
-                  difficulty: _difficulty,
                   familiarity: _familiarity,
                   onImportance: (v) => setState(() => _importance = v),
-                  onDifficulty: (v) => setState(() => _difficulty = v),
                   onFamiliarity: (v) => setState(() => _familiarity = v),
                 ),
               ],
@@ -300,10 +292,8 @@ class _ChapterCard extends StatelessWidget {
     required this.unitType,
     required this.examName,
     required this.importance,
-    required this.difficulty,
     required this.familiarity,
     required this.onImportance,
-    required this.onDifficulty,
     required this.onFamiliarity,
   });
 
@@ -312,10 +302,8 @@ class _ChapterCard extends StatelessWidget {
   final UnitType unitType;
   final String? examName;
   final Importance importance;
-  final int difficulty;
   final int familiarity;
   final ValueChanged<Importance> onImportance;
-  final ValueChanged<int> onDifficulty;
   final ValueChanged<int> onFamiliarity;
 
   @override
@@ -385,17 +373,6 @@ class _ChapterCard extends StatelessWidget {
             ],
             const SizedBox(height: AppSpace.xl),
             _Question(
-              label: l10n.surveyDifficulty,
-              options: [
-                l10n.difficultyEasy,
-                l10n.difficultyMedium,
-                l10n.difficultyHard,
-              ],
-              selected: difficulty - 1,
-              onSelect: (i) => onDifficulty(i + 1),
-            ),
-            const SizedBox(height: AppSpace.xl),
-            _Question(
               label: l10n.surveyFamiliarity,
               options: [
                 l10n.familiarityNew,
@@ -413,16 +390,8 @@ class _ChapterCard extends StatelessWidget {
                   : firstReadMinutes(
                       units: size,
                       unit: EffortUnit.values.byName(unitType.name),
-                      difficulty: difficulty,
                       familiarity: familiarity,
                     ),
-              targetLevel: examName == null
-                  ? null
-                  : switch (importance) {
-                      Importance.high => Defaults.targetLevelHigh,
-                      Importance.medium => Defaults.targetLevelMedium,
-                      Importance.low => Defaults.targetLevelLow,
-                    },
             ),
           ],
         ),
@@ -486,16 +455,14 @@ class _Question extends StatelessWidget {
 }
 
 class _Estimate extends StatelessWidget {
-  const _Estimate({required this.minutes, required this.targetLevel});
+  const _Estimate({required this.minutes});
 
   final double? minutes;
-  final int? targetLevel;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
-    final levels = context.levels;
     final rounded = minutes == null ? null : roundToFive(minutes!);
     final duration = rounded == null
         ? '—'
@@ -523,34 +490,6 @@ class _Estimate extends StatelessWidget {
                 ],
               ),
             ),
-            if (targetLevel != null)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    l10n.surveyTarget,
-                    style: AppText.caption.copyWith(color: c.muted),
-                  ),
-                  const SizedBox(height: AppSpace.xs),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      levels.badge(
-                        context,
-                        LevelBadgeData(level: targetLevel!, showCaption: false),
-                      ),
-                      const SizedBox(width: AppSpace.sm),
-                      Text(
-                        l10n.beltName(levels.levelName(l10n, targetLevel!)),
-                        style: AppText.body.copyWith(
-                          color: c.ink,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
           ],
         ),
       ),

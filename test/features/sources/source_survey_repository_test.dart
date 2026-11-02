@@ -85,19 +85,17 @@ void main() {
     final ch3 = items.last.chunk.id;
     await survey.answer(
       ch3,
-      difficulty: 3,
       familiarity: 1,
       examId: exam.id,
       importance: Importance.high,
     );
     items = await survey.items(source.id, examId: exam.id);
     expect(items.last.surveyed, isTrue);
-    expect(items.last.survey!.difficulty, 3);
+    expect(items.last.survey!.familiarity, 1);
     expect(items.last.importance, Importance.high);
 
     tick();
     await survey.answer(ch3, familiarity: 2);
-    expect((await survey.items(source.id)).last.survey!.difficulty, 3);
     expect((await survey.items(source.id)).last.survey!.familiarity, 2);
 
     tick();
@@ -112,12 +110,11 @@ void main() {
     final exam = await exams.create(name: 'JEE Main', date: '2027-01-10');
     final source = await addBook();
     final first = (await survey.items(source.id)).first.chunk.id;
-    await survey.answer(first, difficulty: 1, familiarity: 2);
+    await survey.answer(first, familiarity: 2);
 
     tick();
     final n = await survey.answerRemaining(
       source.id,
-      difficulty: 2,
       familiarity: 0,
       examId: exam.id,
       importance: Importance.medium,
@@ -125,7 +122,7 @@ void main() {
     expect(n, 2);
     final items = await survey.items(source.id, examId: exam.id);
     expect(items.every((i) => i.surveyed), isTrue);
-    expect(items.first.survey!.difficulty, 1, reason: 'left as answered');
+    expect(items.first.survey!.familiarity, 2, reason: 'left as answered');
     expect(items.skip(1).map((i) => i.importance), [
       Importance.medium,
       Importance.medium,
@@ -147,7 +144,6 @@ void main() {
     await pumpEventQueue();
     await survey.answer(
       (await survey.items(source.id)).first.chunk.id,
-      difficulty: 2,
       familiarity: 0,
     );
     await pumpEventQueue();
@@ -182,11 +178,10 @@ void main() {
       chapters: chaptersBySize(10, 10, label: (s, e) => 'Pages $s–$e'),
     );
     tick();
-    await survey.answerRemaining(done.id, difficulty: 2, familiarity: 0);
+    await survey.answerRemaining(done.id, familiarity: 0);
     tick();
     await survey.answer(
       (await survey.items(book.id)).first.chunk.id,
-      difficulty: 1,
       familiarity: 1,
     );
 
@@ -199,14 +194,13 @@ void main() {
   });
 
   test('finishing a survey creates one task per chapter with its exam '
-      'target, once, undoably', () async {
+      'link, once, undoably', () async {
     final exam = await exams.create(name: 'JEE Main', date: '2027-01-10');
     final source = await addBook();
     tick();
     final items = await survey.items(source.id, examId: exam.id);
     await survey.answer(
       items.first.chunk.id,
-      difficulty: 3,
       familiarity: 0,
       examId: exam.id,
       importance: Importance.high,
@@ -231,8 +225,9 @@ void main() {
       for (final e in await db.select(db.examTasks).get())
         e.taskId: (e.importance, e.targetLevel),
     };
+    // Every task targets Black (D53); importance only orders the work.
     expect(targets[tasks.first.id], (Importance.high, 7));
-    expect(targets[tasks[1].id], (Importance.medium, 5), reason: 'default');
+    expect(targets[tasks[1].id], (Importance.medium, 7), reason: 'default');
 
     tick();
     expect(await survey.createTasks(source.id, examId: exam.id), 0);
@@ -250,7 +245,7 @@ void main() {
     final updated = await (db.select(
       db.examTasks,
     )..where((e) => e.taskId.equals(tasks[1].id))).getSingle();
-    expect((updated.importance, updated.targetLevel), (Importance.low, 4));
+    expect((updated.importance, updated.targetLevel), (Importance.low, 7));
 
     tick();
     await sources.undo(source.id);

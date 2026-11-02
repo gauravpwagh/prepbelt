@@ -103,7 +103,7 @@ void main() {
     await ReviewRepository(
       t.ctx,
       config: () async => const ReviewConfig(),
-    ).record(taskId: task.id, rating: Rating.good, kind: ReviewKind.firstRead);
+    ).record(taskId: task.id, rating: Rating.solid, kind: ReviewKind.firstRead);
     await reminders.afterSession(_text);
     expect(scheduler.asked, 1, reason: 'asked only once');
     expect(scheduler.scheduled!.first, DateTime(2026, 10, 29, 19));

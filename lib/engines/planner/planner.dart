@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import '../../core/config/defaults.dart';
+import '../../core/config/review_config.dart' show ReviewConfig;
 import '../review/review_engine.dart';
 import '../review/review_types.dart';
 
@@ -19,7 +20,6 @@ final class PlannerConfig {
     this.sessionFloor = Defaults.newSessionFloorMinutes,
     this.maxOverrun = Defaults.maxDayOverrunMinutes,
     this.taperDays = Defaults.taperDays,
-    this.smoothEarlier = Defaults.smoothingDaysEarlier,
     this.maxFirstReadsPerSubject = Defaults.maxFirstReadsPerSubjectPerDay,
     this.finalWindows = const [
       Defaults.finalWindowHigh,
@@ -32,9 +32,6 @@ final class PlannerConfig {
   final int sessionFloor;
   final int maxOverrun;
   final int taperDays;
-
-  /// A review may be pulled this many days early onto a day with room.
-  final int smoothEarlier;
   final int maxFirstReadsPerSubject;
 
   /// Days before the exam a final review may land in, `[near, far]`, for
@@ -48,17 +45,13 @@ final class PlanTask {
     required this.id,
     required this.state,
     required this.importance,
-    required this.planned,
     required this.firstReadMinutes,
     required this.reviewMinutes,
     this.remainingReadMinutes,
-    this.difficulty = 2,
     this.subject = '',
     this.sourceKey = '',
     this.sourceOrder = 0,
     this.startedReading = false,
-    this.keep = false,
-    this.reviewLimit,
   });
 
   final String id;
@@ -66,9 +59,6 @@ final class PlanTask {
   /// The review engine's state (level, step, dim, due date).
   final ReviewState state;
   final PlanImportance importance;
-
-  /// Scheduled reviews for this task (its belt target sets it).
-  final int planned;
 
   /// The whole first read's estimate.
   final double firstReadMinutes;
@@ -78,9 +68,6 @@ final class PlanTask {
 
   /// Length of review [step] (0 = first review).
   final int Function(int step) reviewMinutes;
-
-  /// 1 Easy .. 3 Hard.
-  final int difficulty;
 
   /// For variety: at most a few first reads of one subject a day.
   final String subject;
@@ -92,40 +79,6 @@ final class PlanTask {
 
   /// A first read already in progress continues before new ones.
   final bool startedReading;
-
-  /// The student chose to keep this task in full: triage never cuts it.
-  final bool keep;
-
-  /// Triage: stop after this many scheduled reviews. The reviews keep the
-  /// dates they had for [planned]; the last ones are simply dropped, so a
-  /// cut frees the crowded days before the exam.
-  final int? reviewLimit;
-
-  /// Scheduled reviews this plan will hold.
-  int get reviews => reviewLimit ?? planned;
-
-  PlanTask copyWith({
-    int? planned,
-    double? firstReadMinutes,
-    int? reviewLimit,
-  }) => PlanTask(
-    id: id,
-    state: state,
-    importance: importance,
-    planned: planned ?? this.planned,
-    firstReadMinutes: firstReadMinutes ?? this.firstReadMinutes,
-    remainingReadMinutes: firstReadMinutes == null
-        ? remainingReadMinutes
-        : null,
-    reviewMinutes: reviewMinutes,
-    difficulty: difficulty,
-    subject: subject,
-    sourceKey: sourceKey,
-    sourceOrder: sourceOrder,
-    startedReading: startedReading,
-    keep: keep,
-    reviewLimit: reviewLimit ?? this.reviewLimit,
-  );
 
   bool get started => state.started;
   double get toRead => remainingReadMinutes ?? firstReadMinutes;
@@ -246,7 +199,7 @@ final class PlanResult {
 DateTime dayKey(DateTime t) => DateTime.utc(t.year, t.month, t.day);
 
 final class _Review {
-  _Review(this.task, this.state, this.due, this.step);
+  _Review(this.task, this.state, this.due, this.step, {required this.last});
 
   final PlanTask task;
   final ReviewState state;
@@ -254,6 +207,9 @@ final class _Review {
 
   /// Scheduled step this review would complete (0-based).
   final int step;
+
+  /// Nothing is scheduled after it: the final review.
+  final bool last;
 }
 
 final class _Reading {
@@ -282,15 +238,14 @@ final class _Reading {
 /// Plans every day from [PlannerInput.today] to the day before the exam
 /// (docs/04-planner-spec.md, "Filling each day"):
 ///
-/// - overdue reviews first, then reviews due that day, by importance, then
-///   dimmest; what does not fit carries to the next day;
-/// - a review due within [PlannerConfig.smoothEarlier] days is pulled onto
-///   a day with room left once first reads are placed, when its own day is
-///   already over its minutes (a break, a mock test, a pile-up);
-/// - first reads in sessions of at most [PlannerConfig.maxSession]
-///   minutes, one a day per task, never starting below the 15-minute
-///   floor, earliest deadline first, then importance, Hard first, source
-///   order, and at most 2 per subject a day when there is an alternative;
+/// - every review due by that day (overdue included), however many, by
+///   importance then due date: daily minutes never hold a review back
+///   (D53); only a break day (0 minutes) carries its reviews to the next;
+/// - first reads in the minutes left, in sessions of at most
+///   [PlannerConfig.maxSession] minutes, one a day per task, never
+///   starting below the 15-minute floor, earliest deadline first, then
+///   importance, source order, and at most 2 per subject a day when there
+///   is an alternative;
 /// - the last [PlannerConfig.taperDays] days hold reviews only; the exam
 ///   day is empty;
 /// - a task's reviews follow from the day its first read finishes, as the
@@ -316,9 +271,14 @@ PlanResult plan(PlannerInput input, ReviewEngine engine) {
   // before.
   DateTime onOrBefore(DateTime d) => d.isAfter(lastDay) ? lastDay : d;
 
-  // The review that completes the last step is the final one, a retry
+  // The final review is the one with nothing scheduled after it, a retry
   // after a Forgot included.
-  bool finalStep(PlanTask t, ReviewState s) => s.step + 1 >= t.reviews;
+  bool finalStep(ReviewState s, DateTime day) =>
+      engine.dueFor(
+        s.copyWith(step: s.step + 1, dim: 0, lastReviewAt: day),
+        deadline: deadline,
+      ) ==
+      null;
 
   /// The final review's window as days: (earliest, latest).
   (DateTime, DateTime) window(PlanTask t) {
@@ -337,10 +297,9 @@ PlanResult plan(PlannerInput input, ReviewEngine engine) {
   /// first on ties, so finals spread over the last days instead of piling
   /// up on the day before the exam.
   void queue(PlanTask t, ReviewState s, DateTime due, int step) {
-    // Past its review limit (a triage cut), a task has nothing more due.
-    if (s.dim == 0 && step >= t.reviews) return;
     var d = onOrBefore(due);
-    if (finalStep(t, s)) {
+    final last = finalStep(s, d);
+    if (last) {
       final (earliest, latest) = window(t);
       if (d.isAfter(latest)) d = latest;
       final from = earliest.isBefore(today) ? today : earliest;
@@ -364,7 +323,7 @@ PlanResult plan(PlannerInput input, ReviewEngine engine) {
       d = best;
       finalLoad[d] = (finalLoad[d] ?? 0) + minutes;
     }
-    pending.add(_Review(t, s, d, step));
+    pending.add(_Review(t, s, d, step, last: last));
   }
 
   for (final t in input.tasks) {
@@ -384,26 +343,25 @@ PlanResult plan(PlannerInput input, ReviewEngine engine) {
   int capacity(DateTime day) =>
       input.overrides[day] ?? input.weekdayMinutes[day.weekday - 1];
 
+  // Importance first, then the most overdue (D53).
   int reviewRank(_Review a, _Review b) {
-    final byDue = a.due.compareTo(b.due);
-    if (byDue != 0) return byDue;
     final byImportance = a.task.importance.index.compareTo(
       b.task.importance.index,
     );
     if (byImportance != 0) return byImportance;
+    final byDue = a.due.compareTo(b.due);
+    if (byDue != 0) return byDue;
     final byDim = b.state.dim.compareTo(a.state.dim);
     if (byDim != 0) return byDim;
     return a.task.id.compareTo(b.task.id);
   }
 
-  bool isFinal(_Review r) => finalStep(r.task, r.state);
-
-  /// Places [r] on [day] and queues the next one, as if rated Good.
+  /// Places [r] on [day] and queues the next one, as if rated Solid.
   void placeReview(_Review r, DateTime day, int order) {
     entries.add(
       PlanEntry(
         day: day,
-        kind: isFinal(r) ? PlanKind.finalReview : PlanKind.review,
+        kind: r.last ? PlanKind.finalReview : PlanKind.review,
         minutes: r.task.reviewMinutes(r.step),
         order: order,
         taskId: r.task.id,
@@ -411,10 +369,9 @@ PlanResult plan(PlannerInput input, ReviewEngine engine) {
     );
     final out = engine.applyReview(
       r.state,
-      Rating.good,
+      Rating.solid,
       day,
       deadline: deadline,
-      planned: r.task.planned,
     );
     projected[r.task.id] = out.levelAfter;
     final next = out.dueAfter;
@@ -424,22 +381,13 @@ PlanResult plan(PlannerInput input, ReviewEngine engine) {
   }
 
   /// Source order: the earliest unfinished reading of a source goes first.
-  bool eligible(_Reading r, List<_Reading> open) {
+  /// [firstOpen] holds each source's lowest order among open task readings.
+  bool eligible(_Reading r, Map<String, int> firstOpen) {
     final t = r.task;
-    if (t == null) {
-      // An explore item waits for the source's own unread tasks.
-      return !open.any(
-        (o) => o.task != null && o.task!.sourceKey == r.explore!.sourceId,
-      );
-    }
+    // An explore item waits for the source's own unread tasks.
+    if (t == null) return !firstOpen.containsKey(r.explore!.sourceId);
     if (t.sourceKey.isEmpty) return true;
-    return !open.any(
-      (o) =>
-          o.task != null &&
-          o != r &&
-          o.task!.sourceKey == t.sourceKey &&
-          o.task!.sourceOrder < t.sourceOrder,
-    );
+    return t.sourceOrder <= (firstOpen[t.sourceKey] ?? t.sourceOrder);
   }
 
   int readingRank(_Reading a, _Reading b) {
@@ -448,10 +396,6 @@ PlanResult plan(PlannerInput input, ReviewEngine engine) {
     if (byDeadline != 0) return byDeadline;
     final byImportance = a.importanceRank.compareTo(b.importanceRank);
     if (byImportance != 0) return byImportance;
-    final byDifficulty = (b.task?.difficulty ?? 2).compareTo(
-      a.task?.difficulty ?? 2,
-    );
-    if (byDifficulty != 0) return byDifficulty;
     final byOrder = (a.task?.sourceOrder ?? 1 << 30).compareTo(
       b.task?.sourceOrder ?? 1 << 30,
     );
@@ -469,19 +413,22 @@ PlanResult plan(PlannerInput input, ReviewEngine engine) {
     var used = 0;
     var order = 0;
 
-    // 1. Reviews due by today (overdue first), until the day is full.
-    pending.sort(reviewRank);
-    final dueNow = [
-      for (final r in pending)
-        if (!r.due.isAfter(day)) r,
-    ];
-    for (final r in dueNow) {
-      final m = r.task.reviewMinutes(r.step);
-      if (used > 0 && used + m > cap + cfg.maxOverrun) break;
-      if (cap == 0) break;
-      pending.remove(r);
-      placeReview(r, day, order++);
-      used += m;
+    // 1. Every review due by today, whatever the day's minutes (D53). A
+    // break day carries them to the next day.
+    if (cap > 0) {
+      final dueNow = <_Review>[];
+      final later = <_Review>[];
+      for (final r in pending) {
+        (r.due.isAfter(day) ? later : dueNow).add(r);
+      }
+      pending
+        ..clear()
+        ..addAll(later);
+      dueNow.sort(reviewRank);
+      for (final r in dueNow) {
+        placeReview(r, day, order++);
+        used += r.task.reviewMinutes(r.step);
+      }
     }
 
     // 2. First reads, one session a day per task, outside the taper.
@@ -490,15 +437,21 @@ PlanResult plan(PlannerInput input, ReviewEngine engine) {
       final readToday = <String>{};
       while (true) {
         final left = cap - used;
-        final open = [
-          for (final r in readings)
-            if (r.left > 0.5) r,
-        ];
+        final firstOpen = <String, int>{};
+        for (final r in readings) {
+          final t = r.task;
+          if (r.left <= 0.5 || t == null || t.sourceKey.isEmpty) continue;
+          final seen = firstOpen[t.sourceKey];
+          if (seen == null || t.sourceOrder < seen) {
+            firstOpen[t.sourceKey] = t.sourceOrder;
+          }
+        }
         final candidates = [
-          for (final r in open)
-            if (!readToday.contains(r.id) &&
-                eligible(r, open) &&
-                (r.started ? left > 0 : left >= cfg.sessionFloor))
+          for (final r in readings)
+            if (r.left > 0.5 &&
+                (r.started ? left > 0 : left >= cfg.sessionFloor) &&
+                !readToday.contains(r.id) &&
+                eligible(r, firstOpen))
               r,
         ]..sort(readingRank);
         if (candidates.isEmpty) break;
@@ -537,10 +490,9 @@ PlanResult plan(PlannerInput input, ReviewEngine engine) {
           // The first read earns White; its reviews follow from today.
           final out = engine.applyReview(
             t.state,
-            Rating.good,
+            Rating.solid,
             day,
             deadline: deadline,
-            planned: t.planned,
           );
           projected[t.id] = out.levelAfter;
           final next = out.dueAfter;
@@ -551,55 +503,16 @@ PlanResult plan(PlannerInput input, ReviewEngine engine) {
       }
     }
 
-    // 3. Smoothing: a review due within a couple of days moves onto today
-    // when its own day is already over its minutes (or is a break), or
-    // when everything still due before the exam is more than the days
-    // left can hold (the final stretch fills up).
-    int dueLoad(DateTime d) => pending
-        .where((r) => r.due == d)
-        .fold(0, (sum, r) => sum + r.task.reviewMinutes(r.step));
-    // Everything still to place counts, including reviews carried over
-    // from today: they will use the days ahead too.
-    var tailLoad = pending.fold(
-      0,
-      (sum, r) => sum + r.task.reviewMinutes(r.step),
-    );
-    var tailCap = 0;
-    for (
-      var d = day.add(const Duration(days: 1));
-      !d.isAfter(lastDay);
-      d = d.add(const Duration(days: 1))
-    ) {
-      tailCap += capacity(d);
-    }
-    final soon = [
-      for (final r in pending)
-        if (r.due.isAfter(day) &&
-            (isFinal(r)
-                // A final review may move anywhere in its window.
-                ? !day.isBefore(window(r.task).$1)
-                : !r.due.isAfter(day.add(Duration(days: cfg.smoothEarlier)))))
-          r,
-    ]..sort(reviewRank);
-    for (final r in soon) {
-      final m = r.task.reviewMinutes(r.step);
-      if (used + m > cap) continue;
-      if (dueLoad(r.due) <= capacity(r.due) && tailLoad <= tailCap) continue;
-      pending.remove(r);
-      placeReview(r, day, order++);
-      used += m;
-      tailLoad -= m;
-    }
   }
 
-  // Order within each day: overdue and due reviews, final reviews, then
-  // first reads and explore by importance (docs/04-planner-spec.md).
+  // Order within each day: reviews (final ones included) in the order
+  // placed, then first reads and explore by importance
+  // (docs/04-planner-spec.md).
   final importance = {for (final t in input.tasks) t.id: t.importance.index};
   int kindRank(PlanKind k) => switch (k) {
-    PlanKind.review => 0,
-    PlanKind.finalReview => 1,
-    PlanKind.firstRead => 2,
-    PlanKind.explore => 3,
+    PlanKind.review || PlanKind.finalReview => 0,
+    PlanKind.firstRead => 1,
+    PlanKind.explore => 2,
   };
   final sorted = [...entries]
     ..sort((a, b) {
@@ -654,15 +567,8 @@ PlanResult plan(PlannerInput input, ReviewEngine engine) {
   );
 }
 
-/// The latest day a first read can finish and still leave room for all of
-/// the task's planned reviews before the taper: the reviews need at least
-/// the sum of the first [PlanTask.planned] gap weights in days (the
-/// shortest chain the review engine fits, one day per weight unit).
-DateTime _readDeadline(PlanTask t, DateTime exam, ReviewEngine engine) {
-  final w = engine.config.gapWeights;
-  var need = 0;
-  for (var i = 0; i < t.planned; i++) {
-    need += w[min(i, w.length - 1)];
-  }
-  return exam.subtract(Duration(days: need));
-}
+/// The latest day a first read can finish and still leave a day for each
+/// of the [ReviewConfig.minReviews] reviews every task gets before the
+/// exam (D53).
+DateTime _readDeadline(PlanTask t, DateTime exam, ReviewEngine engine) =>
+    exam.subtract(Duration(days: engine.config.minReviews + 1));

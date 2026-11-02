@@ -161,19 +161,14 @@
       }
     }
   },
-  "surveyDifficulty": "How hard does it look?",
   "surveyFamiliarity": "Studied it before?",
   "importanceHigh": "High",
   "importanceMedium": "Medium",
   "importanceLow": "Low",
-  "difficultyEasy": "Easy",
-  "difficultyMedium": "Medium",
-  "difficultyHard": "Hard",
   "familiarityNew": "New",
   "familiaritySeen": "Seen it",
   "familiarityComfortable": "Comfortable",
   "surveyFirstRead": "First read",
-  "surveyTarget": "Target",
   "durationHoursMinutes": "{hours} h {minutes} min",
   "@durationHoursMinutes": {
     "placeholders": {
@@ -935,12 +930,9 @@
   },
   "sessionOpenAgain": "Open the source again",
   "sessionHowWell": "How well could you recall it?",
-  "sessionHowFirstRead": "How did the first read go?",
-  "sessionFirstReadHint": "A first read earns White whatever you choose.",
   "rateForgot": "Forgot",
-  "rateHard": "Hard",
-  "rateGood": "Good",
-  "rateEasy": "Easy",
+  "rateShaky": "Shaky",
+  "rateSolid": "Solid",
   "sessionBackTomorrow": "Back tomorrow",
   "sessionNextInDays": "{days, plural, =1{Next tomorrow} other{Next in {days} days}}",
   "@sessionNextInDays": {
@@ -1226,17 +1218,6 @@
       }
     }
   },
-  "taskLevelTargetLine": "Level {level} of 7 · target {target}",
-  "@taskLevelTargetLine": {
-    "placeholders": {
-      "level": {
-        "type": "int"
-      },
-      "target": {
-        "type": "String"
-      }
-    }
-  },
   "taskSteps": "{done} of {planned} reviews done",
   "@taskSteps": {
     "placeholders": {
@@ -1478,53 +1459,11 @@
   "addExamFailed": "Couldn't save. Try again.",
   "addExamLess": "Less time",
   "addExamMore": "More time",
-  "triageTitle": "Plan trimmed to fit",
-  "triageBody": "The least important work was cut first. Keep any task in full and the plan cuts something else.",
-  "triageStepDropFinalLow": "{count, plural, =1{Final review dropped · 1 Low task} other{Final review dropped · {count} Low tasks}}",
-  "@triageStepDropFinalLow": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "triageStepLowToYellow": "{count, plural, =1{Aim for Yellow · 1 Low task} other{Aim for Yellow · {count} Low tasks}}",
-  "@triageStepLowToYellow": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "triageStepSkim": "{count, plural, =1{Skim instead of read · 1 easy Low task} other{Skim instead of read · {count} easy Low tasks}}",
-  "@triageStepSkim": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "triageStepLowerMedium": "{count, plural, =1{One belt lower · 1 Medium task} other{One belt lower · {count} Medium tasks}}",
-  "@triageStepLowerMedium": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "triageDroppedRow": "{count, plural, =1{Dropped by you · 1 task} other{Dropped by you · {count} tasks}}",
   "@triageDroppedRow": {
     "placeholders": {
       "count": {
         "type": "int"
-      }
-    }
-  },
-  "triageKeepAction": "Keep {title} in full",
-  "@triageKeepAction": {
-    "placeholders": {
-      "title": {
-        "type": "String"
       }
     }
   },
@@ -1544,28 +1483,8 @@
       }
     }
   },
-  "triageKeepTitle": "Keep {title} in full?",
-  "@triageKeepTitle": {
-    "placeholders": {
-      "title": {
-        "type": "String"
-      }
-    }
-  },
-  "triageKeepNext": "To make room, the plan also cuts:",
-  "triageKeepNothing": "Nothing else needs to change.",
-  "triageKeepConfirm": "Keep it",
-  "triageCancel": "Cancel",
-  "triageNeedsTitle": "Still doesn't fit",
-  "triageNeedsReduced": "About {minutes} more minutes a day keeps this reduced plan.",
-  "@triageNeedsReduced": {
-    "placeholders": {
-      "minutes": {
-        "type": "int"
-      }
-    }
-  },
-  "triageNeedsFull": "About {minutes} more keeps everything.",
+  "triageNeedsTitle": "First reads don't fit",
+  "triageNeedsFull": "About {minutes} more minutes a day fits every first read before the exam. Every review is planned either way.",
   "@triageNeedsFull": {
     "placeholders": {
       "minutes": {
@@ -1573,7 +1492,7 @@
       }
     }
   },
-  "triageNeedsNoTime": "More time alone can't fit it. Drop some tasks, or accept a lower belt.",
+  "triageNeedsNoTime": "More time alone can't fit every first read. Drop some tasks, or go on and read what you can.",
   "triageAddMinutes": "Add {minutes} min a day",
   "@triageAddMinutes": {
     "placeholders": {
@@ -1584,16 +1503,8 @@
   },
   "triageDrop": "Drop tasks",
   "triageDropTitle": "Drop a task from the plan",
-  "triageAccept": "Accept a lower belt",
-  "triageAccepted": "Reduced plan accepted. You can still add time or drop tasks.",
-  "triageReview": "Review cuts in {step}",
-  "@triageReview": {
-    "placeholders": {
-      "step": {
-        "type": "String"
-      }
-    }
-  },
+  "triageAccept": "Go on as it is",
+  "triageAccepted": "Going on as it is. You can still add time or drop tasks.",
   "examStudyTime": "Study time",
   "weekEveryDay": "Every day · {time}",
   "@weekEveryDay": {
@@ -1607,6 +1518,67 @@
   "weekSheetTitle": "Study time each day",
   "weekSheetHint": "The plan uses these from today. A day off is planned around.",
   "weekSave": "Save",
+  "reviewGapsRow": "Review schedule",
+  "reviewGapsValue": "{days} days",
+  "@reviewGapsValue": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewGapsTitle": "Review schedule",
+  "reviewGapsHint": "Days before each review, counted from the one before. Every task gets at least {count} reviews before the exam: when they don't fit, the gaps are squeezed. After the last gap, reviews repeat at it.",
+  "@reviewGapsHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewGapsReview": "Review {n}",
+  "@reviewGapsReview": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewGapsDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@reviewGapsDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewGapsLess": "Shorter gap before review {n}",
+  "@reviewGapsLess": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewGapsMore": "Longer gap before review {n}",
+  "@reviewGapsMore": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewGapsAdd": "Add a review",
+  "reviewGapsRemove": "Remove the last",
+  "reviewGapsReset": "Reset to {days}",
+  "@reviewGapsReset": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewGapsSave": "Save",
   "weekLess": "Less time on {day}",
   "@weekLess": {
     "placeholders": {
@@ -1657,14 +1629,11 @@
       }
     }
   },
-  "editImpact": "Target {belt} · {count, plural, =1{1 review planned} other{{count} reviews planned}}",
-  "@editImpact": {
+  "editImpactOrder": "{importance} importance sets its place in the day's order. The review schedule stays the same.",
+  "@editImpactOrder": {
     "placeholders": {
-      "belt": {
+      "importance": {
         "type": "String"
-      },
-      "count": {
-        "type": "int"
       }
     }
   },
@@ -1685,7 +1654,7 @@
   "scopeGrowSplit": "Make it a new task",
   "scopeGrowKeep": "Keep as one task",
   "scopeGrowSplitImpact": "The added pages start with a first read; this task keeps its belt.",
-  "scopeGrowKeepImpact": "The belt dims one step until the next Good review.",
+  "scopeGrowKeepImpact": "The belt dims one step until the next Solid review.",
   "scopeSave": "Save scope",
   "scopeUnavailable": "Scope works on a task with one chapter range.",
   "splitDrag": "Drag to choose where to split",

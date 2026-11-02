@@ -41,7 +41,7 @@ An unsurveyed chapter uses the planner's defaults: Medium importance, Medium dif
    - **Left:** the chapter number in a 28 px circle, muted. A read chapter gets a check instead, with the label "Read" for screen readers.
    - **Middle:**
      - The title, 15 px bold.
-     - "pp. 40–62", plus the survey answers when present (e.g. "High · Hard · Seen it"), 12 px muted. A partly read chapter adds "18 of 40 read".
+     - "pp. 40–62", plus the survey answers when present (e.g. "High · Seen it"), 12 px muted. A partly read chapter adds "18 of 40 read".
    - **Right:**
      - With no task: a small button **"Add task"**.
      - With a task: its belt badge (level 0 shows the dashed not-started belt), which opens the task. When one task covers several chapters, those rows are joined by a 2 px line at the left, and only the first row shows the badge.

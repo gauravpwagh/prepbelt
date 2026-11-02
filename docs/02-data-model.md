@@ -42,7 +42,7 @@ Conventions on every syncable table:
 | Source | type (pdf, book, video, link, notes, qbank), title, uri?, unitType (page, minute, question, item), totalUnits? | Where material lives. uri = file path, URL or app deep link. |
 | SourceFile | sourceId FK, localPath, place, bytes, sha256 | The file lives in the student's study folder (`place = folder`, `localPath` inside it) or, for installs from before D51, in app storage (`place = app`). Web (1.1) stores it in OPFS. |
 | Chunk | sourceId FK, parentChunkId?, title, order, startUnit?, endUnit?, sizeUnits? | Chapter or section. Nests for parts within chapters. |
-| ChunkSurvey | chunkId FK (unique), difficulty (1–3), familiarity (0–2), surveyedAt | Personal. One row per chunk. |
+| ChunkSurvey | chunkId FK (unique), difficulty (1–3), familiarity (0–2), surveyedAt | Personal. One row per chunk. Difficulty is no longer asked or used (D53); stored values are ignored. |
 | ReadingSession | sourceId FK, startedAt, startUnit, endedAt?, endUnit?, minutes?, status (open, saved, discarded) | One sitting of reading a source as you go (D27). At most one open row. Saved rows give the source's explored pages, its reading position and the time spent on partly read chapters. |
 
 ### Tasks and mastery
@@ -52,7 +52,7 @@ Conventions on every syncable table:
 | Task | topicId?, title, kind (learn, practice), status (active, paused, archived), needsDetail | The unit that earns a level. Belongs to exactly one Topic; a rough task may have none until refined. |
 | TaskChunk | taskId FK, chunkId FK, startUnit?, endUnit?, order | Many-to-many: a task can span several chunks or sources, or part of one. |
 | TaskState | taskId FK (unique), level (0–7), step (scheduled reviews passed), dim (brightness steps lost), lastReviewAt?, dueAt?, reps, lapses, pausedAt? | Cache, rebuildable by replaying Review rows. level 0 = not started. |
-| Review | taskId FK, at, kind (firstRead, review, quiz), rating (1–4), durationSec, resumeUnit?, levelBefore, levelAfter, stepAfter, dueAfter? | Append-only. Source of truth for mastery and both grids. |
+| Review | taskId FK, at, kind (firstRead, review, quiz), rating (1 Forgot, 2 Shaky, 3 Solid; 4 is a Solid stored before D53), durationSec, resumeUnit?, levelBefore, levelAfter, stepAfter, dueAfter? | Append-only. Source of truth for mastery and both grids. |
 | TaskLineage | childTaskId FK, parentTaskId FK, op (split, merge, expand), at | Lets history follow a task through redefinitions. |
 | Card | taskId FK, type (flash, mcq), front, back, options? (JSON), order | Optional flashcards and practice questions (1.2). |
 | CardResult | cardId FK, reviewId FK, correct, answerMs | Quiz outcomes. A quiz review's rating is derived from these. |
@@ -63,7 +63,7 @@ Conventions on every syncable table:
 | --- | --- | --- |
 | Exam | name, date, priority (1–3), status (upcoming, done, archived), resultNote? | One row per exam. |
 | ExamChunk | examId FK, chunkId FK, importance (high, medium, low) | Importance captured in the survey. Prefills ExamTask. |
-| ExamTask | examId FK, taskId FK, importance, targetLevel (1–7), importanceOverridden | Drives the planner, exam tier and timeline. Unique per (exam, task). |
+| ExamTask | examId FK, taskId FK, importance, targetLevel (1–7), importanceOverridden | Drives the planner, exam tier and timeline. Unique per (exam, task). targetLevel is 7 for every task since D53; older values are ignored. |
 | Availability | weekday (0–6), minutes, lockedExamId? | Weekly study budget, e.g. Sunday locked to one exam (1.1). |
 | AvailabilityOverride | date, minutes, lockedExamId? | Holidays, mock-test days, sick days, planned breaks. |
 | PlanItem | date, taskId? FK, sourceId? FK, examId?, kind (firstRead, review, finalReview, explore), estMinutes, status (planned, done, skipped, moved), generation | Generated schedule for the Today screen. Regenerated, never hand-edited. |
@@ -104,27 +104,31 @@ Computed from TaskState, Review and ExamTask; nothing here is stored except as a
 
 **Level (1–7) and the review schedule.** Every task follows the same simple schedule (no spaced-repetition algorithm):
 
-- The **first read** earns level 1 (White), whatever its rating.
-- Then come **scheduled reviews** with growing gaps, all fitted before the exam. Their number is set by the task's belt target in the exam: one review per belt above White, at most 5 (High → Black plans 5, Medium → Blue 4, Low → Green 3; no target plans 5). The gaps keep the proportions 1 : 2 : 3 : 5 : 8 and are re-fitted to the days left after every review, so the last review lands by the day before the exam. A close exam crams them closer, at least a day apart; with no exam the gaps are 1, 3, 7, 14 and 30 days.
-- A **Good or Easy** review earns the next belt and moves to the next step, so a task that passes all its planned reviews reaches its target (Brown for a Black target). Reviews the student chooses to do after the plan keep earning belts; **Black** (level 7) always takes one such review.
-- A **Forgot or Hard** review keeps the belt, dims it one step, and repeats the same step 1 day later.
-- The student may review **any task early**; it counts as that task's next step, and the remaining gaps re-fit.
+- The **first read** earns level 1 (White). It is not rated.
+- After a review the student rates it **Forgot**, **Shaky** or **Solid** (D53).
+- **Scheduled reviews** follow the gaps 1, 3, 7, 14, 30 and 60 days, the first one day after the first read. The student can change the gaps in Settings. Importance does not change the number of reviews.
+- **At least 5 before the exam.** When fewer than 5 of the gaps fit before the deadline (the day before the exam), the first 5 are squeezed to fit, keeping their proportions, at least a day apart. With fewer than 6 days left, one review a day.
+- **A last review before the exam.** When the next gap would pass the deadline and the task has had at least 5 reviews, one more review lands in the last days before the exam.
+- After the last gap, and with no exam, reviews repeat at the last gap.
+- A **Solid** review earns the next belt and moves to the next step, so six Solid reviews reach Black.
+- A **Forgot or Shaky** review keeps the belt, dims it one step, and repeats the same step 1 day later; the rest re-fit.
+- The student may review **any task early**; it counts as that task's next step, and the remaining reviews re-fit.
 
 | Level | Earned by | Dojo | Gems |
 | --- | --- | --- | --- |
 | 1 | first read | White | Quartz |
-| 2 | 1st Good review | Yellow | Amethyst |
-| 3 | 2nd Good review | Orange | Topaz |
-| 4 | 3rd Good review | Green | Emerald |
-| 5 | 4th Good review | Blue | Sapphire |
-| 6 | 5th Good review | Brown | Ruby |
-| 7 | an extra Good review after the schedule | Black | Diamond |
+| 2 | 1st Solid review | Yellow | Amethyst |
+| 3 | 2nd Solid review | Orange | Topaz |
+| 4 | 3rd Solid review | Green | Emerald |
+| 5 | 4th Solid review | Blue | Sapphire |
+| 6 | 5th Solid review | Brown | Ruby |
+| 7 | 6th Solid review | Black | Diamond |
 
-The maximum number of reviews, the gap weights, the gaps without an exam and the retry gap are configuration, not code.
+The gaps, the minimum of 5 reviews before the exam and the retry gap are configuration, not code.
 
-**Brightness (stripes) instead of decay.** The stored level never drops. A belt dims instead, in steps: one step per review that was not Good, one step once a review is overdue, and one more every 2 days it stays overdue. Steps show as 2 stripes (full), 1 stripe, no stripes, then faded (about 45% opacity, captioned "fading"). Any Good review restores full brightness. Paused tasks do not dim.
+**Brightness (stripes) instead of decay.** The stored level never drops. A belt dims instead, in steps: one step per review that was not Solid, one step once a review is overdue, and one more every 2 days it stays overdue. Steps show as 2 stripes (full), 1 stripe, no stripes, then faded (about 45% opacity, captioned "fading"). Any Solid review restores full brightness. Paused tasks do not dim.
 
-**Exam tier.** For each ExamTask: attainment = min(level ÷ effectiveTargetLevel, 1); weight = importance (high 3, medium 2, low 1) × size. The exam's tier is the highest level L where 80% of total weight has attainment ≥ L ÷ 7. A weak-link flag is raised for any high-importance task below level 2. (Effective target: see the planner spec, "Reachable targets".)
+**Exam tier.** For each ExamTask: attainment = min(level ÷ effectiveTargetLevel, 1); weight = importance (high 3, medium 2, low 1) × size. The exam's tier is the highest level L where 80% of total weight has attainment ≥ L ÷ 7. A weak-link flag is raised for any high-importance task below level 2. The effective target is Brown for every task (planner spec, "How many reviews").
 
 **Projected tier.** The same formula applied to the levels each task would reach if the current PlanItem schedule is followed to the exam date.
 

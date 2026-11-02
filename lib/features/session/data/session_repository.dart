@@ -181,7 +181,6 @@ final class SessionRepository extends EventSourcedRepository {
   Future<Map<Rating, ReviewOutcome>> preview(String taskId) async {
     final engine = await reviews.loadEngine();
     final deadline = await reviews.deadline();
-    final planned = await reviews.plannedReviews(taskId);
     final row = await (db.select(
       db.taskStates,
     )..where((s) => s.taskId.equals(taskId))).getSingle();
@@ -194,7 +193,6 @@ final class SessionRepository extends EventSourcedRepository {
           r,
           now,
           deadline: deadline,
-          planned: planned,
         ),
     };
   }
@@ -214,7 +212,6 @@ final class SessionRepository extends EventSourcedRepository {
     final info = await load(session.taskId);
     final engine = await reviews.loadEngine();
     final deadline = await reviews.deadline();
-    final planned = await reviews.plannedReviews(session.taskId);
     final end = info.range?.end;
     final resume = stopUnit != null && end != null && stopUnit < end
         ? stopUnit
@@ -234,7 +231,6 @@ final class SessionRepository extends EventSourcedRepository {
           resumeUnit: resume,
           engine: engine,
           deadline: deadline,
-          planned: planned,
         );
         await db.delete(db.activeSessions).go();
         await _markPlanDone(rec, session.taskId);
@@ -318,7 +314,6 @@ final class SessionRepository extends EventSourcedRepository {
           pace:
               (chapterMinutes[p.source.id] ?? Defaults.chapterMinutesDefault) /
               (p.link.parts ?? 1),
-          difficulty: survey?.difficulty ?? 2,
           familiarity: survey?.familiarity ?? 0,
         );
         continue;
@@ -326,7 +321,6 @@ final class SessionRepository extends EventSourcedRepository {
       total += firstReadMinutes(
         units: end - start + 1,
         unit: EffortUnit.values.byName(p.source.unitType.name),
-        difficulty: survey?.difficulty ?? 2,
         familiarity: survey?.familiarity ?? 0,
       );
     }

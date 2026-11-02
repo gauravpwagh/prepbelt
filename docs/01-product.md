@@ -13,15 +13,15 @@ A general-purpose study planner for students preparing for any exam. It should f
 
 1. Student adds an exam (name, date, daily study minutes).
 2. Student adds a source — by sharing a PDF or link into the app, or manually.
-3. Student **surveys** the source: for each chapter, importance for this exam, difficulty, and familiarity. About 3 minutes for a 20-chapter book.
+3. Student **surveys** the source: for each chapter, importance for this exam and familiarity. About 2 minutes for a 20-chapter book.
 4. The planner builds a day-by-day schedule.
 5. Each day the **Today** screen lists sessions. Tapping Start opens the source in its own app (external PDF viewer, YouTube, browser).
-6. Back in PrepBelt, the student says where they stopped and rates recall: **Forgot / Hard / Good / Easy**.
-7. Each task gets up to 5 reviews (more for higher belt targets) with growing gaps, all fitted before the exam. A Good review promotes the task to the next belt; a weaker one keeps the belt but dims it, and that review is repeated the next day. Students can also review any task early.
+6. Back in PrepBelt, the student says where they stopped. After a review they rate recall: **Forgot / Shaky / Solid**.
+7. Each task gets reviews at 1, 3, 7, 14, 30 and 60 days, at least 5 before the exam, squeezed closer when the exam is near. A Solid review promotes the task to the next belt; Forgot or Shaky keeps the belt but dims it, and that review is repeated the next day. Students can also review any task early.
 
 ## Levels and belts
 
-Seven levels: the first read earns White, each Good review the next belt (5 reviews reach Brown), and an extra review by choice earns Black. Data stores the level; the theme decides how it looks.
+Seven levels: the first read earns White and each Solid review the next belt, so the sixth reaches Black. Data stores the level; the theme decides how it looks.
 
 | Level | Dojo theme | Gems theme (1.2) |
 | --- | --- | --- |
@@ -33,13 +33,13 @@ Seven levels: the first read earns White, each Good review the next belt (5 revi
 | 6 | Brown | Ruby |
 | 7 | Black | Diamond |
 
-- **Dimming without punishment**: a belt never drops. It dims (loses stripes; gems lose shine) after a review that was not Good, and gradually while a review is overdue. One Good review restores it.
+- **Dimming without punishment**: a belt never drops. It dims (loses stripes; gems lose shine) after a review that was not Solid, and gradually while a review is overdue. One Solid review restores it.
 - **Promotion moment**: animation, haptic and sound when a belt is earned.
 - Badges always show the level number or stripes too, so colour is never the only signal.
 
 ## Source survey
 
-Per chunk: importance (High, Medium, Low) for a given exam, difficulty (Easy, Medium, Hard), familiarity (New, Seen it, Comfortable). The survey drives effort estimates, belt targets (High→Black, Medium→Blue, Low→Green, capped by time before the exam), ordering and triage. Importance belongs to the exam–chunk link; difficulty and familiarity are personal. The survey self-corrects: if reviews keep coming back Hard on a chunk surveyed Easy, the app suggests raising its difficulty.
+Per chunk: importance (High, Medium, Low) for a given exam and familiarity (New, Seen it, Comfortable). Importance sets the order of reviews and first reads and the weight in readiness; familiarity shortens the first-read estimate. Importance belongs to the exam–chunk link; familiarity is personal. Difficulty is not asked (D53): the review schedule is the same for every task.
 
 ## Splitting a PDF
 

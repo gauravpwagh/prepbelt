@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 
+import '../../../core/config/defaults.dart';
 import '../../../core/config/review_config.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/db/event_log.dart';
@@ -7,6 +10,7 @@ import '../../../core/result/result.dart';
 import '../../../core/time/clock.dart';
 import '../../../engines/review/review_engine.dart';
 import '../../../engines/review/review_types.dart';
+import '../../settings/data/settings_repository.dart';
 import 'task_repository.dart';
 
 /// Writes the append-only Review log and keeps the TaskState cache in step
@@ -37,22 +41,16 @@ final class ReviewRepository extends EventSourcedRepository {
     return DateTime(day.year, day.month, day.day - (days - 1)).toUtc();
   }
 
-  /// How many reviews to plan for [taskId]: set by its belt target in the
-  /// upcoming exam (High → Black plans 5, Medium → Blue 4, Low → Green 3);
-  /// the full schedule when it has no target.
+  /// How many reviews [taskId] will have had by the exam if each is Solid
+  /// and done when due (D53): for "2 of 6 reviews done".
   Future<int> plannedReviews(String taskId) async {
     final engine = await loadEngine();
-    final exam = await _upcomingExam();
-    final link = exam == null
-        ? null
-        : await (db.select(db.examTasks)..where(
-                (l) =>
-                    l.examId.equals(exam.id) &
-                    l.taskId.equals(taskId) &
-                    l.deletedAt.isNull(),
-              ))
-              .getSingleOrNull();
-    return engine.plannedReviewsFor(link?.targetLevel);
+    final state = toReviewState(await _stateRow(taskId));
+    return engine.plannedReviews(
+      state,
+      ctx.clock.now(),
+      deadline: await deadline(),
+    );
   }
 
   Future<Exam?> _upcomingExam() =>
@@ -79,7 +77,6 @@ final class ReviewRepository extends EventSourcedRepository {
   }) async {
     final engine = await loadEngine();
     final deadline = await this.deadline();
-    final planned = await plannedReviews(taskId);
     return mutate(
       entity: entity,
       entityId: taskId,
@@ -94,7 +91,6 @@ final class ReviewRepository extends EventSourcedRepository {
         resumeUnit: resumeUnit,
         engine: engine,
         deadline: deadline,
-        planned: planned,
       ),
     );
   }
@@ -106,7 +102,6 @@ final class ReviewRepository extends EventSourcedRepository {
     required String taskId,
     required Rating rating,
     required ReviewEngine engine,
-    required int planned,
     ReviewKind kind = ReviewKind.review,
     int durationSec = 0,
     int? resumeUnit,
@@ -122,7 +117,6 @@ final class ReviewRepository extends EventSourcedRepository {
       rating,
       fromUtcMs(rec.now),
       deadline: deadline,
-      planned: planned,
     );
     final review = await rec.insert(
       db.reviews,
@@ -177,7 +171,6 @@ final class ReviewRepository extends EventSourcedRepository {
   Future<void> resume(String taskId) async {
     final engine = await loadEngine();
     final deadline = await this.deadline();
-    final planned = await plannedReviews(taskId);
     await mutate<void>(
       entity: entity,
       entityId: taskId,
@@ -202,7 +195,6 @@ final class ReviewRepository extends EventSourcedRepository {
               state,
               fromUtcMs(rec.now),
               deadline: deadline,
-              planned: planned,
             ),
           ),
         );
@@ -252,7 +244,6 @@ final class ReviewRepository extends EventSourcedRepository {
       reviews,
       pauses: await pausesFor(taskId),
       deadline: await deadline(),
-      planned: await plannedReviews(taskId),
     );
   }
 
@@ -274,6 +265,25 @@ final class ReviewRepository extends EventSourcedRepository {
       );
     }
     return rows.length;
+  }
+
+  /// Re-fits every task's schedule when the review settings or the exam's
+  /// deadline differ from the last fit (D53): after this upgrade, new gaps
+  /// in Settings, or a moved exam. Returns whether it re-fitted.
+  Future<bool> refitIfChanged() async {
+    final cfg = await config();
+    final fit = jsonEncode({
+      'gaps': cfg.gapDays,
+      'min': cfg.minReviews,
+      'final': cfg.finalReviewMinDays,
+      'retry': cfg.retryGapDays,
+      'deadline': (await deadline())?.millisecondsSinceEpoch,
+    });
+    final settings = SettingsRepository(ctx);
+    if (await settings.get(SettingKeys.reviewFittedFor) == fit) return false;
+    await rebuildAll();
+    await settings.set(SettingKeys.reviewFittedFor, fit);
+    return true;
   }
 
   Future<TaskState> _stateRow(String taskId) async {

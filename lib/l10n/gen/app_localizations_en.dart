@@ -213,9 +213,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get surveyDifficulty => 'How hard does it look?';
-
-  @override
   String get surveyFamiliarity => 'Studied it before?';
 
   @override
@@ -228,15 +225,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importanceLow => 'Low';
 
   @override
-  String get difficultyEasy => 'Easy';
-
-  @override
-  String get difficultyMedium => 'Medium';
-
-  @override
-  String get difficultyHard => 'Hard';
-
-  @override
   String get familiarityNew => 'New';
 
   @override
@@ -247,9 +235,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get surveyFirstRead => 'First read';
-
-  @override
-  String get surveyTarget => 'Target';
 
   @override
   String durationHoursMinutes(int hours, int minutes) {
@@ -1015,23 +1000,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sessionHowWell => 'How well could you recall it?';
 
   @override
-  String get sessionHowFirstRead => 'How did the first read go?';
-
-  @override
-  String get sessionFirstReadHint =>
-      'A first read earns White whatever you choose.';
-
-  @override
   String get rateForgot => 'Forgot';
 
   @override
-  String get rateHard => 'Hard';
+  String get rateShaky => 'Shaky';
 
   @override
-  String get rateGood => 'Good';
-
-  @override
-  String get rateEasy => 'Easy';
+  String get rateSolid => 'Solid';
 
   @override
   String get sessionBackTomorrow => 'Back tomorrow';
@@ -1333,11 +1308,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String taskLevelTargetLine(int level, String target) {
-    return 'Level $level of 7 · target $target';
-  }
-
-  @override
   String taskSteps(int done, int planned) {
     return '$done of $planned reviews done';
   }
@@ -1636,57 +1606,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addExamMore => 'More time';
 
   @override
-  String get triageTitle => 'Plan trimmed to fit';
-
-  @override
-  String get triageBody =>
-      'The least important work was cut first. Keep any task in full and the plan cuts something else.';
-
-  @override
-  String triageStepDropFinalLow(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'Final review dropped · $count Low tasks',
-      one: 'Final review dropped · 1 Low task',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String triageStepLowToYellow(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'Aim for Yellow · $count Low tasks',
-      one: 'Aim for Yellow · 1 Low task',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String triageStepSkim(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'Skim instead of read · $count easy Low tasks',
-      one: 'Skim instead of read · 1 easy Low task',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String triageStepLowerMedium(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'One belt lower · $count Medium tasks',
-      one: 'One belt lower · 1 Medium task',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String triageDroppedRow(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -1695,11 +1614,6 @@ class AppLocalizationsEn extends AppLocalizations {
       one: 'Dropped by you · 1 task',
     );
     return '$_temp0';
-  }
-
-  @override
-  String triageKeepAction(String title) {
-    return 'Keep $title in full';
   }
 
   @override
@@ -1713,38 +1627,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String triageKeepTitle(String title) {
-    return 'Keep $title in full?';
-  }
-
-  @override
-  String get triageKeepNext => 'To make room, the plan also cuts:';
-
-  @override
-  String get triageKeepNothing => 'Nothing else needs to change.';
-
-  @override
-  String get triageKeepConfirm => 'Keep it';
-
-  @override
-  String get triageCancel => 'Cancel';
-
-  @override
-  String get triageNeedsTitle => 'Still doesn\'t fit';
-
-  @override
-  String triageNeedsReduced(int minutes) {
-    return 'About $minutes more minutes a day keeps this reduced plan.';
-  }
+  String get triageNeedsTitle => 'First reads don\'t fit';
 
   @override
   String triageNeedsFull(int minutes) {
-    return 'About $minutes more keeps everything.';
+    return 'About $minutes more minutes a day fits every first read before the exam. Every review is planned either way.';
   }
 
   @override
   String get triageNeedsNoTime =>
-      'More time alone can\'t fit it. Drop some tasks, or accept a lower belt.';
+      'More time alone can\'t fit every first read. Drop some tasks, or go on and read what you can.';
 
   @override
   String triageAddMinutes(int minutes) {
@@ -1758,16 +1650,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get triageDropTitle => 'Drop a task from the plan';
 
   @override
-  String get triageAccept => 'Accept a lower belt';
+  String get triageAccept => 'Go on as it is';
 
   @override
   String get triageAccepted =>
-      'Reduced plan accepted. You can still add time or drop tasks.';
-
-  @override
-  String triageReview(String step) {
-    return 'Review cuts in $step';
-  }
+      'Going on as it is. You can still add time or drop tasks.';
 
   @override
   String get examStudyTime => 'Study time';
@@ -1789,6 +1676,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get weekSave => 'Save';
+
+  @override
+  String get reviewGapsRow => 'Review schedule';
+
+  @override
+  String reviewGapsValue(String days) {
+    return '$days days';
+  }
+
+  @override
+  String get reviewGapsTitle => 'Review schedule';
+
+  @override
+  String reviewGapsHint(int count) {
+    return 'Days before each review, counted from the one before. Every task gets at least $count reviews before the exam: when they don\'t fit, the gaps are squeezed. After the last gap, reviews repeat at it.';
+  }
+
+  @override
+  String reviewGapsReview(int n) {
+    return 'Review $n';
+  }
+
+  @override
+  String reviewGapsDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewGapsLess(int n) {
+    return 'Shorter gap before review $n';
+  }
+
+  @override
+  String reviewGapsMore(int n) {
+    return 'Longer gap before review $n';
+  }
+
+  @override
+  String get reviewGapsAdd => 'Add a review';
+
+  @override
+  String get reviewGapsRemove => 'Remove the last';
+
+  @override
+  String reviewGapsReset(String days) {
+    return 'Reset to $days';
+  }
+
+  @override
+  String get reviewGapsSave => 'Save';
 
   @override
   String weekLess(String day) {
@@ -1847,14 +1790,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String editImpact(String belt, int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count reviews planned',
-      one: '1 review planned',
-    );
-    return 'Target $belt · $_temp0';
+  String editImpactOrder(String importance) {
+    return '$importance importance sets its place in the day\'s order. The review schedule stays the same.';
   }
 
   @override
@@ -1892,7 +1829,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scopeGrowKeepImpact =>
-      'The belt dims one step until the next Good review.';
+      'The belt dims one step until the next Solid review.';
 
   @override
   String get scopeSave => 'Save scope';

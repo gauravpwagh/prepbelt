@@ -68,17 +68,17 @@ void main() {
   group('ReviewConfig', () {
     test('defaults come from Defaults', () {
       const c = ReviewConfig();
-      expect(c.scheduledReviews, Defaults.scheduledReviews);
-      expect(c.gapWeights, [1, 2, 3, 5, 8]);
+      expect(c.gapDays, [1, 3, 7, 14, 30, 60]);
+      expect(c.minReviews, Defaults.minReviewsBeforeExam);
     });
 
     test('settings override defaults and bad values fall back', () {
       final c = ReviewConfig.fromSettings({
-        SettingKeys.reviewGapWeights: [1, 1, 2, 3, 5],
-        SettingKeys.scheduledReviews: 'oops',
+        SettingKeys.reviewGapDays: [2, 5, 10],
+        SettingKeys.minReviewsBeforeExam: 'oops',
       });
-      expect(c.gapWeights, [1, 1, 2, 3, 5]);
-      expect(c.scheduledReviews, Defaults.scheduledReviews);
+      expect(c.gapDays, [2, 5, 10]);
+      expect(c.minReviews, Defaults.minReviewsBeforeExam);
     });
   });
 }

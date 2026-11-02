@@ -92,7 +92,6 @@ RedefineView _view({bool paused = false, int level = 4}) {
     display: ReviewEngine(
       const ReviewConfig(),
     ).display(ReviewRepository.toReviewState(state), _now),
-    planned: 4,
     examId: 'e',
     examName: 'JEE Main',
     importance: Importance.medium,

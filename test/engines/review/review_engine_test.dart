@@ -22,147 +22,108 @@ void main() {
   ReviewOutcome review(ReviewState s, Rating rating, {DateTime? deadline}) =>
       engine.applyReview(s, rating, clock.now(), deadline: deadline);
 
-  /// First read plus Good reviews on each due date; returns every outcome.
-  List<ReviewOutcome> goodHistory(int reviews, {DateTime? deadline}) {
+  /// First read plus Solid reviews on each due date, until nothing more is
+  /// due or [max] reviews; returns every outcome.
+  List<ReviewOutcome> solidHistory({DateTime? deadline, int max = 12}) {
     var state = const ReviewState();
     final outcomes = <ReviewOutcome>[];
-    for (var i = 0; i <= reviews; i++) {
-      final out = review(state, Rating.good, deadline: deadline);
+    for (var i = 0; i <= max; i++) {
+      final out = review(state, Rating.solid, deadline: deadline);
       outcomes.add(out);
       state = out.state;
-      if (state.dueAt != null) clock.set(state.dueAt!);
+      if (state.dueAt == null) break;
+      clock.set(state.dueAt!);
     }
     return outcomes;
   }
 
+  /// Days between consecutive reviews of [outs].
+  List<int> gapsOf(List<ReviewOutcome> outs) => [
+    for (var i = 1; i < outs.length; i++)
+      outs[i].state.lastReviewAt!
+          .difference(outs[i - 1].state.lastReviewAt!)
+          .inDays,
+  ];
+
   group('belts', () {
-    test('the first read earns White and each Good review the next belt, '
-        'in order: 5 scheduled reviews reach Brown', () {
-      final outs = goodHistory(5, deadline: exam);
-      expect(outs.map((o) => o.levelAfter), [1, 2, 3, 4, 5, 6]);
-      expect(outs.map((o) => o.stepAfter), [0, 1, 2, 3, 4, 5]);
-      expect(outs.last.dueAfter, isNull, reason: 'schedule complete');
+    test('the first read earns White and each Solid review the next belt: '
+        'the sixth reaches Black', () {
+      final outs = solidHistory(deadline: exam);
+      expect(outs.map((o) => o.levelAfter), [1, 2, 3, 4, 5, 6, 7]);
+      expect(outs.map((o) => o.stepAfter), [0, 1, 2, 3, 4, 5, 6]);
+      expect(outs.last.dueAfter, isNull, reason: 'nothing after the final');
     });
 
-    test('even an Easy first read earns only White', () {
-      expect(review(const ReviewState(), Rating.easy).levelAfter, 1);
+    test('a first read earns only White, whatever its rating', () {
+      expect(review(const ReviewState(), Rating.forgot).levelAfter, 1);
     });
 
-    test('Black needs one more review after the schedule, by choice', () {
-      final brown = goodHistory(5, deadline: exam).last.state;
-      clock.advance(const Duration(days: 2));
-      final out = review(brown, Rating.good, deadline: exam);
-      expect(out.levelAfter, 7);
-      expect(review(out.state, Rating.good).levelAfter, 7, reason: 'top');
-    });
+    test('a Shaky or Forgot review keeps the belt, dims it, repeats the step '
+        'the next day, and a Solid review then promotes', () {
+      final state = solidHistory(deadline: exam, max: 2).last.state; // Orange
+      final shaky = review(state, Rating.shaky, deadline: exam);
+      expect(shaky.levelAfter, state.level);
+      expect(shaky.stepAfter, state.step);
+      expect(shaky.state.dim, 1);
+      expect(shaky.state.lapses, 1);
+      expect(shaky.dueAfter, clock.now().add(const Duration(days: 1)));
 
-    test('a review that is not Good keeps the belt, dims it, repeats the '
-        'step the next day, and a Good review then promotes', () {
-      final state = goodHistory(2, deadline: exam).last.state; // Orange
-      final hard = review(state, Rating.hard, deadline: exam);
-      expect(hard.levelAfter, state.level);
-      expect(hard.stepAfter, state.step);
-      expect(hard.state.dim, 1);
-      expect(hard.state.lapses, 1);
-      expect(hard.dueAfter, clock.now().add(const Duration(days: 1)));
-
-      clock.set(hard.dueAfter!);
-      final forgot = review(hard.state, Rating.forgot, deadline: exam);
+      clock.set(shaky.dueAfter!);
+      final forgot = review(shaky.state, Rating.forgot, deadline: exam);
       expect(forgot.state.dim, 2);
       expect(forgot.levelAfter, state.level);
 
       clock.set(forgot.dueAfter!);
-      final good = review(forgot.state, Rating.good, deadline: exam);
-      expect(good.levelAfter, state.level + 1);
-      expect(good.state.dim, 0);
+      final solid = review(forgot.state, Rating.solid, deadline: exam);
+      expect(solid.levelAfter, state.level + 1);
+      expect(solid.state.dim, 0);
+    });
+
+    test('ratings stored before D53 read as the new ones', () {
+      expect(Rating.fromValue(1), Rating.forgot);
+      expect(Rating.fromValue(2), Rating.shaky, reason: 'Hard');
+      expect(Rating.fromValue(3), Rating.solid, reason: 'Good');
+      expect(Rating.fromValue(4), Rating.solid, reason: 'Easy');
     });
   });
 
-  group('targets set the number of reviews', () {
-    test('one review per belt above White, capped at the full schedule', () {
-      expect(engine.plannedReviewsFor(7), 5, reason: 'High → Black');
-      expect(engine.plannedReviewsFor(5), 4, reason: 'Medium → Blue');
-      expect(engine.plannedReviewsFor(4), 3, reason: 'Low → Green');
-      expect(engine.plannedReviewsFor(2), 1);
-      expect(engine.plannedReviewsFor(1), 1, reason: 'at least one');
-      expect(engine.plannedReviewsFor(null), 5);
+  group('schedule (D53)', () {
+    test('without an exam: 1, 3, 7, 14, 30, 60 days, then 60 again', () {
+      expect(gapsOf(solidHistory(max: 7)), [1, 3, 7, 14, 30, 60, 60]);
     });
 
-    test('a Blue target plans 4 reviews with growing gaps before the exam; '
-        'more reviews by choice still earn belts', () {
-      var state = const ReviewState();
-      final times = <DateTime>[];
-      final levels = <int>[];
-      while (true) {
-        final out = engine.applyReview(
-          state,
-          Rating.good,
-          clock.now(),
-          deadline: exam,
-          planned: 4,
-        );
-        times.add(clock.now());
-        levels.add(out.levelAfter);
-        state = out.state;
-        if (state.dueAt == null) break;
-        clock.set(state.dueAt!);
-      }
-      expect(levels, [1, 2, 3, 4, 5]);
-      final gaps = [
-        for (var i = 1; i < times.length; i++)
-          times[i].difference(times[i - 1]).inDays,
-      ];
-      for (var i = 1; i < gaps.length; i++) {
-        expect(gaps[i], greaterThan(gaps[i - 1]), reason: 'gaps $gaps');
-      }
-      expect(exam.difference(times.last).inDays, lessThan(10));
-
-      clock.advance(const Duration(hours: 2));
-      final extra = engine.applyReview(state, Rating.good, clock.now());
-      expect(extra.levelAfter, 6);
-    });
-  });
-
-  group('schedule', () {
-    test('5 reviews with growing gaps, all before the exam', () {
-      final outs = goodHistory(5, deadline: exam);
-      final times = [for (final o in outs) o.state.lastReviewAt!];
-      final gaps = [
-        for (var i = 1; i < times.length; i++)
-          times[i].difference(times[i - 1]).inDays,
-      ];
-      expect(gaps, hasLength(5));
-      for (var i = 1; i < gaps.length; i++) {
-        expect(gaps[i], greaterThan(gaps[i - 1]), reason: 'gaps $gaps');
-      }
-      expect(times.last.isAfter(exam), isFalse);
-      expect(exam.difference(times.last).inDays, lessThan(7));
+    test('an exam 73 days away: the default gaps, then a final review on '
+        'the last day because 60 more would pass it', () {
+      final outs = solidHistory(deadline: exam);
+      final gaps = gapsOf(outs);
+      expect(gaps.take(5), [1, 3, 7, 14, 30]);
+      expect(gaps, hasLength(6));
+      expect(outs.last.state.lastReviewAt, exam);
     });
 
-    test('a close exam crams all 5 reviews into the days left', () {
-      final close = clock.now().add(const Duration(days: 6));
-      final outs = goodHistory(5, deadline: close);
+    test('an exam 60 days away: no final review when fewer than 7 days are '
+        'left after the fifth', () {
+      final outs = solidHistory(deadline: DateTime.utc(2026, 12, 27));
+      expect(gapsOf(outs), [1, 3, 7, 14, 30]);
       expect(outs.last.levelAfter, 6);
-      for (final o in outs) {
-        expect(o.state.lastReviewAt!.isAfter(close), isFalse);
-      }
     });
 
-    test('without an exam the gaps are 1, 3, 7, 14 and 30 days', () {
-      final outs = goodHistory(5);
-      final gaps = [
-        for (var i = 1; i < outs.length; i++)
-          outs[i].state.lastReviewAt!
-              .difference(outs[i - 1].state.lastReviewAt!)
-              .inDays,
-      ];
-      expect(gaps, [1, 3, 7, 14, 30]);
+    test('an exam 40 days away squeezes 5 reviews in, a day first', () {
+      final close = DateTime.utc(2026, 12, 7);
+      final outs = solidHistory(deadline: close);
+      expect(gapsOf(outs), [1, 2, 5, 10, 21]);
+      expect(outs.last.state.lastReviewAt!.isAfter(close), isFalse);
+    });
+
+    test('with fewer than 6 days left, one review a day', () {
+      final outs = solidHistory(deadline: DateTime.utc(2026, 11, 1));
+      expect(gapsOf(outs), [1, 1, 1]);
     });
 
     test('an early review counts as the next step and the rest re-fit', () {
-      final first = review(const ReviewState(), Rating.good, deadline: exam);
-      clock.set(first.dueAfter!.subtract(const Duration(days: 3)));
-      final early = review(first.state, Rating.good, deadline: exam);
+      final first = review(const ReviewState(), Rating.solid, deadline: exam);
+      clock.set(first.dueAfter!.subtract(const Duration(hours: 12)));
+      final early = review(first.state, Rating.solid, deadline: exam);
       expect(early.stepAfter, 1);
       expect(early.levelAfter, 2);
       expect(early.dueAfter!.isAfter(clock.now()), isTrue);
@@ -170,42 +131,62 @@ void main() {
     });
 
     test('nothing is scheduled after the exam deadline', () {
-      final state = review(const ReviewState(), Rating.good).state;
+      final state = review(const ReviewState(), Rating.solid).state;
       clock.set(exam.add(const Duration(hours: 9)));
-      expect(review(state, Rating.hard, deadline: exam).dueAfter, isNull);
-      expect(review(state, Rating.good, deadline: exam).dueAfter, isNull);
+      expect(review(state, Rating.shaky, deadline: exam).dueAfter, isNull);
+      expect(review(state, Rating.solid, deadline: exam).dueAfter, isNull);
+    });
+
+    test('planned reviews: those that fit before the exam, or six', () {
+      const fresh = ReviewState();
+      final now = clock.now();
+      expect(engine.plannedReviews(fresh, now, deadline: exam), 6);
+      expect(
+        engine.plannedReviews(fresh, now, deadline: DateTime.utc(2026, 12, 7)),
+        5,
+      );
+      expect(engine.plannedReviews(fresh, now), 6);
     });
 
     test('changing the configuration changes the schedule without code '
         'changes', () {
       final short = ReviewEngine(
         ReviewConfig.fromSettings({
-          SettingKeys.scheduledReviews: 3,
-          SettingKeys.reviewGapDaysWithoutExam: [2, 4, 8],
+          SettingKeys.reviewGapDays: [2, 4, 8],
         }),
       );
       var state = const ReviewState();
-      final levels = <int>[];
       final gaps = <int>[];
-      for (var i = 0; i < 4; i++) {
+      for (var i = 0; i < 5; i++) {
         if (state.lastReviewAt != null) {
           gaps.add(clock.now().difference(state.lastReviewAt!).inDays);
         }
-        final out = short.applyReview(state, Rating.good, clock.now());
-        levels.add(out.levelAfter);
-        state = out.state;
-        if (state.dueAt != null) clock.set(state.dueAt!);
+        state = short.applyReview(state, Rating.solid, clock.now()).state;
+        clock.set(state.dueAt!);
       }
-      expect(gaps, [2, 4, 8]);
-      expect(levels, [1, 2, 3, 4]);
-      expect(state.dueAt, isNull);
+      expect(gaps, [2, 4, 8, 8]);
+    });
+
+    test('gaps from settings must be whole days, 1 to 365, never shorter '
+        'than the one before', () {
+      expect(ReviewConfig.validGapDays([1, 3, 3, 10]), [1, 3, 3, 10]);
+      expect(ReviewConfig.validGapDays([3, 1]), isNull);
+      expect(ReviewConfig.validGapDays([0, 2]), isNull);
+      expect(ReviewConfig.validGapDays([1.5]), isNull);
+      expect(ReviewConfig.validGapDays([400]), isNull);
+      expect(ReviewConfig.validGapDays(<int>[]), isNull);
+      expect(ReviewConfig.validGapDays('1,3'), isNull);
+      expect(
+        ReviewConfig.fromSettings({SettingKeys.reviewGapDays: [5, 2]}).gapDays,
+        Defaults.reviewGapDays,
+      );
     });
   });
 
   group('brightness', () {
-    test('an overdue belt dims gradually without dropping, and one Good '
+    test('an overdue belt dims gradually without dropping, and one Solid '
         'review restores it', () {
-      final state = goodHistory(3, deadline: exam).last.state; // Green
+      final state = solidHistory(deadline: exam, max: 3).last.state; // Green
       final due = state.dueAt!;
       LevelDisplay at(Duration after) => engine.display(state, due.add(after));
 
@@ -223,7 +204,7 @@ void main() {
       );
 
       clock.set(due.add(const Duration(days: 5)));
-      final restored = review(state, Rating.good, deadline: exam).state;
+      final restored = review(state, Rating.solid, deadline: exam).state;
       final shown = engine.display(restored, clock.now());
       expect(shown.dim, 0);
       expect(shown.stripes, 2);
@@ -239,7 +220,7 @@ void main() {
 
   group('pause', () {
     test('pausing for 10 days then resuming shifts dueAt by 10 days', () {
-      final state = review(const ReviewState(), Rating.good).state;
+      final state = review(const ReviewState(), Rating.solid).state;
       final due = state.dueAt!;
       clock.advance(const Duration(hours: 5));
       final paused = engine.pause(state, clock.now());
@@ -252,7 +233,7 @@ void main() {
     test('with an exam, resuming re-fits the schedule before it', () {
       final state = review(
         const ReviewState(),
-        Rating.good,
+        Rating.solid,
         deadline: exam,
       ).state;
       final paused = engine.pause(state, clock.now());
@@ -263,11 +244,11 @@ void main() {
     });
 
     test('paused tasks do not fade and cannot be reviewed', () {
-      final state = review(const ReviewState(), Rating.good).state;
+      final state = review(const ReviewState(), Rating.solid).state;
       final paused = engine.pause(state, clock.now());
       final later = clock.now().add(const Duration(days: 60));
       expect(engine.display(paused, later).dim, 0);
-      expect(() => review(paused, Rating.good), throwsStateError);
+      expect(() => review(paused, Rating.solid), throwsStateError);
     });
   });
 
@@ -306,7 +287,7 @@ void main() {
                 pauseStart = null;
               }
             } else {
-              final rating = Rating.values[random.nextInt(4)];
+              final rating = Rating.values[random.nextInt(3)];
               reviews.add(ReviewRecord(at: c.now(), rating: rating));
               incremental = engine
                   .applyReview(incremental, rating, c.now(), deadline: deadline)

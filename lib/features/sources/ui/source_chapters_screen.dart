@@ -560,7 +560,6 @@ class _ChapterRow extends StatelessWidget {
       ?range,
       if (ch.importance case final i?) _importance(l10n, i),
       if (survey != null) ...[
-        _difficulty(l10n, survey.difficulty),
         _familiarity(l10n, survey.familiarity),
       ],
       if (ch.partlyRead)
@@ -684,12 +683,6 @@ class _ChapterRow extends StatelessWidget {
     Importance.high => l10n.importanceHigh,
     Importance.medium => l10n.importanceMedium,
     Importance.low => l10n.importanceLow,
-  };
-
-  static String _difficulty(AppLocalizations l10n, int d) => switch (d) {
-    1 => l10n.difficultyEasy,
-    3 => l10n.difficultyHard,
-    _ => l10n.difficultyMedium,
   };
 
   static String _familiarity(AppLocalizations l10n, int f) => switch (f) {

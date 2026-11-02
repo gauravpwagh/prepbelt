@@ -44,7 +44,6 @@ final class TaskDetailView {
   int get stepsDone => info.state.step.clamp(0, detail.planned);
 
   /// The belt target for the upcoming exam, if any.
-  int? get target => detail.examLink?.targetLevel;
 }
 
 /// Null when the task was removed.

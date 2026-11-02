@@ -67,7 +67,7 @@ void main() {
       for (final task in tasks.take(250)) {
         await reviews.record(
           taskId: task.id,
-          rating: Rating.good,
+          rating: Rating.solid,
           kind: ReviewKind.firstRead,
         );
       }
@@ -110,7 +110,7 @@ void main() {
       print(
         'input ${inputMs}ms, one plan ${planMs}ms '
         '(${single.entries.length} entries), triage ${triageMs}ms in the '
-        'background (${result.cuts.length} cuts), Today ${todayMs}ms '
+        'background (fits: ${result.fits}), Today ${todayMs}ms '
         '(${cards.length} cards), boxes ${boxesMs}ms '
         '(${boxes.due.length + boxes.fresh.length + boxes.ahead.length} rows)',
       );

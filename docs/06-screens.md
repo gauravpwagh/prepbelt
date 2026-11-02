@@ -40,7 +40,7 @@ Five 1.0 screens are designed as phone mockups (390 × 844) on the design canvas
 - Close button; "Review session".
 - "Welcome back" and the task with its belt.
 - "Where did you stop?" stepper (− p. 228 +) with the range, a progress bar, "Finished the whole range" or "N pages left for next time", and time logged (22 min).
-- "How well could you recall it?" 2×2 buttons: Forgot (back tomorrow), Hard (back tomorrow), Good (next in N days), Easy (next in N days). The selected button fills with the accent colour. Interval text comes from the review schedule; Good and Easy both earn the next belt.
+- "How well could you recall it?" three buttons in a row (D53): Forgot (back tomorrow), Shaky (back tomorrow), Solid (next in N days). The selected button fills with the accent colour. Interval text comes from the review schedule; Solid earns the next belt. A first read is not rated.
 - After rating, a dark result card: belt graphic plus "Promoted to Blue belt · +40 XP", or "Green belt, one stripe lost · again tomorrow".
 - Primary button "Done · back to Today", disabled until a rating is chosen.
 
@@ -50,9 +50,8 @@ Five 1.0 screens are designed as phone mockups (390 × 844) on the design canvas
 - Progress: "Chapter 8 of 22", "about 2 min left", progress bar.
 - Card per chapter: "CHAPTER 8", title, page range and page count.
   - Importance for [exam]: High / Medium / Low, with a "from template" tag when prefilled.
-  - How hard does it look?: Easy / Medium / Hard, with "others said Medium" (1.2 hint).
   - Studied it before?: New / Seen it / Comfortable.
-  - Live estimate: "First read ≈ 1 h 20 min" and target belt (High → Black, Medium → Blue, Low → Green).
+  - Live estimate: "First read ≈ 1 h 20 min". (Difficulty and the target belt were removed in D53.)
 - "Mark the other 14 as Medium" text button; Previous and Next chapter buttons.
 
 ## 4. Exam

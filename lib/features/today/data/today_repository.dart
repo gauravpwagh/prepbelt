@@ -93,8 +93,8 @@ final class TodayBoxes {
   final bool hasPlan;
 }
 
-/// Reads what Today shows. Until the planner exists (milestone 5) it lists
-/// every review due by the end of today, overdue first (oldest first),
+/// Reads what Today shows. Without a plan it lists every review due by the
+/// end of today, by importance then due date (D53),
 /// then at most [Defaults.todayFirstReadsWithoutPlan] not-started tasks as
 /// first reads, most important first. Read-only.
 final class TodayRepository {
@@ -198,7 +198,13 @@ final class TodayRepository {
         due.add(s);
       }
     }
-    due.sort((a, b) => a.dueAt!.compareTo(b.dueAt!));
+    // Importance first, then the most overdue (D53).
+    int rankOf(String taskId) => importance[taskId]?.index ?? 1;
+    due.sort((a, b) {
+      final byImportance = rankOf(a.taskId).compareTo(rankOf(b.taskId));
+      if (byImportance != 0) return byImportance;
+      return a.dueAt!.compareTo(b.dueAt!);
+    });
 
     final out = <TodayItem>[];
     for (final s in due) {
@@ -470,9 +476,14 @@ final class TodayRepository {
       }
     }
 
-    due.sort((a, b) => a.dueAt!.compareTo(b.dueAt!));
-    ahead.sort((a, b) => a.dueAt!.compareTo(b.dueAt!));
     int rank(Importance? i) => i == null ? 1 : i.index;
+    // Every review due, importance first, then the most overdue (D53).
+    due.sort((a, b) {
+      final byImportance = rank(a.importance).compareTo(rank(b.importance));
+      if (byImportance != 0) return byImportance;
+      return a.dueAt!.compareTo(b.dueAt!);
+    });
+    ahead.sort((a, b) => a.dueAt!.compareTo(b.dueAt!));
     int planOrder(TodayItem i) => switch (next[i.id]) {
       (_, final order) when i.plannedToday => order,
       _ => 1 << 20,

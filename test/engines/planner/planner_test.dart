@@ -16,25 +16,17 @@ PlanTask _task(
   String id, {
   PlanImportance importance = PlanImportance.medium,
   double read = 60,
-  int difficulty = 2,
   String source = '',
   int order = 0,
   String subject = '',
   ReviewState state = const ReviewState(),
 }) {
-  final planned = switch (importance) {
-    PlanImportance.high => 5,
-    PlanImportance.medium => 4,
-    PlanImportance.low => 3,
-  };
   return PlanTask(
     id: id,
     state: state,
     importance: importance,
-    planned: planned,
     firstReadMinutes: read,
     reviewMinutes: (step) => reviewMinutes(read, firstReview: step == 0),
-    difficulty: difficulty,
     sourceKey: source,
     sourceOrder: order,
     subject: subject,
@@ -67,13 +59,13 @@ PlanTask _started(
 
 void main() {
   // docs/04-planner-spec.md, "Worked example".
-  test('worked example: Rotational motion reads over 3 days, then 5 reviews '
-      'with growing gaps, the last before the exam, reaching Brown', () {
+  test('worked example: Rotational motion reads over 3 days, then reviews '
+      'at the default gaps and a final one before the exam, reaching Black '
+      '(D53)', () {
     final rotational = _task(
       'rotational',
       importance: PlanImportance.high,
-      read: firstReadMinutes(units: 32, unit: EffortUnit.page, difficulty: 3),
-      difficulty: 3,
+      read: firstReadMinutes(units: 32, unit: EffortUnit.page),
       subject: 'Physics',
     );
     final result = plan(
@@ -93,27 +85,20 @@ void main() {
       for (final e in mine)
         if (e.kind == PlanKind.firstRead) (_day(e.day), e.minutes),
     ];
-    expect(reads, [(0, 45), (1, 45), (2, 38)]);
+    expect(reads, [(0, 45), (1, 45), (2, 6)]);
 
     final reviews = [
       for (final e in mine)
         if (e.kind != PlanKind.firstRead) e,
     ];
-    expect(reviews, hasLength(5));
     final days = [for (final r in reviews) _day(r.day)];
-    final gaps = [
-      for (var i = 0; i < days.length; i++)
-        days[i] - (i == 0 ? 2 : days[i - 1]),
-    ];
-    for (var i = 1; i < gaps.length; i++) {
-      expect(gaps[i], greaterThan(gaps[i - 1]), reason: 'gaps grow: $days');
-    }
-    // About days 6, 15, 27, 46 and 73 in the spec; a day or two either way.
-    expect(days.first, inInclusiveRange(5, 7));
-    expect(days.last, inInclusiveRange(72, 73));
+    expect(days.take(5), [3, 6, 13, 27, 57]);
+    expect(days, hasLength(6));
+    // High's final window: 1 to 3 days before the exam (day 74).
+    expect(days.last, inInclusiveRange(71, 73));
     expect(reviews.last.kind, PlanKind.finalReview);
-    expect(reviews.first.minutes, 30, reason: '35% of 128, capped');
-    expect(result.projectedLevel['rotational'], 6, reason: 'Brown');
+    expect(reviews.first.minutes, 30, reason: '35% of 96, capped');
+    expect(result.projectedLevel['rotational'], 7, reason: 'Black');
     expect(result.fits, isTrue);
   });
 
@@ -133,7 +118,6 @@ void main() {
               'new$i',
               importance: PlanImportance.values[i % 3],
               read: 40 + i * 15,
-              difficulty: 1 + i % 3,
               source: i < 5 ? 'hcv' : 'ncert',
               order: i,
               subject: i.isEven ? 'Physics' : 'Maths',
@@ -155,15 +139,37 @@ void main() {
       result = plan(input, _engine);
     });
 
-    test('no day goes over its minutes by more than one overrun', () {
-      final byDay = <DateTime, int>{};
+    test('first reads never take a day over its minutes by more than one '
+        'overrun; reviews are planned whatever the minutes (D53)', () {
+      final reviews = <DateTime, int>{};
+      final reads = <DateTime, int>{};
       for (final e in result.entries) {
-        byDay[e.day] = (byDay[e.day] ?? 0) + e.minutes;
+        final into = e.kind == PlanKind.review || e.kind == PlanKind.finalReview
+            ? reviews
+            : reads;
+        into[e.day] = (into[e.day] ?? 0) + e.minutes;
       }
-      for (final MapEntry(key: day, value: minutes) in byDay.entries) {
+      for (final MapEntry(key: day, value: minutes) in reads.entries) {
         final cap = input.overrides[day] ?? _week[day.weekday - 1];
-        expect(minutes, lessThanOrEqualTo(cap + 10), reason: '$day');
+        expect(
+          minutes + (reviews[day] ?? 0),
+          lessThanOrEqualTo(cap + 10),
+          reason: '$day',
+        );
       }
+      // Day 0 holds every overdue review, more than its minutes.
+      final due = input.tasks.where(
+        (t) => t.state.dueAt != null && !t.state.dueAt!.isAfter(_today),
+      );
+      expect(
+        result
+            .on(_today)
+            .where(
+              (e) => e.kind != PlanKind.firstRead && e.kind != PlanKind.explore,
+            )
+            .length,
+        due.length,
+      );
       expect(
         result.on(DateTime.utc(2026, 11, 14)),
         isEmpty,

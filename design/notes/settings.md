@@ -42,3 +42,16 @@ The Settings tab, last in the bottom navigation, in Progress's place until 1.1 (
 | Loading | The rows with empty values (settings load in under 100 ms). |
 | Working | While exporting or restoring, that row shows a small progress ring and the others are disabled. |
 | Error | A snackbar with the message above. |
+
+## Review schedule (D53)
+
+A row in the Study section, under Study time: "Review schedule", with the gaps as its value ("1, 3, 7, 14, 30, 60 days").
+
+Tapping it opens a bottom sheet in the style of the study-time sheet:
+
+- **Title and hint:** "Review schedule"; "Days before each review, counted from the one before. Every task gets at least 5 reviews before the exam: when they don't fit, the gaps are squeezed. After the last gap, reviews repeat at it."
+- **One row per review:** "Review 1" … with a stepper ("3 days"). Steps move through 1–7, 10, 14, 21, 30, 45, 60, 90, 120, 180 and 365 days. A gap is never shorter than the one before or longer than the one after, so the stepper stops there.
+- **Text links:** "Add a review" (up to 10), "Remove the last" (at least 1), and "Reset to 1, 3, 7, 14, 30, 60" when the gaps differ from the default.
+- **Save:** closes the sheet. Every task's schedule is re-fitted from its review history with the new gaps, and the plan updates.
+
+Stored as the `review.gapDays` setting. A malformed value falls back to the default.

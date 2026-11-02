@@ -63,7 +63,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   int _nowMs() => ref.read(clockProvider).nowMs();
 
   Future<void> _done(SessionView view) async {
-    final rating = _rating;
+    // A first read is not rated (D53): it earns White.
+    final rating = view.info.firstRead ? Rating.solid : _rating;
     if (rating == null) return;
     setState(() {
       _saving = true;
@@ -217,7 +218,8 @@ class SessionBody extends StatelessWidget {
         ),
       );
     }
-    final chosen = rating;
+    // A first read is not rated (D53): its result shows at once.
+    final chosen = info.firstRead ? Rating.solid : rating;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -283,25 +285,20 @@ class SessionBody extends StatelessWidget {
                 onStop: saving ? null : onStop,
                 onOpenAgain: onOpenAgain,
               ),
-              const SizedBox(height: 18),
-              Text(
-                info.firstRead ? l10n.sessionHowFirstRead : l10n.sessionHowWell,
-                style: AppText.section.copyWith(color: c.ink, fontSize: 16),
-              ),
-              if (info.firstRead) ...[
-                const SizedBox(height: AppSpace.xs),
+              if (!info.firstRead) ...[
+                const SizedBox(height: 18),
                 Text(
-                  l10n.sessionFirstReadHint,
-                  style: AppText.caption.copyWith(color: c.muted),
+                  l10n.sessionHowWell,
+                  style: AppText.section.copyWith(color: c.ink, fontSize: 16),
+                ),
+                const SizedBox(height: AppSpace.md),
+                _RatingGrid(
+                  view: view,
+                  nowMs: nowMs,
+                  selected: chosen,
+                  onRate: saving ? null : onRate,
                 ),
               ],
-              const SizedBox(height: AppSpace.md),
-              _RatingGrid(
-                view: view,
-                nowMs: nowMs,
-                selected: chosen,
-                onRate: saving ? null : onRate,
-              ),
               if (chosen != null) ...[
                 const SizedBox(height: 18),
                 _ResultCard(
@@ -473,9 +470,8 @@ String _nextText(AppLocalizations l10n, ReviewOutcome o, int nowMs) {
 
 String _ratingLabel(AppLocalizations l10n, Rating r) => switch (r) {
   Rating.forgot => l10n.rateForgot,
-  Rating.hard => l10n.rateHard,
-  Rating.good => l10n.rateGood,
-  Rating.easy => l10n.rateEasy,
+  Rating.shaky => l10n.rateShaky,
+  Rating.solid => l10n.rateSolid,
 };
 
 class _RatingGrid extends StatelessWidget {
@@ -547,22 +543,17 @@ class _RatingGrid extends StatelessWidget {
       );
     }
 
-    Widget row(Rating a, Rating b) => IntrinsicHeight(
+    // Forgot, Shaky, Solid in one row (D53).
+    return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(child: button(a)),
-          const SizedBox(width: AppSpace.md),
-          Expanded(child: button(b)),
+          for (final r in Rating.values) ...[
+            if (r != Rating.values.first) const SizedBox(width: AppSpace.sm),
+            Expanded(child: button(r)),
+          ],
         ],
       ),
-    );
-    return Column(
-      children: [
-        row(Rating.forgot, Rating.hard),
-        const SizedBox(height: AppSpace.md),
-        row(Rating.good, Rating.easy),
-      ],
     );
   }
 }

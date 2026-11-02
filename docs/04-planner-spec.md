@@ -1,6 +1,6 @@
 # PrepBelt — Planner Spec
 
-The planner turns tasks, surveys and an exam date into a day-by-day schedule that fits the student's daily minutes and gets every important topic to its belt target by exam day. It runs entirely on the device and reruns after every change.
+The planner turns tasks, surveys and an exam date into a day-by-day schedule: every review on the day it is due, and first reads in the student's daily minutes, so every topic gets at least 5 reviews before exam day (D53). It runs entirely on the device and reruns after every change.
 
 ## Inputs and outputs
 
@@ -9,12 +9,12 @@ The planner is a pure function: same inputs and date, same plan. It reads only s
 | Input | From | Used for |
 | --- | --- | --- |
 | Exam date, priority | Exam | Deadline and, in 1.1, capacity share |
-| Tasks with importance, target level | ExamTask | What must reach which belt |
-| Size, difficulty, familiarity | Chunk, ChunkSurvey via TaskChunk | Time estimates |
+| Tasks with importance | ExamTask | Order of reviews and first reads; readiness weight |
+| Size, familiarity | Chunk, ChunkSurvey via TaskChunk | Time estimates |
 | Level, review step, due date, resume page | TaskState, Review | What is due and how much is left to read |
 | Daily minutes per weekday, overrides, locked days | Availability, AvailabilityOverride | Capacity per day |
 | Student's pace per subject | Derived from Review durations | Calibrating estimates |
-| Review schedule | Setting (at most 5 reviews, gap weights 1 : 2 : 3 : 5 : 8) and the ExamTask target | When reviews come due, and how many |
+| Review schedule | Setting (gaps 1, 3, 7, 14, 30, 60 days; at least 5 reviews before the exam) | When reviews come due |
 | Today's date | Injected clock | Start of the plan |
 | Unexplored units per source | Source, ReadingSession, read tasks (D27) | "Continue reading" items |
 
@@ -25,50 +25,54 @@ The planner is a pure function: same inputs and date, same plan. It reads only s
 ## Estimating effort
 
 ```
-firstRead = remainingUnits × pace[subject] × d[difficulty] × f[familiarity]
+firstRead = remainingUnits × pace[subject] × f[familiarity]
 ```
 
 | Factor | Values | Default |
 | --- | --- | --- |
 | pace (minutes per unit) | page: 3 · video minute: 1.5 · question: 2 | Calibrated per subject after 3 sessions |
-| d (difficulty) | Easy 0.67 · Medium 1.0 · Hard 1.33 | Medium if not surveyed |
 | f (familiarity) | New 1.0 · Seen it 0.7 · Comfortable 0.45 | New if not surveyed |
+
+Difficulty is no longer surveyed or used (D53); answers stored before stay in ChunkSurvey and are ignored.
 
 - **remainingUnits** shrinks as the student reads: the range minus pages already read (from the last `resumeUnit`).
 - **Reviews:** the first review is 35% of the first read, later ones 20%, clamped to 5–30 minutes.
 - **Calibration:** after 3 or more sessions in a subject, pace = median of actual minutes per unit, blended 50/50 with the default until 10 sessions, then fully personal.
 - **Session size:** a first read over 45 minutes is split into reading sessions of at most 45 minutes, at PDF outline boundaries where available. They remain one task.
 
-## Reachable targets
+## How many reviews
 
-Every task follows the same rule (see `02-data-model.md`): a first read (White), then one review per belt above White up to its target, at most 5, with growing gaps all fitted before the exam. High → Black plans 5 reviews, Medium → Blue 4, Low → Green 3. Each Good review earns the next belt, so a task reaches its target by exam day if its first read leaves at least a day per planned review. **Black** takes one extra review the student chooses to do; the planner never schedules it.
+Every task follows the same rule (see `02-data-model.md`): a first read (White), then reviews at the gaps 1, 3, 7, 14, 30 and 60 days, each Solid one earning the next belt, so the sixth reaches Black. Importance does not change how many reviews a task gets (D53).
 
-**Effective target** = min(exam target level, Brown). Readiness, exam tier and triage use effective targets. A target of Black shows as "Brown by exam day · Black with one extra review". After the exam the original target returns.
+- **At least 5 before the exam.** When fewer than 5 of the default gaps fit before the deadline (the day before the exam), the first 5 are squeezed to fit, keeping their proportions, at least a day apart.
+- **A last review before the exam.** When the next default gap would pass the deadline and the task has had at least 5 reviews, one more review lands in the last days before the exam: its final review.
+- **Far exams and no exam:** after the sixth gap, reviews repeat at the last gap (60 days).
+- With fewer than 6 days left, a task gets one review a day until the exam.
+
+**Target:** every task aims at Black. Readiness and the exam tier count Brown as the target, since at least 5 reviews always fit; Black comes on top when the sixth review fits before the exam (D53).
 
 ## Scheduling reviews
 
-1. **Due dates:** after each review the engine fits the task's remaining reviews between that review and the deadline (the day before the exam), in the gap proportions 1 : 2 : 3 : 5 : 8, at least a day apart. The next one is the task's due date. The last planned review is the final review and lands in the last days before the exam.
-2. **Not Good:** a Forgot or Hard review repeats the same step the next day; the remaining gaps re-fit after it.
+1. **Due dates:** after each review the engine sets the next one from the rules above. The final review lands in the last days before the exam (within the importance's final window).
+2. **Forgot or Shaky:** repeats the same step the next day; the remaining reviews re-fit after it.
 3. **Early reviews:** a student may review any task before it is due; it counts as the next step and the rest re-fit. Unplanned reviews are never added to the plan silently.
-4. **Smoothing:** a review may move up to 2 days earlier than due, or 1 day later, to even out load, never past the deadline. Never later than that, except through triage.
-5. **Overdue reviews:** scheduled from today ahead of everything else, the dimmest high-importance tasks first.
-6. **Taper:** the 2 days before the exam hold reviews only, no first reads. The exam day is left empty.
-
-Moving a review changes when it is planned, not what the review earns when it is done.
+4. **No capacity limit (D53):** every review is planned on the day it is due, however many fall on one day. Daily minutes limit first reads only. Only a break day (0 minutes) moves a review, to the next day with minutes.
+5. **Overdue reviews:** planned for today, ahead of first reads.
+6. **Order within a day:** reviews by importance (High first), then by due date (most overdue first). The student covers as many as they can; what is left stays overdue and comes first again tomorrow.
+7. **Taper:** the 2 days before the exam hold reviews only, no first reads. The exam day is left empty.
 
 ## Placing first reads
 
 Deadlines are computed backward from the exam, but first reads are placed as early as capacity allows, because every day of head start buys a higher reachable belt.
 
-**Deadline per unstarted task:** the latest day its first read can finish and still reach its effective target (e.g. Green needs about 25 days, so with the exam on day 74 and a 2-day taper the deadline is about day 47).
+**Deadline per unstarted task:** the latest day its first read can finish and still leave a day for each of its 5 reviews before the exam (exam day − 6).
 
 **Placement order** (earliest first):
 
 1. Earliest deadline.
 2. Higher importance.
-3. Hard before easy.
-4. Source order: chapter 8 never before chapter 7 unless the source is marked "any order".
-5. Variety: at most 2 first reads from the same subject per day when there is an alternative.
+3. Source order: chapter 8 never before chapter 7 unless the source is marked "any order".
+4. Variety: at most 2 first reads from the same subject per day when there is an alternative.
 
 Partly read tasks continue before new ones in the same subject, from the resume page.
 
@@ -77,22 +81,21 @@ Partly read tasks continue before new ones in the same subject, from the resume 
 A student may read a source as they go instead of turning every chapter into a task first. The part of a source no task covers and nobody has read yet would otherwise count as no work, so the planner adds one **explore** item per source linked to the exam (through any of its chapters or ExamChunks):
 
 - **Size:** unexplored units = the source's units not covered by a saved ReadingSession, a read task, or a task not yet read (those are planned as first reads already).
-- **Estimate:** unexplored units × pace × Medium difficulty × New familiarity, split into reading sessions like any first read.
+- **Estimate:** unexplored units × pace × New familiarity, split into reading sessions like any first read.
 - **Placement:** like the first read of a Medium task, in source order after the source's existing unread tasks; never in the taper. The item has `sourceId` set and no `taskId`.
 - It shrinks as the student reads, and disappears when the source is fully explored or every chapter has a task.
 - On Today it opens the source's "Read from" flow.
 
-**Feasibility:** if a High task cannot meet its deadline with all capacity before it, raise a triage case.
+**Feasibility:** if a High task cannot meet its deadline with all capacity before it, the Exam screen asks the student (see "When time runs out").
 
 ## Filling each day
 
 ```
 for day in today..examDay-1:
   cap = minutesFor(day)                      // availability, overrides, taper
-  place overdue reviews first, most at-risk first
-  place reviews due on day (after smoothing), by importance then decay
-  if reviews exceed cap: carry the rest to the next day, still ahead of first reads
-  left = cap - placed
+  place every review due by day (overdue included), by importance then due date
+  left = cap - placed                       // reviews are never limited by cap
+  // a break day (cap 0) carries its reviews to the next day
   while left >= 15 and firstReads remain:
     t = next first read by placement order
     session = min(t.nextSession, left)       // a reading session, ≤ 45 min
@@ -102,7 +105,7 @@ for day in today..examDay-1:
 
 - **15-minute floor:** a new first-read session never starts with less than 15 minutes left. Continuing a started reading may use less.
 - **One overrun:** a session may push the day up to 10 minutes over to finish a session rather than split it.
-- **Today screen order:** overdue reviews, due reviews, final reviews, first reads by importance.
+- **Today screen order:** reviews (overdue, due and final) by importance, then due date; then first reads by importance.
 - **Bonus items:** when the student finishes early, the next day's first read is offered as optional, never added silently.
 - **Determinism:** ties break by task id.
 
@@ -111,27 +114,19 @@ for day in today..examDay-1:
 Overdue reviews always come first, ahead of any new material. Sessions are never moved by hand: anything not done becomes overdue and is replanned.
 
 - **Detection:** on the first app open of a new day, PlanItems still planned for earlier dates are marked `moved`, and the planner reruns from today.
-- **Overdue first:** overdue reviews fill each day before anything else, most at-risk first. If they exceed a day's minutes, the rest carry to the next day, still ahead of first reads.
-- **First reads shift later.** If that pushes a High task past its deadline, the effective target is recomputed and triage is raised.
-- **No punishment:** belts never drop. Overdue tasks dim; one Good review restores them.
-- **Message:** one line on Today, e.g. "Yesterday's 3 sessions are spread over the next 2 days · still on track for Blue". If the projection drops, say so plainly.
+- **Overdue first:** overdue reviews are planned for today, before anything else, by importance then due date, however many there are.
+- **First reads shift later** when reviews take the day's minutes. If that pushes a High task past its deadline, the Exam screen asks the student.
+- **No punishment:** belts never drop. Overdue tasks dim; one Solid review restores them.
+- **Message:** one line on Today, e.g. "Yesterday's 3 sessions are spread over the next 2 days · ". If the projection drops, say so plainly.
 - **Breaks and mock tests:** set in advance as an AvailabilityOverride (0 minutes, or reduced minutes on a mock-test day). Planned around, never counted as missed, and they don't break the streak.
 
-## Triage when time runs out
+## When time runs out
 
-The planner cuts the least valuable work first, shows exactly what it cut, and lets the student undo any cut. High-importance tasks are never cut automatically.
+Reviews are never cut (D53): they are all planned, and the student covers what they can. The automatic cuts of earlier versions (dropping final reviews, lowering targets, skims) are gone.
 
-**Triggers:** total planned minutes exceed available minutes before the exam, or a High task cannot meet its first-read deadline.
+**Trigger:** first reads cannot all finish before the taper, or a High task cannot meet its first-read deadline.
 
-| Step | Cut |
-| --- | --- |
-| 1 | Drop the final review of Low tasks (their target falls one belt) |
-| 2 | Lower Low targets to Yellow |
-| 3 | Mark Low and Easy first reads as "skim": 40% of the estimate, one review |
-| 4 | Lower Medium targets by one level |
-| 5 | Stop and ask the student |
-
-Step 5 offers: add daily minutes (showing the exact number), choose which Medium or High tasks to drop, or accept a lower projected belt. Restoring a cut re-runs triage, which shows the next cut before confirming. Choices are stored as ExamTask overrides.
+**The Exam screen asks the student:** add daily minutes (showing the exact number that would fit everything), or choose tasks to drop from the plan. Choices are stored as ExamTask overrides and can be undone.
 
 ## Several exams (1.1)
 
@@ -143,49 +138,36 @@ share[e] = w[e] × remaining[e] / daysLeft[e]  ÷  Σ_k ( w[k] × remaining[k] /
 - Locked days give that day entirely to one exam and are excluded from shares.
 - Shared tasks take the earliest exam's deadline and the highest importance; a review advances every exam it belongs to.
 - A shared task gets a final review before each exam, unless the exams are within 7 days of each other.
-- Overload: triage runs on the lowest-priority exam first.
+- Overload: the lowest-priority exam asks first.
 - Shares are recomputed every run.
 
 ## Worked example (use as a golden test)
 
 **Setup:** JEE Main on 10 Jan 2027; today 28 Oct 2026 (day 0); 73 study days. 105 minutes Monday to Saturday, 240 on Sunday: 870 minutes a week, about 151 hours total.
 
-**Workload:** 38 tasks (12 High, 16 Medium, 10 Low), 9 not started. Remaining first reads about 22 h, planned reviews about 58 h, roughly 80 h. Fits; no triage.
+**Workload:** 38 tasks (12 High, 16 Medium, 10 Low), 9 not started. Remaining first reads about 22 h; reviews are planned on their days whatever the load.
 
-**Rotational motion** (High, target Black, HC Verma pp. 166–197, Hard, New):
+**Rotational motion** (High, HC Verma pp. 166–197, New):
 
-1. Estimate: 32 pages × 3 × 1.33 × 1.0 ≈ 128 min → reading sessions of 45, 45, 38 on days 0, 1, 2.
-2. Reachable: the first read finishes day 2, with 71 days left, so all 5 reviews fit. Effective target Brown; Black needs one extra review by choice.
-3. Reviews (all Good), gaps in proportion 1 : 2 : 3 : 5 : 8 over days 2–73: about days 6, 15, 27, 46 and 73. Each earns a belt, Yellow to Brown. First review 30 min (35% of 128, capped), the rest about 26.
-4. The fifth review on day 73 (9 Jan) is the final review.
-5. Total: 128 min reading + 5 reviews ≈ 135 min.
+1. Estimate: 32 pages × 3 × 1.0 = 96 min → reading sessions of 45, 45 and 6 on days 0, 1, 2.
+2. Reviews from day 2, the exam on day 74 (deadline day 73): the default gaps put them on days 3, 6, 13, 27 and 57. The next gap (60) would pass the deadline, so a sixth, final review lands in the High final window before the exam. Six Solid reviews: Yellow to Black.
+3. First review 30 min (35% of 96, capped), the rest about 19.
 
-The golden test should assert the structure (sessions, 5 reviews with growing gaps, the last one before the exam, effective target Brown, no day over capacity), allowing a day either way for rounding and smoothing.
+The golden test should assert the structure: the reading sessions, reviews at the default gaps, a final review in the last days before the exam, and at least 5 reviews.
 
-**Triage:** the student drops to 30 min every day → 2,190 min (about 36 h) against 80 h.
-
-| Step | Cut | Plan size after |
-| --- | --- | --- |
-| 1 | Final reviews of 10 Low tasks | about 77 h |
-| 2 | Low targets to Yellow | about 70 h |
-| 3 | 4 Low and Easy first reads become skims | about 66 h |
-| 4 | Medium targets down one level | about 58 h |
-| 5 | Ask the student | — |
-
-Step 5 message: "About 18 more minutes a day keeps this reduced plan. About 36 more keeps everything."
+**Short on time:** the student drops to 30 min every day. Every review is still planned on its day; first reads move later, and those that no longer fit before the taper show on the Exam screen with the extra minutes a day that would fit them.
 
 ## Configuration defaults
 
 | Setting | Default | Student can change |
 | --- | --- | --- |
-| Reviews per task | One per belt above White up to the target, at most 5; gaps 1 : 2 : 3 : 5 : 8; retry after 1 day | No |
+| Review gaps | 1, 3, 7, 14, 30, 60 days; at least 5 reviews before the exam; retry after 1 day | Yes (Settings, D53) |
 | Daily minutes per weekday | Set at first launch | Yes |
 | Max reading session | 45 min | No |
 | New-session floor | 15 min | No |
 | Overdue reviews | Always first, before first reads | No |
 | Taper before exam | 2 days | No |
 | Last review | By the day before the exam | No |
-| Review smoothing | 2 days earlier, 1 day later | No |
 | Source order | Enforced | Per source ("any order") |
 
 ## Decisions

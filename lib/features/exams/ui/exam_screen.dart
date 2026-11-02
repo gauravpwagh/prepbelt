@@ -472,17 +472,12 @@ ExamManage examManage(BuildContext context, WidgetRef ref) {
 /// no-ops.
 final class TriageCallbacks {
   const TriageCallbacks({
-    required this.previewKeep,
-    required this.keep,
     required this.restore,
     required this.drop,
     required this.addMinutes,
     required this.accept,
   });
 
-  /// Titles of what keeping a task would cut instead.
-  final Future<List<String>> Function(String taskId) previewKeep;
-  final Future<void> Function(String examId, String taskId) keep;
   final Future<void> Function(String examId, String taskId) restore;
   final Future<void> Function(String examId, String taskId) drop;
   final Future<void> Function(String examId, int minutes) addMinutes;
@@ -493,16 +488,6 @@ final class TriageCallbacks {
 TriageCallbacks triageCallbacks(WidgetRef ref) {
   ExamActions actions() => ref.read(examActionsProvider.notifier);
   return TriageCallbacks(
-    previewKeep: (taskId) async {
-      final cuts = await actions().previewKeep(taskId);
-      final view = ref.read(examViewProvider(null)).value;
-      final titles = {
-        for (final r in [...?view?.triage.droppable]) r.taskId: r.title,
-        for (final c in [...?view?.triage.cuts]) c.taskId: c.title,
-      };
-      return [for (final c in cuts) titles[c.taskId] ?? c.taskId];
-    },
-    keep: (e, t) => actions().keep(e, t),
     restore: (e, t) => actions().restore(e, t),
     drop: (e, t) => actions().drop(e, [t]),
     addMinutes: (e, m) => actions().addMinutes(e, m),
@@ -510,49 +495,14 @@ TriageCallbacks triageCallbacks(WidgetRef ref) {
   );
 }
 
-/// The cuts that made the plan fit, and step 5 when they are not enough
-/// (docs/04-planner-spec.md, "Triage"). Every cut can be undone.
+/// Tasks the student dropped, and what to do when first reads do not fit
+/// (docs/04-planner-spec.md, "When time runs out"). Every drop can be
+/// undone.
 class _Triage extends StatelessWidget {
   const _Triage({required this.view, required this.actions});
 
   final ExamView view;
   final TriageCallbacks? actions;
-
-  Future<void> _keep(BuildContext context, PlanCut cut) async {
-    final a = actions;
-    if (a == null) return;
-    final l10n = AppLocalizations.of(context);
-    final c = context.colors;
-    final next = await a.previewKeep(cut.taskId);
-    if (!context.mounted) return;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (dialog) => AlertDialog(
-        backgroundColor: c.surface,
-        title: Text(
-          l10n.triageKeepTitle(cut.title),
-          style: AppText.section.copyWith(color: c.ink),
-        ),
-        content: Text(
-          next.isEmpty
-              ? l10n.triageKeepNothing
-              : [l10n.triageKeepNext, for (final t in next) '· $t'].join('\n'),
-          style: AppText.body.copyWith(color: c.ink),
-        ),
-        actions: [
-          TextLinkButton(
-            label: l10n.triageCancel,
-            onPressed: () => Navigator.of(dialog).pop(false),
-          ),
-          TextLinkButton(
-            label: l10n.triageKeepConfirm,
-            onPressed: () => Navigator.of(dialog).pop(true),
-          ),
-        ],
-      ),
-    );
-    if (ok ?? false) await a.keep(view.exam.id, cut.taskId);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -560,12 +510,6 @@ class _Triage extends StatelessWidget {
     final c = context.colors;
     final t = view.triage;
     final a = actions;
-    String stepLabel(TriageStep step, int n) => switch (step) {
-      TriageStep.dropFinalLow => l10n.triageStepDropFinalLow(n),
-      TriageStep.lowToYellow => l10n.triageStepLowToYellow(n),
-      TriageStep.skimLowEasy => l10n.triageStepSkim(n),
-      TriageStep.lowerMedium => l10n.triageStepLowerMedium(n),
-    };
 
     Widget row(String label, VoidCallback onTap) => InkWell(
       onTap: onTap,
@@ -589,56 +533,24 @@ class _Triage extends StatelessWidget {
     );
 
     final children = <Widget>[];
-    if (t.cuts.isNotEmpty || t.dropped.isNotEmpty) {
-      children.addAll([
-        Text(l10n.triageTitle, style: AppText.cardTitle.copyWith(color: c.ink)),
-        const SizedBox(height: AppSpace.xs),
-        Text(l10n.triageBody, style: AppText.caption.copyWith(color: c.muted)),
-        const SizedBox(height: AppSpace.sm),
-      ]);
-      for (final step in TriageStep.values) {
-        final cuts = [
-          for (final cut in t.cuts)
-            if (cut.step == step) cut,
-        ];
-        if (cuts.isEmpty) continue;
-        final label = stepLabel(step, cuts.length);
-        children.add(
-          row(
-            label,
-            () => showActionSheet(
-              context,
-              title: label,
-              actions: [
-                for (final cut in cuts)
-                  SheetAction(
-                    l10n.triageKeepAction(cut.title),
-                    () => _keep(context, cut),
-                  ),
-              ],
-            ),
+    if (t.dropped.isNotEmpty) {
+      final label = l10n.triageDroppedRow(t.dropped.length);
+      children.add(
+        row(
+          label,
+          () => showActionSheet(
+            context,
+            title: label,
+            actions: [
+              for (final d in t.dropped)
+                SheetAction(
+                  l10n.triageRestoreAction(d.title),
+                  () => a?.restore(view.exam.id, d.taskId),
+                ),
+            ],
           ),
-        );
-      }
-      if (t.dropped.isNotEmpty) {
-        final label = l10n.triageDroppedRow(t.dropped.length);
-        children.add(
-          row(
-            label,
-            () => showActionSheet(
-              context,
-              title: label,
-              actions: [
-                for (final d in t.dropped)
-                  SheetAction(
-                    l10n.triageRestoreAction(d.title),
-                    () => a?.restore(view.exam.id, d.taskId),
-                  ),
-              ],
-            ),
-          ),
-        );
-      }
+        ),
+      );
     }
 
     final warn = t.needsStudent && !t.accepted;
@@ -646,7 +558,6 @@ class _Triage extends StatelessWidget {
       if (children.isNotEmpty) {
         children.add(const SizedBox(height: AppSpace.lg));
       }
-      final reduced = t.extraForReduced;
       final full = t.extraForFull;
       children.addAll([
         Text(
@@ -655,20 +566,14 @@ class _Triage extends StatelessWidget {
         ),
         const SizedBox(height: AppSpace.xs),
         Text(
-          reduced == null
-              ? l10n.triageNeedsNoTime
-              : [
-                  l10n.triageNeedsReduced(reduced),
-                  if (full != null && full > reduced)
-                    l10n.triageNeedsFull(full),
-                ].join(' '),
+          full == null ? l10n.triageNeedsNoTime : l10n.triageNeedsFull(full),
           style: AppText.body.copyWith(color: c.ink),
         ),
         const SizedBox(height: AppSpace.md),
-        if (reduced != null) ...[
+        if (full != null) ...[
           PrimaryButton(
-            label: l10n.triageAddMinutes(reduced),
-            onPressed: () => a?.addMinutes(view.exam.id, reduced),
+            label: l10n.triageAddMinutes(full),
+            onPressed: () => a?.addMinutes(view.exam.id, full),
           ),
           const SizedBox(height: AppSpace.sm),
         ],
