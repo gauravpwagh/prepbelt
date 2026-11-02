@@ -632,7 +632,11 @@ class _Card extends StatelessWidget {
         fading: d.fading,
       ),
       kindLabel: kind,
-      kindColor: item.kind == TodayKind.overdue ? c.warningText : null,
+      kindColor: switch (item.kind) {
+        TodayKind.overdue => c.warningText,
+        TodayKind.ahead => c.aheadText,
+        _ => null,
+      },
       title: title,
       subtitle: where,
       startLabel: onStart == null

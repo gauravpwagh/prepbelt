@@ -48,5 +48,7 @@ Each box has its own soft tint, border and count pill, so the three read apart a
 
 Title, muted text and links keep at least 5.2:1 on every tint. The count is never shown by colour alone: each box has its title.
 
+The kind line on rows in Reviews ahead ("TOMORROW", "IN 3 DAYS") uses the box's teal text colour, not the belt colour.
+
 **Reviews due** always shows every row: they are today's work. **Not started** and **Reviews ahead** show their first 3 rows, with "Show all N" / "Show fewer".
 
