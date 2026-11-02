@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/config/app_info.dart';
@@ -185,14 +184,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             messenger.showSnackBar(
               SnackBar(
                 content: Text(
-                  ok ? l10n.settingsBackupNowDone : l10n.settingsBackupNowFailed,
+                  ok
+                      ? l10n.settingsBackupNowDone
+                      : l10n.settingsBackupNowFailed,
                 ),
               ),
             );
           }),
           busy: _busy,
           showDebug: widget.showDebugActions,
-          onBack: () => context.pop(),
           onEditWeek: week == null
               ? null
               : () => showWeekSheet(
@@ -265,7 +265,7 @@ String backupEveryLabel(AppLocalizations l10n, int days) =>
 class SettingsBody extends StatelessWidget {
   const SettingsBody({
     required this.settings,
-    required this.onBack,
+    this.onBack,
     required this.onReminder,
     required this.onReminderTime,
     required this.onExport,
@@ -295,7 +295,9 @@ class SettingsBody extends StatelessWidget {
   final List<int>? week;
   final String? busy;
   final bool showDebug;
-  final VoidCallback onBack;
+
+  /// Null in the Settings tab, which has nowhere to go back to (D52).
+  final VoidCallback? onBack;
   final VoidCallback? onEditWeek;
   final ValueChanged<bool> onReminder;
   final VoidCallback onReminderTime;
@@ -333,9 +335,10 @@ class SettingsBody extends StatelessWidget {
         ? l10n.settingsAutoBackupNone(everyText)
         : l10n.settingsAutoBackupLast(
             everyText,
-            DateFormat('d MMM, HH:mm', locale).format(
-              DateTime.fromMillisecondsSinceEpoch(lastAt).toLocal(),
-            ),
+            DateFormat(
+              'd MMM, HH:mm',
+              locale,
+            ).format(DateTime.fromMillisecondsSinceEpoch(lastAt).toLocal()),
           );
 
     Widget section(String title, List<Widget> rows) => Padding(
@@ -376,8 +379,10 @@ class SettingsBody extends StatelessWidget {
       children: [
         Row(
           children: [
-            RoundIconButton.back(context, onBack),
-            const SizedBox(width: AppSpace.lg),
+            if (onBack case final back?) ...[
+              RoundIconButton.back(context, back),
+              const SizedBox(width: AppSpace.lg),
+            ],
             Text(
               l10n.screenSettings,
               style: AppText.heroTitle.copyWith(color: c.ink),

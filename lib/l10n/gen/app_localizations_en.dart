@@ -24,6 +24,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navProgress => 'Progress';
 
   @override
+  String get navSettings => 'Settings';
+
+  @override
   String get navQuickAdd => 'Quick add';
 
   @override

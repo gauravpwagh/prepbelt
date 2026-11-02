@@ -107,7 +107,7 @@ test/  integration_test/
 
 **Routes:** `/today`, `/session/:taskId`, `/sources`, `/sources/new`, `/sources/:id/survey`, `/exams/:id`, `/tasks/:id`, `/tasks/:id/redefine`, `/settings`, `/onboarding`. First-time users redirect to `/onboarding`; a pending active session redirects to `/session/:taskId` on resume.
 
-**Bottom navigation:** Today, Exams, Sources, Progress, with the add button in the middle.
+**Bottom navigation:** Today, Exams, Sources, Settings, with the add button in the middle. Settings stands in for Progress until 1.1 brings the progress views (D52).
 
 ## Platform integration
 

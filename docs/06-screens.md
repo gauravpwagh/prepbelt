@@ -33,7 +33,7 @@ Five 1.0 screens are designed as phone mockups (390 × 844) on the design canvas
 - Exam card (dark): exam name and date, "74 days to go", belt badge with name, readiness bar ("62% ready"), "On track for Blue by exam day". Taps through to the Exam screen.
 - Section header: "4 sessions · 1 h 45 m" and quest progress.
 - Session cards: belt badge (or a dashed outline for new material), kind and minutes ("REVIEW · 20 MIN", "OVERDUE 2 DAYS · 25 MIN", "FIRST READ · 45 MIN"), task title, source and range, and a round 44 px Start button. New material uses a dashed card border and an outlined Start button.
-- Bottom nav: Today, Exams, raised add button, Sources, Progress.
+- Bottom nav: Today, Exams, raised add button, Sources, Progress. In 1.0 the Settings tab takes Progress's place until Progress has views of its own (D52).
 
 ## 2. Back from source (rate it)
 

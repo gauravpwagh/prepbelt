@@ -144,7 +144,7 @@ void main() {
     expect(find.text("Today's training"), findsOneWidget);
     expect(find.text('Wednesday, 28 Oct'), findsOneWidget);
     expect(find.text('Nothing to train yet'), findsOneWidget);
-    for (final tab in ['Today', 'Exams', 'Sources', 'Progress']) {
+    for (final tab in ['Today', 'Exams', 'Sources', 'Settings']) {
       expect(find.bySemanticsLabel(tab), findsOneWidget);
     }
     await unmount(tester);
@@ -158,6 +158,15 @@ void main() {
     await tester.tap(find.bySemanticsLabel('Quick add'));
     await tester.pumpAndSettle();
     expect(find.text('Add source'), findsOneWidget);
+    await unmount(tester);
+  });
+
+  testWidgets('Settings is a tab, without a back button', (tester) async {
+    await launch(tester);
+    await tester.tap(find.bySemanticsLabel('Settings'));
+    await settle(tester);
+    expect(find.byType(SettingsScreen), findsOneWidget);
+    expect(find.bySemanticsLabel('Back'), findsNothing);
     await unmount(tester);
   });
 

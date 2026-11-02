@@ -5,7 +5,7 @@ import '../../theme/tokens/app_tokens.dart';
 import 'app_icons.dart';
 
 /// Bottom navigation from the Today mockup: Today, Exams, a raised add
-/// button, Sources, Progress.
+/// button, Sources, and Settings in Progress's place until 1.1 (D52).
 class AppNavBar extends StatelessWidget {
   const AppNavBar({
     required this.currentIndex,
@@ -14,7 +14,7 @@ class AppNavBar extends StatelessWidget {
     super.key,
   });
 
-  /// 0 Today, 1 Exams, 2 Sources, 3 Progress.
+  /// 0 Today, 1 Exams, 2 Sources, 3 Settings.
   final int currentIndex;
   final ValueChanged<int> onSelect;
   final VoidCallback onAdd;
@@ -48,7 +48,7 @@ class AppNavBar extends StatelessWidget {
               item(1, AppIcon.exams, l10n.navExams),
               _AddButton(label: l10n.navQuickAdd, onTap: onAdd),
               item(2, AppIcon.sources, l10n.navSources),
-              item(3, AppIcon.progress, l10n.navProgress),
+              item(3, AppIcon.settings, l10n.navSettings),
             ],
           ),
         ),

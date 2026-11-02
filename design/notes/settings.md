@@ -4,11 +4,11 @@ Built on 29 Oct 2026 under D36; comments welcome. Tokens and components as in `d
 
 ## Entry
 
-A 44 px round settings button at the right of Today's date line, next to the streak pill.
+The Settings tab, last in the bottom navigation, in Progress's place until 1.1 (D52). This replaced a 44 px round settings button at the right of Today's date line.
 
 ## Layout (one scrolling page, ground background, 20 px side padding)
 
-- **Top bar:** back button and the title "Settings" (Bricolage 22 px).
+- **Top bar:** the title "Settings" (Bricolage 22 px). No back button: it is a tab.
 - **Sections:** each has a 12 px overline title, then a surface card of rows. Rows are at least 52 px tall, with the title in 15 px semibold, the value or explanation in 12 px muted, and a trailing control or chevron.
 
 | Section | Rows |

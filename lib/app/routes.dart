@@ -1,9 +1,8 @@
-/// Route paths from docs/05-architecture.md, plus `/exams` and `/progress`
-/// for the Exams and Progress tabs, which the route list leaves out.
+/// Route paths from docs/05-architecture.md, plus `/exams` for the Exams
+/// tab, which the route list leaves out. `/settings` is a tab (D52).
 abstract final class Routes {
   static const today = '/today';
   static const exams = '/exams';
-  static const progress = '/progress';
   static const sources = '/sources';
   static const newSource = '/sources/new';
   static const newExam = '/exams/new';

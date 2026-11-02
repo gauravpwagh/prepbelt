@@ -124,6 +124,12 @@ abstract class AppLocalizations {
   /// **'Progress'**
   String get navProgress;
 
+  /// No description provided for @navSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get navSettings;
+
   /// No description provided for @navQuickAdd.
   ///
   /// In en, this message translates to:

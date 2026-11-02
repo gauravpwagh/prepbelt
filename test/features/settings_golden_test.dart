@@ -28,7 +28,6 @@ Widget settings({String? busy}) => Scaffold(
       backupAt: DateTime(2026, 11, 1, 8, 12).millisecondsSinceEpoch,
     ),
     busy: busy,
-    onBack: () {},
     onEditWeek: () {},
     onReminder: (_) {},
     onReminderTime: () {},

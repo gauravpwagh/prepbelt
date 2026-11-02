@@ -4,7 +4,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../core/ui/bottom_sheet.dart';
 import '../core/ui/nav_bar.dart';
-import '../core/ui/placeholder_screen.dart';
 import '../features/exams/ui/add_exam_screen.dart';
 import '../features/exams/ui/exam_screen.dart';
 import '../features/onboarding/ui/onboarding_screen.dart';
@@ -19,7 +18,6 @@ import '../features/sources/ui/sources_screen.dart';
 import '../features/survey/ui/survey_screen.dart';
 import '../features/tasks/ui/task_detail_screen.dart';
 import '../features/today/ui/today_screen.dart';
-import '../l10n/gen/app_localizations.dart';
 import '../platform/share_in/share_in.dart';
 import 'routes.dart';
 
@@ -55,17 +53,10 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
           StatefulShellBranch(
             routes: [tab(Routes.sources, const SourcesScreen())],
           ),
+          // Settings takes the Progress tab's place until Progress has
+          // views of its own (1.1; D52).
           StatefulShellBranch(
-            routes: [
-              tab(
-                Routes.progress,
-                Builder(
-                  builder: (context) => PlaceholderScreen(
-                    title: AppLocalizations.of(context).screenProgress,
-                  ),
-                ),
-              ),
-            ],
+            routes: [tab(Routes.settings, const SettingsScreen())],
           ),
         ],
       ),
@@ -125,7 +116,6 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
           ),
         ],
       ),
-      GoRoute(path: Routes.settings, builder: (_, _) => const SettingsScreen()),
       GoRoute(
         path: Routes.onboarding,
         builder: (_, _) => const OnboardingScreen(),
