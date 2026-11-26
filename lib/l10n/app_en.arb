@@ -651,6 +651,57 @@
   "chaptersCaptionNoSurvey": "Chapters count as Medium. A survey makes this sharper.",
   "chaptersCaptionAll": "Every chapter has a task.",
   "chaptersAddTask": "Add task",
+  "chapterEditTitle": "Edit chapter",
+  "chapterAddTitle": "Add chapter",
+  "chapterName": "Chapter name",
+  "chapterNameNeeded": "Give the chapter a name.",
+  "chapterPagesInvalid": "{total, plural, =0{Check the numbers: From must be 1 or more, and not after To.} other{Check the numbers: from 1 to {total}, and From not after To.}}",
+  "@chapterPagesInvalid": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "chapterOverlaps": "These overlap {chapter}.",
+  "@chapterOverlaps": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      }
+    }
+  },
+  "chapterPagesFixed": "{range} · fixed while tasks cover it",
+  "@chapterPagesFixed": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "chapterAdd": "Add chapter",
+  "chapterAddButton": "+ Add chapter",
+  "chapterDelete": "Delete chapter",
+  "chapterDeleteHasTasks": "{count, plural, =1{1 task covers this chapter. Delete it first, then the chapter.} other{{count} tasks cover this chapter. Delete them first, then the chapter.}}",
+  "@chapterDeleteHasTasks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chapterDeleteLaterRead": "Chapters after this one are read already, so it stays.",
+  "chapterSaved": "Chapter saved",
+  "chapterAdded": "Chapter added",
+  "chapterDeleted": "Chapter deleted",
+  "chapterEditSemantics": "Edit chapter {title}",
+  "@chapterEditSemantics": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "chaptersLoadError": "Couldn't load this source.",
   "chaptersTasksCreated": "{count, plural, =1{1 task created} other{{count} tasks created}}",
   "@chaptersTasksCreated": {

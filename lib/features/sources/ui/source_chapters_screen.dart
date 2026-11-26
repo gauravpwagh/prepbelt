@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../../../core/config/defaults.dart';
 import '../../../core/db/enums.dart';
+import '../../../core/result/result.dart';
 import '../../../core/ui/app_icons.dart';
 import '../../../core/ui/buttons.dart';
 import '../../../core/ui/fields.dart';
@@ -12,7 +13,9 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../../theme/level_theme.dart';
 import '../../../theme/tokens/app_tokens.dart';
 import '../state/reading_providers.dart';
+import '../state/source_providers.dart';
 import 'add_task_sheet.dart';
+import 'chapter_sheet.dart';
 import 'source_labels.dart';
 import 'source_menu.dart';
 import 'study_folder_dialogs.dart';
@@ -110,6 +113,55 @@ class SourceChaptersScreen extends ConsumerWidget {
       snack(l10n.addTaskAdded, undo: true);
     }
 
+    /// Edit chapter [index], or add one when null (D56).
+    Future<void> editChapter(SourceChaptersView v, int? index) async {
+      final change = await showChapterSheet(context, view: v, index: index);
+      if (change == null) return;
+      final sources = ref.read(sourceActionsProvider.notifier);
+      final String done;
+      try {
+        switch (change) {
+          case ChapterSave(:final title, :final start, :final end):
+            if (index == null) {
+              await sources.addChapter(
+                sourceId,
+                title: title,
+                start: start,
+                end: end,
+              );
+              done = l10n.chapterAdded;
+            } else {
+              await sources.editChapter(
+                sourceId,
+                v.chapters[index].chunk.id,
+                title: title,
+                start: start,
+                end: end,
+              );
+              done = l10n.chapterSaved;
+            }
+          case ChapterDelete():
+            await sources.deleteChapter(sourceId, v.chapters[index!].chunk.id);
+            done = l10n.chapterDeleted;
+        }
+      } on InvalidOperationError {
+        snack(l10n.redefineFailed);
+        return;
+      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(done),
+            action: SnackBarAction(
+              label: l10n.undo,
+              onPressed: () => sources.undo(sourceId),
+            ),
+          ),
+        );
+    }
+
     return Scaffold(
       body: SourceChaptersBody(
         view: view,
@@ -134,6 +186,8 @@ class SourceChaptersScreen extends ConsumerWidget {
         ),
         onOpenTask: (id) => context.push(Routes.task(id)),
         onRetry: () => ref.invalidate(sourceChaptersProvider(sourceId)),
+        onEditChapter: editChapter,
+        onAddChapter: (v) => editChapter(v, null),
       ),
     );
   }
@@ -155,6 +209,8 @@ class SourceChaptersBody extends StatelessWidget {
     required this.onOpenTask,
     required this.onRetry,
     this.onAddAny,
+    this.onEditChapter,
+    this.onAddChapter,
     super.key,
   });
 
@@ -175,6 +231,11 @@ class SourceChaptersBody extends StatelessWidget {
   /// "Add task" at the top: starts at the first chapter without a task,
   /// and the student picks the scope (D55).
   final ValueChanged<SourceChaptersView>? onAddAny;
+
+  /// Tapping a chapter's name edits it; "+ Add chapter" ends the list
+  /// (D56). Null hides them.
+  final void Function(SourceChaptersView view, int index)? onEditChapter;
+  final ValueChanged<SourceChaptersView>? onAddChapter;
   final ValueChanged<String> onOpenTask;
   final VoidCallback onRetry;
 
@@ -218,7 +279,15 @@ class SourceChaptersBody extends StatelessWidget {
               joined: c.hasTask && c.taskOrder > 0,
               onAddTask: () => onAddTask(v, i),
               onOpenTask: onOpenTask,
+              onEdit: onEditChapter == null ? null : () => onEditChapter!(v, i),
             ),
+        if (onAddChapter != null) ...[
+          const SizedBox(height: AppSpace.md),
+          SecondaryButton(
+            label: l10n.chapterAddButton,
+            onPressed: () => onAddChapter!(v),
+          ),
+        ],
       ],
       AsyncError() => [
         WarningCard(
@@ -528,9 +597,13 @@ class _ChapterRow extends StatelessWidget {
     required this.joined,
     required this.onAddTask,
     required this.onOpenTask,
+    this.onEdit,
   });
 
   final int number;
+
+  /// Opens Edit chapter (D56); null leaves the name plain.
+  final VoidCallback? onEdit;
   final ChapterProgress chapter;
   final UnitType unitType;
 
@@ -585,9 +658,7 @@ class _ChapterRow extends StatelessWidget {
     final details = [
       ?rangeLine,
       if (ch.importance case final i?) _importance(l10n, i),
-      if (survey != null) ...[
-        _familiarity(l10n, survey.familiarity),
-      ],
+      if (survey != null) ...[_familiarity(l10n, survey.familiarity)],
       if (ch.partlyRead)
         ch.slot != null
             ? l10n.chapterInProgress
@@ -660,22 +731,36 @@ class _ChapterRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    ch.chunk.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppText.cardTitle.copyWith(
-                      color: c.ink,
-                      fontSize: 15,
+                  InkWell(
+                    onTap: onEdit,
+                    borderRadius: BorderRadius.circular(AppRadii.button),
+                    child: Semantics(
+                      hint: onEdit == null
+                          ? null
+                          : l10n.chapterEditSemantics(ch.chunk.title),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            ch.chunk.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppText.cardTitle.copyWith(
+                              color: c.ink,
+                              fontSize: 15,
+                            ),
+                          ),
+                          if (details.isNotEmpty) ...[
+                            const SizedBox(height: AppSpace.xxs),
+                            Text(
+                              details,
+                              style: AppText.caption.copyWith(color: c.muted),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
-                  if (details.isNotEmpty) ...[
-                    const SizedBox(height: AppSpace.xxs),
-                    Text(
-                      details,
-                      style: AppText.caption.copyWith(color: c.muted),
-                    ),
-                  ],
                   // Tasks over part of the chapter, each with its belt.
                   for (final t in parts)
                     Row(

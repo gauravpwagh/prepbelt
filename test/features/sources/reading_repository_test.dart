@@ -472,4 +472,78 @@ void main() {
       expect((await reading.progress(book.id))!.chapters[1].hasTask, isTrue);
     });
   });
+
+  group('editing chapters (D56)', () {
+    Future<List<(String, int?, int?)>> chaptersOf(String id) async => [
+      for (final c in (await reading.progress(id))!.chapters)
+        (c.chunk.title, c.chunk.startUnit, c.chunk.endUnit),
+    ];
+
+    test('rename and move a chapter, add one at the end, delete one, and '
+        'undo each', () async {
+      final book = await addBook();
+      final ch4 = (await reading.progress(book.id))!.chapters[3].chunk.id;
+      await sources.editChapter(
+        book.id,
+        ch4,
+        title: 'Ch 4 Friction',
+        start: 46,
+        end: 55,
+      );
+      wait(1);
+      final added = await sources.addChapter(
+        book.id,
+        title: 'Ch 5 Revision',
+        start: 56,
+        end: 60,
+      );
+      expect((await chaptersOf(book.id)).skip(3), [
+        ('Ch 4 Friction', 46, 55),
+        ('Ch 5 Revision', 56, 60),
+      ]);
+
+      wait(1);
+      await sources.deleteChapter(book.id, added.id);
+      expect(await chaptersOf(book.id), hasLength(4));
+      wait(1);
+      await sources.undo(book.id);
+      expect(await chaptersOf(book.id), hasLength(5));
+    });
+
+    test('a chapter that overlaps another is refused', () async {
+      final book = await addBook();
+      final ch2 = (await reading.progress(book.id))!.chapters[1].chunk.id;
+      await expectLater(
+        sources.editChapter(book.id, ch2, title: 'Ch 2', start: 5, end: 30),
+        throwsA(isA<InvalidOperationError>()),
+      );
+      await expectLater(
+        sources.addChapter(book.id, title: 'Extra', start: 40, end: 50),
+        throwsA(isA<InvalidOperationError>()),
+      );
+    });
+
+    test('while a task covers a chapter it cannot be deleted or moved, but '
+        'can be renamed', () async {
+      final book = await addBook();
+      final ch3 = (await reading.progress(book.id))!.chapters[2].chunk.id;
+      await reading.addTask(book.id, chunkIds: [ch3], title: 'Ch 3');
+      await expectLater(
+        sources.deleteChapter(book.id, ch3),
+        throwsA(isA<InvalidOperationError>()),
+      );
+      await expectLater(
+        sources.editChapter(book.id, ch3, title: 'Ch 3', start: 31, end: 40),
+        throwsA(isA<InvalidOperationError>()),
+      );
+      await sources.editChapter(
+        book.id,
+        ch3,
+        title: 'Ch 3 Motion',
+        start: 31,
+        end: 45,
+      );
+      expect((await chaptersOf(book.id))[2], ('Ch 3 Motion', 31, 45));
+    });
+  });
 }

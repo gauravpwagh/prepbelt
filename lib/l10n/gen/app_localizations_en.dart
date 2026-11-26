@@ -749,6 +749,78 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chaptersAddTask => 'Add task';
 
   @override
+  String get chapterEditTitle => 'Edit chapter';
+
+  @override
+  String get chapterAddTitle => 'Add chapter';
+
+  @override
+  String get chapterName => 'Chapter name';
+
+  @override
+  String get chapterNameNeeded => 'Give the chapter a name.';
+
+  @override
+  String chapterPagesInvalid(int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: 'Check the numbers: from 1 to $total, and From not after To.',
+      zero: 'Check the numbers: From must be 1 or more, and not after To.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String chapterOverlaps(String chapter) {
+    return 'These overlap $chapter.';
+  }
+
+  @override
+  String chapterPagesFixed(String range) {
+    return '$range · fixed while tasks cover it';
+  }
+
+  @override
+  String get chapterAdd => 'Add chapter';
+
+  @override
+  String get chapterAddButton => '+ Add chapter';
+
+  @override
+  String get chapterDelete => 'Delete chapter';
+
+  @override
+  String chapterDeleteHasTasks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count tasks cover this chapter. Delete them first, then the chapter.',
+      one: '1 task covers this chapter. Delete it first, then the chapter.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chapterDeleteLaterRead =>
+      'Chapters after this one are read already, so it stays.';
+
+  @override
+  String get chapterSaved => 'Chapter saved';
+
+  @override
+  String get chapterAdded => 'Chapter added';
+
+  @override
+  String get chapterDeleted => 'Chapter deleted';
+
+  @override
+  String chapterEditSemantics(String title) {
+    return 'Edit chapter $title';
+  }
+
+  @override
   String get chaptersLoadError => 'Couldn\'t load this source.';
 
   @override

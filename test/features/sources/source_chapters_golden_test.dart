@@ -8,6 +8,7 @@ import 'package:prepbelt/core/db/app_database.dart';
 import 'package:prepbelt/engines/reading/reading_math.dart';
 import 'package:prepbelt/features/sources/state/reading_providers.dart';
 import 'package:prepbelt/features/sources/ui/add_task_sheet.dart';
+import 'package:prepbelt/features/sources/ui/chapter_sheet.dart';
 import 'package:prepbelt/features/sources/ui/reading_sheet.dart';
 import 'package:prepbelt/features/sources/ui/source_chapters_screen.dart';
 
@@ -153,6 +154,8 @@ Widget chapters(AsyncValue<SourceChaptersView?> v) => Scaffold(
     onCreateAll: (_) {},
     onAddTask: (_, _) {},
     onAddAny: (_) {},
+    onEditChapter: (_, _) {},
+    onAddChapter: (_) {},
     onOpenTask: (_) {},
     onRetry: () {},
   ),
@@ -167,6 +170,13 @@ Widget addTask() => Scaffold(
       pickChapter: true,
       onCreate: (_) {},
     ),
+  ),
+);
+
+Widget chapterSheet({int? index}) => Scaffold(
+  body: Align(
+    alignment: Alignment.bottomCenter,
+    child: ChapterSheet(view: _view(), index: index, onDone: (_) {}),
   ),
 );
 
@@ -215,6 +225,10 @@ void main() {
     height: 300,
   );
   goldenBoth('add_task_sheet', addTask, height: 700);
+  // Ch 1 has a task: pages fixed, Delete refused. A new chapter starts
+  // after the last one.
+  goldenBoth('chapter_sheet_edit', () => chapterSheet(index: 0), height: 520);
+  goldenBoth('chapter_sheet_add', chapterSheet, height: 520);
   goldenBoth('reading_sheet', readingSheet, height: 900);
   goldenBoth('reading_sheet_360', readingSheet, width: 360, height: 940);
 

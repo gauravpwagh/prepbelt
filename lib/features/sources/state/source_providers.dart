@@ -94,4 +94,43 @@ class SourceActions extends _$SourceActions {
     await ref.read(sourceRepositoryProvider).undo(id);
     await ref.read(plannerProvider.notifier).replanNow();
   }
+
+  /// Chapter edits (D56), each followed by a replan.
+  Future<void> editChapter(
+    String sourceId,
+    String chunkId, {
+    required String title,
+    int? start,
+    int? end,
+  }) => _thenReplan(
+    () => ref
+        .read(sourceRepositoryProvider)
+        .editChapter(
+          sourceId,
+          chunkId,
+          title: title.trim(),
+          start: start,
+          end: end,
+        ),
+  );
+
+  Future<void> addChapter(
+    String sourceId, {
+    required String title,
+    int? start,
+    int? end,
+  }) => _thenReplan(
+    () => ref
+        .read(sourceRepositoryProvider)
+        .addChapter(sourceId, title: title.trim(), start: start, end: end),
+  );
+
+  Future<void> deleteChapter(String sourceId, String chunkId) => _thenReplan(
+    () => ref.read(sourceRepositoryProvider).deleteChapter(sourceId, chunkId),
+  );
+
+  Future<void> _thenReplan(Future<Object?> Function() op) async {
+    await op();
+    await ref.read(plannerProvider.notifier).replanNow();
+  }
 }

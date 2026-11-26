@@ -256,7 +256,8 @@ class TextLinkButton extends StatelessWidget {
                 label,
                 textAlign: TextAlign.center,
                 style: AppText.body.copyWith(
-                  color: c.accentText,
+                  // Muted when disabled, so it does not look tappable.
+                  color: onPressed == null ? c.muted : c.accentText,
                   fontWeight: FontWeight.w600,
                 ),
               ),

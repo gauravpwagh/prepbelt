@@ -1132,6 +1132,102 @@ abstract class AppLocalizations {
   /// **'Add task'**
   String get chaptersAddTask;
 
+  /// No description provided for @chapterEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit chapter'**
+  String get chapterEditTitle;
+
+  /// No description provided for @chapterAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add chapter'**
+  String get chapterAddTitle;
+
+  /// No description provided for @chapterName.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter name'**
+  String get chapterName;
+
+  /// No description provided for @chapterNameNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the chapter a name.'**
+  String get chapterNameNeeded;
+
+  /// No description provided for @chapterPagesInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'{total, plural, =0{Check the numbers: From must be 1 or more, and not after To.} other{Check the numbers: from 1 to {total}, and From not after To.}}'**
+  String chapterPagesInvalid(int total);
+
+  /// No description provided for @chapterOverlaps.
+  ///
+  /// In en, this message translates to:
+  /// **'These overlap {chapter}.'**
+  String chapterOverlaps(String chapter);
+
+  /// No description provided for @chapterPagesFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'{range} · fixed while tasks cover it'**
+  String chapterPagesFixed(String range);
+
+  /// No description provided for @chapterAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add chapter'**
+  String get chapterAdd;
+
+  /// No description provided for @chapterAddButton.
+  ///
+  /// In en, this message translates to:
+  /// **'+ Add chapter'**
+  String get chapterAddButton;
+
+  /// No description provided for @chapterDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete chapter'**
+  String get chapterDelete;
+
+  /// No description provided for @chapterDeleteHasTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 task covers this chapter. Delete it first, then the chapter.} other{{count} tasks cover this chapter. Delete them first, then the chapter.}}'**
+  String chapterDeleteHasTasks(int count);
+
+  /// No description provided for @chapterDeleteLaterRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters after this one are read already, so it stays.'**
+  String get chapterDeleteLaterRead;
+
+  /// No description provided for @chapterSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter saved'**
+  String get chapterSaved;
+
+  /// No description provided for @chapterAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter added'**
+  String get chapterAdded;
+
+  /// No description provided for @chapterDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter deleted'**
+  String get chapterDeleted;
+
+  /// No description provided for @chapterEditSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit chapter {title}'**
+  String chapterEditSemantics(String title);
+
   /// No description provided for @chaptersLoadError.
   ///
   /// In en, this message translates to:

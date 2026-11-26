@@ -361,6 +361,167 @@ final class SourceRepository extends EventSourcedRepository {
   /// Reverses the latest change to this source.
   Future<void> undo(String id) => undoLatest(entity, id);
 
+  /// Renames chapter [chunkId] and, given [start] and [end], moves it to
+  /// those units (D56), as one undoable change under the source. Moving
+  /// is refused while a task covers it, or when it would overlap another
+  /// chapter.
+  Future<void> editChapter(
+    String sourceId,
+    String chunkId, {
+    required String title,
+    int? start,
+    int? end,
+  }) async {
+    final units = start != null && end != null;
+    if (units) {
+      final chunk = await (db.select(
+        db.chunks,
+      )..where((c) => c.id.equals(chunkId))).getSingle();
+      final moved = chunk.startUnit != start || chunk.endUnit != end;
+      if (moved && await chapterHasTasks(chunkId)) {
+        throw const InvalidOperationError('Delete its tasks first');
+      }
+      await _checkFree(sourceId, start, end, except: chunkId);
+    }
+    await mutate<void>(
+      entity: entity,
+      entityId: sourceId,
+      op: EventOp.update,
+      data: {'action': 'editChapter'},
+      body: (rec) => rec.update(
+        db.chunks,
+        chunkId,
+        ChunksCompanion(
+          title: Value(title),
+          startUnit: units ? Value(start) : const Value.absent(),
+          endUnit: units ? Value(end) : const Value.absent(),
+          sizeUnits: units ? Value(end - start + 1) : const Value.absent(),
+        ),
+      ),
+    );
+  }
+
+  /// Adds a chapter after the others (D56): units [start]–[end], or none
+  /// for a source read by chapter. Refused when it overlaps a chapter.
+  Future<Chunk> addChapter(
+    String sourceId, {
+    required String title,
+    int? start,
+    int? end,
+  }) async {
+    if (start != null && end != null) {
+      await _checkFree(sourceId, start, end);
+    }
+    final last =
+        await (db.select(db.chunks)
+              ..where(
+                (c) =>
+                    c.sourceId.equals(sourceId) &
+                    c.parentChunkId.isNull() &
+                    c.deletedAt.isNull(),
+              )
+              ..orderBy([(c) => OrderingTerm.desc(c.order)])
+              ..limit(1))
+            .getSingleOrNull();
+    return mutate(
+      entity: entity,
+      entityId: sourceId,
+      op: EventOp.update,
+      data: {'action': 'addChapter'},
+      body: (rec) => rec.insert(
+        db.chunks,
+        ChunksCompanion(
+          id: Value(rec.newId()),
+          sourceId: Value(sourceId),
+          title: Value(title),
+          order: Value((last?.order ?? -1) + 1),
+          startUnit: Value(start),
+          endUnit: Value(end),
+          sizeUnits: Value(
+            start != null && end != null ? end - start + 1 : null,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Deletes chapter [chunkId] with its survey answers (D56), as one
+  /// undoable change. Refused while any task covers it: the student
+  /// deletes those tasks first.
+  Future<void> deleteChapter(String sourceId, String chunkId) async {
+    if (await chapterHasTasks(chunkId)) {
+      throw const InvalidOperationError('Delete its tasks first');
+    }
+    final surveys = await (db.select(
+      db.chunkSurveys,
+    )..where((t) => t.chunkId.equals(chunkId) & t.deletedAt.isNull())).get();
+    final exams = await (db.select(
+      db.examChunks,
+    )..where((t) => t.chunkId.equals(chunkId) & t.deletedAt.isNull())).get();
+    await mutate<void>(
+      entity: entity,
+      entityId: sourceId,
+      op: EventOp.update,
+      data: {'action': 'deleteChapter'},
+      body: (rec) async {
+        for (final r in surveys) {
+          await rec.softDelete(db.chunkSurveys, r.id);
+        }
+        for (final r in exams) {
+          await rec.softDelete(db.examChunks, r.id);
+        }
+        await rec.softDelete(db.chunks, chunkId);
+      },
+    );
+  }
+
+  /// A live task covers some of chapter [chunkId].
+  Future<bool> chapterHasTasks(String chunkId) async {
+    final row =
+        await (db.select(db.taskChunks).join([
+                innerJoin(
+                  db.tasks,
+                  db.tasks.id.equalsExp(db.taskChunks.taskId) &
+                      db.tasks.deletedAt.isNull(),
+                ),
+              ])
+              ..where(
+                db.taskChunks.chunkId.equals(chunkId) &
+                    db.taskChunks.deletedAt.isNull(),
+              )
+              ..limit(1))
+            .getSingleOrNull();
+    return row != null;
+  }
+
+  /// Throws unless [start]–[end] is a valid range clear of the source's
+  /// other chapters.
+  Future<void> _checkFree(
+    String sourceId,
+    int start,
+    int end, {
+    String? except,
+  }) async {
+    if (start < 1 || end < start) {
+      throw const InvalidOperationError('Pages out of order');
+    }
+    final others =
+        await (db.select(db.chunks)..where(
+              (c) =>
+                  c.sourceId.equals(sourceId) &
+                  c.parentChunkId.isNull() &
+                  c.deletedAt.isNull(),
+            ))
+            .get();
+    for (final c in others) {
+      if (c.id == except) continue;
+      final (s, e) = (c.startUnit, c.endUnit);
+      if (s != null && e != null && start <= e && s <= end) {
+        throw InvalidOperationError('Overlaps ${c.title}');
+      }
+    }
+  }
+
   Stream<List<Source>> watchAll() =>
       (db.select(db.sources)
             ..where((s) => s.deletedAt.isNull())

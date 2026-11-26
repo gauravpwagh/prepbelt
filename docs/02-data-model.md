@@ -41,7 +41,7 @@ Conventions on every syncable table:
 | Topic | parentId?, name, subject?, order | Syllabus tree node. Comes from a template or is user-made. |
 | Source | type (pdf, book, video, link, notes, qbank), title, uri?, unitType (page, minute, question, item), totalUnits? | Where material lives. uri = file path, URL or app deep link. |
 | SourceFile | sourceId FK, localPath, place, bytes, sha256 | The file lives in the student's study folder (`place = folder`, `localPath` inside it) or, for installs from before D51, in app storage (`place = app`). Web (1.1) stores it in OPFS. |
-| Chunk | sourceId FK, parentChunkId?, title, order, startUnit?, endUnit?, sizeUnits? | Chapter or section. Nests for parts within chapters. |
+| Chunk | sourceId FK, parentChunkId?, title, order, startUnit?, endUnit?, sizeUnits? | Chapter or section. Nests for parts within chapters. The student can rename, move, add and delete chapters (D56); moving and deleting are refused while a task covers the chapter, and chapters never overlap. |
 | ChunkSurvey | chunkId FK (unique), difficulty (1–3), familiarity (0–2), surveyedAt | Personal. One row per chunk. Difficulty is no longer asked or used (D53); stored values are ignored. |
 | ReadingSession | sourceId FK, startedAt, startUnit, endedAt?, endUnit?, minutes?, status (open, saved, discarded) | One sitting of reading a source as you go (D27). At most one open row. Saved rows give the source's explored pages, its reading position and the time spent on partly read chapters. |
 

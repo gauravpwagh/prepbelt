@@ -169,3 +169,12 @@ This is a change to `docs/04-planner-spec.md` and will be recorded as a decision
 ## Add task at the top (D55)
 
 The chapters card has a full-width **Add task** primary button above Survey and Create N tasks (now both secondary) while any chapter has pages without a task. It opens the Add task sheet at the first such chapter, with a **Starts at** stepper over the chapters that still need a task; the rest of the sheet (more chapters, whole chapter or some pages, name, importance, already read) works as before. Page ranges read "Pages 12–15"; when a chapter's title already says its pages, the range line is not repeated.
+
+## Edit, add and delete chapters (D56)
+
+- **Edit:** tap a chapter's name (and its details line) to open the Edit chapter sheet: Chapter name, then From and To number fields for sources with pages or minutes, then Save and a "Delete chapter" text link.
+- **Covered by a task:** the pages show as "Pages 1–3 · fixed while tasks cover it" instead of fields, and Delete chapter is muted with "1 task covers this chapter. Delete it first, then the chapter." Renaming still works.
+- **Read by chapter:** no page fields; Delete is muted with "Chapters after this one are read already, so it stays." when a later chapter has reading.
+- **Add:** a full-width "+ Add chapter" button ends the list. The sheet starts From right after the last chapter and To at the end of the source.
+- **Errors** show under the fields: an empty name, numbers out of range, or "These overlap {chapter}."
+- Every save, add and delete shows a snackbar with Undo and replans.
