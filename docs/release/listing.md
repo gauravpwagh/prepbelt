@@ -87,6 +87,16 @@ Use sample data (a realistic exam and sources), never a tester's real name. Ever
 
 Each release has its own notes (500 characters max per language).
 
+### 0.1.1 (8)
+
+```
+• Change a chapter's real pages: tap its name or the pencil.
+• A chapter can begin on the page where the last one ends.
+• Pages taken from a neighbouring chapter come out of it, and you see which first.
+• Mark the last chapter as the end of the source.
+• New Tasks view on a source: every task with its pages and belt.
+```
+
 ### 0.1.1 (7)
 
 ```
