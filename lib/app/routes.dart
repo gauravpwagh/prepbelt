@@ -19,5 +19,9 @@ abstract final class Routes {
   static String exam(String id) => '/exams/$id';
   static String editExam(String id) => '/exams/$id/edit';
   static String task(String id) => '/tasks/$id';
-  static String redefine(String id) => '/tasks/$id/redefine';
+
+  /// One redefinition, opened from the task's menu (D57): `edit`,
+  /// `scope`, `split` or `pause`.
+  static String redefine(String id, String mode) =>
+      '/tasks/$id/redefine?mode=$mode';
 }

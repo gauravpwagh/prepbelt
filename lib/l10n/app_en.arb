@@ -1785,6 +1785,10 @@
   "taskUndone": "Change undone",
   "taskMore": "Task options",
   "taskEdit": "Edit task",
+  "taskChangeScope": "Change pages",
+  "taskSplit": "Split task",
+  "taskPause": "Pause task",
+  "taskResume": "Resume task",
   "taskDelete": "Delete task",
   "taskDeleteTitle": "Delete \"{title}\"?",
   "@taskDeleteTitle": {

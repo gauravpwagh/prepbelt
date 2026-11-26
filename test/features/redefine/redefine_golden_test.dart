@@ -111,7 +111,7 @@ Widget body(RedefineMode mode, {RedefineView? view}) => RedefineSheetBody(
   view: view ?? _view(),
   nowMs: _now.millisecondsSinceEpoch,
   callbacks: _noop,
-  initialMode: mode,
+  mode: mode,
 );
 
 Widget sheet(RedefineMode mode, {RedefineView? view}) => Scaffold(
@@ -127,7 +127,7 @@ Widget sheet(RedefineMode mode, {RedefineView? view}) => Scaffold(
           view: view ?? _view(),
           nowMs: _now.millisecondsSinceEpoch,
           callbacks: _noop,
-          initialMode: mode,
+          mode: mode,
         ),
       ),
     ),

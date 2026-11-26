@@ -75,8 +75,13 @@ void main() {
 
     await tester.tap(find.bySemanticsLabel('Task options'));
     await settle();
-    await tester.tap(find.text('Edit task'));
+    // The menu lists each redefinition (D57).
+    for (final item in ['Edit task', 'Change pages', 'Pause task']) {
+      expect(find.text(item), findsOneWidget);
+    }
+    await tester.tap(find.text('Split task'));
     await settle();
+    expect(find.text('Split task'), findsOneWidget, reason: 'sheet title');
     expect(find.text('Drag to choose where to split'), findsOneWidget);
     expect(find.text('after page 219'), findsOneWidget);
 

@@ -42,12 +42,14 @@ final class RedefineCallbacks {
   final VoidCallback cancel;
 }
 
-/// Redefine (`/tasks/:id/redefine`, mockup 5): edit, scope, split or pause
-/// a task with an impact preview. Every change can be undone.
+/// Redefine (`/tasks/:id/redefine?mode=…`, mockup 5): edit, scope, split
+/// or pause a task with an impact preview. Each opens straight from the
+/// task's menu (D57). Every change can be undone.
 class RedefineSheet extends ConsumerWidget {
-  const RedefineSheet({required this.taskId, super.key});
+  const RedefineSheet({required this.taskId, required this.mode, super.key});
 
   final String taskId;
+  final RedefineMode mode;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -88,6 +90,7 @@ class RedefineSheet extends ConsumerWidget {
       AsyncData(value: final v) => RedefineSheetBody(
         view: v,
         nowMs: ref.read(clockProvider).nowMs(),
+        mode: mode,
         callbacks: RedefineCallbacks(
           cancel: close,
           save: (title, importance) => guard(() async {
@@ -146,6 +149,7 @@ class RedefineSheetBody extends StatefulWidget {
     required this.nowMs,
     required this.callbacks,
     this.initialMode,
+    this.mode,
     super.key,
   });
 
@@ -154,12 +158,17 @@ class RedefineSheetBody extends StatefulWidget {
   final RedefineCallbacks callbacks;
   final RedefineMode? initialMode;
 
+  /// Shows only this redefinition, titled by it, without the mode chips
+  /// (D57). Null shows the chips (mockup 5).
+  final RedefineMode? mode;
+
   @override
   State<RedefineSheetBody> createState() => _RedefineSheetBodyState();
 }
 
 class _RedefineSheetBodyState extends State<RedefineSheetBody> {
   late RedefineMode _mode =
+      widget.mode ??
       widget.initialMode ??
       (widget.view.canSplit ? RedefineMode.split : RedefineMode.edit);
   bool _busy = false;
@@ -219,10 +228,13 @@ class _RedefineSheetBodyState extends State<RedefineSheetBody> {
         children: [
           Semantics(
             header: true,
-            child: Text(
-              l10n.redefineTitle,
-              style: AppText.heroTitle.copyWith(color: c.ink),
-            ),
+            child: Text(switch (widget.mode) {
+              null => l10n.redefineTitle,
+              RedefineMode.edit => l10n.taskEdit,
+              RedefineMode.scope => l10n.taskChangeScope,
+              RedefineMode.split => l10n.taskSplit,
+              RedefineMode.pause => v.paused ? l10n.taskResume : l10n.taskPause,
+            }, style: AppText.heroTitle.copyWith(color: c.ink)),
           ),
           Text(
             l10n.redefineSubtitle,
@@ -231,19 +243,21 @@ class _RedefineSheetBodyState extends State<RedefineSheetBody> {
               fontWeight: FontWeight.w400,
             ),
           ),
-          const SizedBox(height: AppSpace.xl),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final m in RedefineMode.values)
-                PillChip(
-                  label: labels[m]!,
-                  selected: m == _mode,
-                  onPressed: () => setState(() => _mode = m),
-                ),
-            ],
-          ),
+          if (widget.mode == null) ...[
+            const SizedBox(height: AppSpace.xl),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final m in RedefineMode.values)
+                  PillChip(
+                    label: labels[m]!,
+                    selected: m == _mode,
+                    onPressed: () => setState(() => _mode = m),
+                  ),
+              ],
+            ),
+          ],
           const SizedBox(height: AppSpace.xl),
           body,
         ],

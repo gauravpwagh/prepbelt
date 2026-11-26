@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -145,15 +147,26 @@ class TaskDetailScreen extends ConsumerWidget {
         onStart: () => _start(context, ref),
         onOpenSource: (id) => context.push(Routes.sourceChapters(id)),
         onRetry: () => ref.invalidate(taskDetailViewProvider(taskId)),
-        onMore: (title) async {
+        onMore: (v) async {
           final l10n = AppLocalizations.of(context);
+          final info = v.info;
+          final title = info.task.title;
+          // Scope and split need one range in one source (RedefineView).
+          final oneRange = info.range != null;
+          void open(String mode) =>
+              unawaited(context.push(Routes.redefine(taskId, mode)));
           await showActionSheet(
             context,
             title: title,
             actions: [
+              SheetAction(l10n.taskEdit, () => open('edit')),
+              if (oneRange && info.parts.length == 1)
+                SheetAction(l10n.taskChangeScope, () => open('scope')),
+              if (oneRange && info.range!.end > info.range!.start)
+                SheetAction(l10n.taskSplit, () => open('split')),
               SheetAction(
-                l10n.taskEdit,
-                () => context.push(Routes.redefine(taskId)),
+                info.paused ? l10n.taskResume : l10n.taskPause,
+                () => open('pause'),
               ),
               SheetAction(
                 l10n.taskDelete,
@@ -202,9 +215,9 @@ class TaskDetailBody extends StatefulWidget {
 
   final AsyncValue<TaskDetailView?> view;
 
-  /// Opens Edit task / Delete task for the task with this title; null
-  /// hides the button.
-  final ValueChanged<String>? onMore;
+  /// Opens the task's menu: Edit task, Change pages, Split task, Pause
+  /// task and Delete task (D57). Null hides the button.
+  final ValueChanged<TaskDetailView>? onMore;
 
   /// The task's checklist (D55); hidden when [onAddStep] is null.
   final List<TaskStep> steps;
@@ -245,7 +258,7 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
             RoundIconButton(
               icon: AppIcon.more,
               semanticLabel: l10n.taskMore,
-              onPressed: () => onMore(v.info.task.title),
+              onPressed: () => onMore(v),
             ),
         ],
       ),

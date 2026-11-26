@@ -2871,6 +2871,30 @@ abstract class AppLocalizations {
   /// **'Edit task'**
   String get taskEdit;
 
+  /// No description provided for @taskChangeScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Change pages'**
+  String get taskChangeScope;
+
+  /// No description provided for @taskSplit.
+  ///
+  /// In en, this message translates to:
+  /// **'Split task'**
+  String get taskSplit;
+
+  /// No description provided for @taskPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause task'**
+  String get taskPause;
+
+  /// No description provided for @taskResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume task'**
+  String get taskResume;
+
   /// No description provided for @taskDelete.
   ///
   /// In en, this message translates to:

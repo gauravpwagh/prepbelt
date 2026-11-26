@@ -2004,6 +2004,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get taskEdit => 'Edit task';
 
   @override
+  String get taskChangeScope => 'Change pages';
+
+  @override
+  String get taskSplit => 'Split task';
+
+  @override
+  String get taskPause => 'Pause task';
+
+  @override
+  String get taskResume => 'Resume task';
+
+  @override
   String get taskDelete => 'Delete task';
 
   @override

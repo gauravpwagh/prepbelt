@@ -111,7 +111,13 @@ GoRouter buildRouter({String initialLocation = Routes.today}) {
             path: 'redefine',
             pageBuilder: (_, state) => SheetPage<void>(
               key: state.pageKey,
-              child: RedefineSheet(taskId: state.pathParameters['id']!),
+              child: RedefineSheet(
+                taskId: state.pathParameters['id']!,
+                mode:
+                    RedefineMode.values
+                        .asNameMap()[state.uri.queryParameters['mode']] ??
+                    RedefineMode.edit,
+              ),
             ),
           ),
         ],
