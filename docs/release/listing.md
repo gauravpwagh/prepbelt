@@ -87,6 +87,16 @@ Use sample data (a realistic exam and sources), never a tester's real name. Ever
 
 Each release has its own notes (500 characters max per language).
 
+### 0.1.1 (7)
+
+```
+• "Add task" button at the top of a source: pick the chapter and the pages.
+• Edit, add and delete chapters. Tap a chapter's name.
+• Task menu: Edit, Change pages, Split, Pause or Delete a task.
+• Checklist inside each task for your own steps.
+• Clearer labels: "Pages 12–15" instead of "pp. 12–15".
+```
+
 ### 0.1.0 (6)
 
 ```
