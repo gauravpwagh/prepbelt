@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/db/event_log.dart';
 import '../../../core/result/result.dart';
+import '../../../engines/reading/reading_math.dart';
 import '../../../platform/files/file_store.dart';
 import 'chapter_split.dart';
 
@@ -362,86 +363,143 @@ final class SourceRepository extends EventSourcedRepository {
   Future<void> undo(String id) => undoLatest(entity, id);
 
   /// Renames chapter [chunkId] and, given [start] and [end], moves it to
-  /// those units (D56), as one undoable change under the source. Moving
-  /// is refused while a task covers it, or when it would overlap another
-  /// chapter.
+  /// those units, as one undoable change under the source (D56, D58).
+  /// Tasks keep their own pages. A neighbour it overlaps at an edge gives
+  /// those units up, and is renamed by [autoTitle] when its name was its
+  /// range. With [endsSource] the source ends at [end]. Refused when it
+  /// would swallow a chapter or cut one in two.
   Future<void> editChapter(
     String sourceId,
     String chunkId, {
     required String title,
     int? start,
     int? end,
-  }) async {
-    final units = start != null && end != null;
-    if (units) {
-      final chunk = await (db.select(
-        db.chunks,
-      )..where((c) => c.id.equals(chunkId))).getSingle();
-      final moved = chunk.startUnit != start || chunk.endUnit != end;
-      if (moved && await chapterHasTasks(chunkId)) {
-        throw const InvalidOperationError('Delete its tasks first');
-      }
-      await _checkFree(sourceId, start, end, except: chunkId);
-    }
-    await mutate<void>(
-      entity: entity,
-      entityId: sourceId,
-      op: EventOp.update,
-      data: {'action': 'editChapter'},
-      body: (rec) => rec.update(
-        db.chunks,
-        chunkId,
-        ChunksCompanion(
-          title: Value(title),
-          startUnit: units ? Value(start) : const Value.absent(),
-          endUnit: units ? Value(end) : const Value.absent(),
-          sizeUnits: units ? Value(end - start + 1) : const Value.absent(),
-        ),
-      ),
-    );
-  }
+    bool endsSource = false,
+    String Function(int start, int end)? autoTitle,
+  }) => _place(
+    sourceId,
+    chunkId: chunkId,
+    title: title,
+    start: start,
+    end: end,
+    endsSource: endsSource,
+    autoTitle: autoTitle,
+    action: 'editChapter',
+  );
 
   /// Adds a chapter after the others (D56): units [start]–[end], or none
-  /// for a source read by chapter. Refused when it overlaps a chapter.
+  /// for a source read by chapter. Overlaps work as in [editChapter].
   Future<Chunk> addChapter(
     String sourceId, {
     required String title,
     int? start,
     int? end,
+    bool endsSource = false,
+    String Function(int start, int end)? autoTitle,
+  }) async => (await _place(
+    sourceId,
+    title: title,
+    start: start,
+    end: end,
+    endsSource: endsSource,
+    autoTitle: autoTitle,
+    action: 'addChapter',
+  ))!;
+
+  /// Writes a chapter (a new one when [chunkId] is null) with the trims
+  /// its range needs. Returns the new chapter.
+  Future<Chunk?> _place(
+    String sourceId, {
+    required String title,
+    required String action,
+    String? chunkId,
+    int? start,
+    int? end,
+    bool endsSource = false,
+    String Function(int start, int end)? autoTitle,
   }) async {
+    final chapters =
+        await (db.select(db.chunks)..where(
+              (c) =>
+                  c.sourceId.equals(sourceId) &
+                  c.parentChunkId.isNull() &
+                  c.deletedAt.isNull(),
+            ))
+            .get();
+    final byId = {for (final c in chapters) c.id: c};
+    var fit = const ChapterFit();
     if (start != null && end != null) {
-      await _checkFree(sourceId, start, end);
+      if (start < 1 || end < start) {
+        throw const InvalidOperationError('Pages out of order');
+      }
+      fit = fitChapter(UnitRange(start, end), {
+        for (final c in chapters)
+          if (c.id != chunkId && c.startUnit != null && c.endUnit != null)
+            c.id: UnitRange(c.startUnit!, c.endUnit!),
+      });
+      if (fit.blocker case final id?) {
+        throw InvalidOperationError('Would swallow ${byId[id]!.title}');
+      }
     }
-    final last =
-        await (db.select(db.chunks)
-              ..where(
-                (c) =>
-                    c.sourceId.equals(sourceId) &
-                    c.parentChunkId.isNull() &
-                    c.deletedAt.isNull(),
-              )
-              ..orderBy([(c) => OrderingTerm.desc(c.order)])
-              ..limit(1))
-            .getSingleOrNull();
+    final last = chapters.fold<int>(-1, (m, c) => c.order > m ? c.order : m);
+    final units = start != null && end != null;
     return mutate(
       entity: entity,
       entityId: sourceId,
       op: EventOp.update,
-      data: {'action': 'addChapter'},
-      body: (rec) => rec.insert(
-        db.chunks,
-        ChunksCompanion(
-          id: Value(rec.newId()),
-          sourceId: Value(sourceId),
-          title: Value(title),
-          order: Value((last?.order ?? -1) + 1),
-          startUnit: Value(start),
-          endUnit: Value(end),
-          sizeUnits: Value(
-            start != null && end != null ? end - start + 1 : null,
+      data: {'action': action},
+      body: (rec) async {
+        for (final MapEntry(key: id, value: r) in fit.trims.entries) {
+          final old = byId[id]!;
+          final renamed =
+              autoTitle != null &&
+              old.title == autoTitle(old.startUnit!, old.endUnit!);
+          await rec.update(
+            db.chunks,
+            id,
+            ChunksCompanion(
+              title: renamed
+                  ? Value(autoTitle(r.start, r.end))
+                  : const Value.absent(),
+              startUnit: Value(r.start),
+              endUnit: Value(r.end),
+              sizeUnits: Value(r.size),
+            ),
+          );
+        }
+        if (endsSource && units) {
+          await rec.update(
+            db.sources,
+            sourceId,
+            SourcesCompanion(totalUnits: Value(end)),
+          );
+        }
+        if (chunkId != null) {
+          await rec.update(
+            db.chunks,
+            chunkId,
+            ChunksCompanion(
+              title: Value(title),
+              startUnit: units ? Value(start) : const Value.absent(),
+              endUnit: units ? Value(end) : const Value.absent(),
+              sizeUnits: units ? Value(end - start + 1) : const Value.absent(),
+            ),
+          );
+          return null;
+        }
+        return rec.insert(
+          db.chunks,
+          ChunksCompanion(
+            id: Value(rec.newId()),
+            sourceId: Value(sourceId),
+            title: Value(title),
+            order: Value(last + 1),
+            startUnit: Value(start),
+            endUnit: Value(end),
+            sizeUnits: Value(units ? end - start + 1 : null),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -492,34 +550,6 @@ final class SourceRepository extends EventSourcedRepository {
               ..limit(1))
             .getSingleOrNull();
     return row != null;
-  }
-
-  /// Throws unless [start]–[end] is a valid range clear of the source's
-  /// other chapters.
-  Future<void> _checkFree(
-    String sourceId,
-    int start,
-    int end, {
-    String? except,
-  }) async {
-    if (start < 1 || end < start) {
-      throw const InvalidOperationError('Pages out of order');
-    }
-    final others =
-        await (db.select(db.chunks)..where(
-              (c) =>
-                  c.sourceId.equals(sourceId) &
-                  c.parentChunkId.isNull() &
-                  c.deletedAt.isNull(),
-            ))
-            .get();
-    for (final c in others) {
-      if (c.id == except) continue;
-      final (s, e) = (c.startUnit, c.endUnit);
-      if (s != null && e != null && start <= e && s <= end) {
-        throw InvalidOperationError('Overlaps ${c.title}');
-      }
-    }
   }
 
   Stream<List<Source>> watchAll() =>

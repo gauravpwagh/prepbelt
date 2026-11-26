@@ -530,6 +530,14 @@
   },
   "addSourceFewer": "Fewer",
   "addSourceMore": "More",
+  "addSourceRangePage": "Page {page}",
+  "@addSourceRangePage": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
   "addSourceRangePages": "Pages {start}–{end}",
   "@addSourceRangePages": {
     "placeholders": {
@@ -663,6 +671,29 @@
       }
     }
   },
+  "chapterSwallows": "That would take in all of {chapter}. Change or delete it first.",
+  "@chapterSwallows": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      }
+    }
+  },
+  "chapterTakes": "Takes {range} from {chapter}.",
+  "@chapterTakes": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      },
+      "chapter": {
+        "type": "String"
+      }
+    }
+  },
+  "chapterNameHint": "Leave empty to name it by its pages",
+  "chapterTasksKeepPages": "Its tasks keep their own pages.",
+  "chapterEndsSource": "Last chapter: the source ends here",
+  "chapterEndOfSource": "End of source",
   "chapterOverlaps": "These overlap {chapter}.",
   "@chapterOverlaps": {
     "placeholders": {

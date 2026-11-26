@@ -473,7 +473,7 @@ void main() {
     });
   });
 
-  group('editing chapters (D56)', () {
+  group('editing chapters (D56, D58)', () {
     Future<List<(String, int?, int?)>> chaptersOf(String id) async => [
       for (final c in (await reading.progress(id))!.chapters)
         (c.chunk.title, c.chunk.startUnit, c.chunk.endUnit),
@@ -510,30 +510,69 @@ void main() {
       expect(await chaptersOf(book.id), hasLength(5));
     });
 
-    test('a chapter that overlaps another is refused', () async {
+    String auto(int a, int b) => 'Pages $a–$b';
+
+    test('moving into a neighbour takes those pages from it, renaming it '
+        'when its name was its pages (D58)', () async {
+      final book = await addBook();
+      var p = (await reading.progress(book.id))!;
+      final (ch1, ch2) = (p.chapters[0].chunk.id, p.chapters[1].chunk.id);
+      await sources.editChapter(book.id, ch1, title: 'Pages 1–10');
+      wait(1);
+      await sources.editChapter(
+        book.id,
+        ch2,
+        title: 'Ch 2',
+        start: 10,
+        end: 30,
+        autoTitle: auto,
+      );
+      expect((await chaptersOf(book.id)).take(2), [
+        ('Pages 1–9', 1, 9),
+        ('Ch 2', 10, 30),
+      ]);
+
+      wait(1);
+      await sources.addChapter(
+        book.id,
+        title: 'Ch 3b',
+        start: 40,
+        end: 50,
+        autoTitle: auto,
+      );
+      p = (await reading.progress(book.id))!;
+      expect(
+        [for (final c in p.chapters) (c.chunk.startUnit, c.chunk.endUnit)],
+        [(1, 9), (10, 30), (31, 39), (40, 50), (51, 60)],
+      );
+    });
+
+    test('a range that would swallow a chapter or cut one in two is '
+        'refused (D58)', () async {
       final book = await addBook();
       final ch2 = (await reading.progress(book.id))!.chapters[1].chunk.id;
       await expectLater(
-        sources.editChapter(book.id, ch2, title: 'Ch 2', start: 5, end: 30),
+        sources.editChapter(book.id, ch2, title: 'Ch 2', start: 5, end: 50),
         throwsA(isA<InvalidOperationError>()),
       );
       await expectLater(
-        sources.addChapter(book.id, title: 'Extra', start: 40, end: 50),
+        sources.addChapter(book.id, title: 'Extra', start: 35, end: 40),
         throwsA(isA<InvalidOperationError>()),
       );
     });
 
-    test('while a task covers a chapter it cannot be deleted or moved, but '
-        'can be renamed', () async {
+    test('under a task a chapter cannot be deleted, but moves while the '
+        'task keeps its own pages (D58)', () async {
       final book = await addBook();
       final ch3 = (await reading.progress(book.id))!.chapters[2].chunk.id;
-      await reading.addTask(book.id, chunkIds: [ch3], title: 'Ch 3');
-      await expectLater(
-        sources.deleteChapter(book.id, ch3),
-        throwsA(isA<InvalidOperationError>()),
+      await reading.addTask(
+        book.id,
+        chunkIds: [ch3],
+        title: 'Ch 3 · Pages 31–35',
+        pages: const UnitRange(31, 35),
       );
       await expectLater(
-        sources.editChapter(book.id, ch3, title: 'Ch 3', start: 31, end: 40),
+        sources.deleteChapter(book.id, ch3),
         throwsA(isA<InvalidOperationError>()),
       );
       await sources.editChapter(
@@ -541,9 +580,28 @@ void main() {
         ch3,
         title: 'Ch 3 Motion',
         start: 31,
-        end: 45,
+        end: 40,
       );
-      expect((await chaptersOf(book.id))[2], ('Ch 3 Motion', 31, 45));
+      final c3 = (await reading.progress(book.id))!.chapters[2];
+      expect(
+        (c3.chunk.title, c3.chunk.startUnit, c3.chunk.endUnit),
+        ('Ch 3 Motion', 31, 40),
+      );
+      expect(c3.tasks.single.range, const UnitRange(31, 35));
+    });
+
+    test('the last chapter can end the source there (D58)', () async {
+      final book = await addBook();
+      final ch4 = (await reading.progress(book.id))!.chapters[3].chunk.id;
+      await sources.editChapter(
+        book.id,
+        ch4,
+        title: 'Ch 4',
+        start: 46,
+        end: 55,
+        endsSource: true,
+      );
+      expect((await sources.watch(book.id).first)?.totalUnits, 55);
     });
   });
 }

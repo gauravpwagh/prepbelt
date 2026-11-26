@@ -28,15 +28,18 @@ extension UnitTypeLabels on UnitType {
   /// "480 pages", "95 min", "300 questions".
   String count(AppLocalizations l10n, int n) => l10n.sourceUnits(name, n);
 
-  /// A chapter's range: "Pages 40–62" for pages, else "40–62".
-  String range(AppLocalizations l10n, int start, int end) =>
-      this == UnitType.page
-      ? l10n.addSourceRangePages(start, end)
-      : l10n.addSourceRange(start, end);
+  /// A chapter's range: "Pages 40–62" ("Page 40" for one) for pages,
+  /// else "40–62".
+  String range(AppLocalizations l10n, int start, int end) => switch (this) {
+    UnitType.page when start == end => l10n.addSourceRangePage(start),
+    UnitType.page => l10n.addSourceRangePages(start, end),
+    _ => l10n.addSourceRange(start, end),
+  };
 
   /// Title of a chapter split by size: "Pages 1–20".
   String chunkTitle(AppLocalizations l10n, int start, int end) =>
       switch (this) {
+        UnitType.page when start == end => l10n.addSourceRangePage(start),
         UnitType.page => l10n.addSourceChunkPages(start, end),
         UnitType.minute => l10n.addSourceChunkMinutes(start, end),
         UnitType.question => l10n.addSourceChunkQuestions(start, end),

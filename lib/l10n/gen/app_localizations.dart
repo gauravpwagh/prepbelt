@@ -994,6 +994,12 @@ abstract class AppLocalizations {
   /// **'More'**
   String get addSourceMore;
 
+  /// No description provided for @addSourceRangePage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page}'**
+  String addSourceRangePage(int page);
+
   /// No description provided for @addSourceRangePages.
   ///
   /// In en, this message translates to:
@@ -1161,6 +1167,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{total, plural, =0{Check the numbers: From must be 1 or more, and not after To.} other{Check the numbers: from 1 to {total}, and From not after To.}}'**
   String chapterPagesInvalid(int total);
+
+  /// No description provided for @chapterSwallows.
+  ///
+  /// In en, this message translates to:
+  /// **'That would take in all of {chapter}. Change or delete it first.'**
+  String chapterSwallows(String chapter);
+
+  /// No description provided for @chapterTakes.
+  ///
+  /// In en, this message translates to:
+  /// **'Takes {range} from {chapter}.'**
+  String chapterTakes(String range, String chapter);
+
+  /// No description provided for @chapterNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty to name it by its pages'**
+  String get chapterNameHint;
+
+  /// No description provided for @chapterTasksKeepPages.
+  ///
+  /// In en, this message translates to:
+  /// **'Its tasks keep their own pages.'**
+  String get chapterTasksKeepPages;
+
+  /// No description provided for @chapterEndsSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Last chapter: the source ends here'**
+  String get chapterEndsSource;
+
+  /// No description provided for @chapterEndOfSource.
+  ///
+  /// In en, this message translates to:
+  /// **'End of source'**
+  String get chapterEndOfSource;
 
   /// No description provided for @chapterOverlaps.
   ///

@@ -16,7 +16,13 @@ import 'study_files.dart';
 
 export '../../../core/config/reading_config.dart' show ReadingConfig;
 export '../../../engines/reading/reading_math.dart'
-    show SavePlan, UnitRange, coveredUnits, taskTitleFor;
+    show
+        ChapterFit,
+        SavePlan,
+        UnitRange,
+        coveredUnits,
+        fitChapter,
+        taskTitleFor;
 export '../data/reading_repository.dart'
     show ChapterProgress, ChapterTask, SaveOutcome, SourceProgress;
 

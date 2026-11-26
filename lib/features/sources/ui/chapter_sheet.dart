@@ -14,11 +14,19 @@ sealed class ChapterChange {
 
 /// Save the name and, for chapters with pages, the range.
 final class ChapterSave extends ChapterChange {
-  const ChapterSave({required this.title, this.start, this.end});
+  const ChapterSave({
+    required this.title,
+    this.start,
+    this.end,
+    this.endsSource = false,
+  });
 
   final String title;
   final int? start;
   final int? end;
+
+  /// The source ends at [end] (D58).
+  final bool endsSource;
 }
 
 final class ChapterDelete extends ChapterChange {
@@ -54,8 +62,10 @@ Future<ChapterChange?> showChapterSheet(
   ),
 );
 
-/// Edit chapter (rename, move its pages, delete) or Add chapter. Pages
-/// stay fixed and Delete is refused while a task covers the chapter.
+/// Edit chapter (rename, move its pages, delete) or Add chapter (D56,
+/// D58). Pages move even under tasks, which keep their own pages; units
+/// taken from a neighbour are named before saving. Delete is refused
+/// while a task covers the chapter.
 class ChapterSheet extends StatefulWidget {
   const ChapterSheet({
     required this.view,
@@ -82,16 +92,18 @@ class _ChapterSheetState extends State<ChapterSheet> {
   late final _name = TextEditingController(text: _chapter?.chunk.title ?? '');
   late final _from = TextEditingController(text: '${_initial.$1}');
   late final _to = TextEditingController(text: '${_initial.$2}');
+  late bool _endsSource = _isLast && _initial.$2 == _total;
+  bool _nameEdited = false;
   String? _error;
 
   List<ChapterProgress> get _all => widget.view.chapters;
+  int? get _total => widget.view.source.totalUnits;
   bool get _hasTasks => _chapter?.tasks.isNotEmpty ?? false;
 
   /// The source counts pages (or minutes) per chapter, not chapters.
   bool get _paged =>
       !widget.view.progress.byChapter &&
-      (widget.view.source.totalUnits != null ||
-          _all.any((c) => c.chunk.startUnit != null));
+      (_total != null || _all.any((c) => c.chunk.startUnit != null));
 
   /// Pages a new chapter starts with: right after the last chapter, up to
   /// the end of the source.
@@ -99,14 +111,19 @@ class _ChapterSheetState extends State<ChapterSheet> {
     if (_chapter?.chunk case final c? when c.startUnit != null) {
       return (c.startUnit!, c.endUnit ?? c.startUnit!);
     }
-    final after = _all.fold<int>(0, (m, c) {
-      final e = c.chunk.endUnit ?? 0;
-      return e > m ? e : m;
-    });
-    final total = widget.view.source.totalUnits;
-    final start = after + 1;
+    final start = _lastEnd + 1;
+    final total = _total;
     return (start, total != null && total >= start ? total : start);
   }();
+
+  int get _lastEnd => _all.fold<int>(0, (m, c) {
+    final e = c.chunk.endUnit ?? 0;
+    return e > m ? e : m;
+  });
+
+  /// A new chapter, or the one that ends furthest along.
+  bool get _isLast =>
+      _chapter == null || (_chapter.chunk.endUnit ?? 0) >= _lastEnd;
 
   /// Read by chapter, deleting shifts the chapters after it; refused
   /// once any of them is read.
@@ -116,6 +133,41 @@ class _ChapterSheetState extends State<ChapterSheet> {
           .skip((widget.index ?? _all.length) + 1)
           .any((c) => c.finished || c.readUnits > 0);
 
+  /// The typed range, when the numbers make one.
+  UnitRange? get _range => switch ((
+    int.tryParse(_from.text.trim()),
+    int.tryParse(_to.text.trim()),
+  )) {
+    (final a?, final b?) when a >= 1 && b >= a => UnitRange(a, b),
+    _ => null,
+  };
+
+  ChapterFit? get _fit => switch (_range) {
+    final r? => fitChapter(r, {
+      for (final c in _all)
+        if (c.chunk.id != _chapter?.chunk.id && c.chunk.startUnit != null)
+          c.chunk.id: UnitRange(c.chunk.startUnit!, c.chunk.endUnit!),
+    }),
+    null => null,
+  };
+
+  String _auto(int start, int end) => widget.view.source.unitType.chunkTitle(
+    AppLocalizations.of(context),
+    start,
+    end,
+  );
+
+  /// The name to save: the typed one, or the range when the name was the
+  /// old range (or empty) and the student did not change it.
+  String _title(UnitRange? r) {
+    final typed = _name.text.trim();
+    if (r == null || _nameEdited && typed.isNotEmpty) return typed;
+    final wasAuto =
+        typed.isEmpty ||
+        (_chapter != null && typed == _auto(_initial.$1, _initial.$2));
+    return wasAuto ? _auto(r.start, r.end) : typed;
+  }
+
   @override
   void dispose() {
     _name.dispose();
@@ -124,48 +176,54 @@ class _ChapterSheetState extends State<ChapterSheet> {
     super.dispose();
   }
 
+  void _changed() => setState(() => _error = null);
+
   void _save(AppLocalizations l10n) {
-    final title = _name.text.trim();
-    if (title.isEmpty) {
-      setState(() => _error = l10n.chapterNameNeeded);
-      return;
-    }
-    if (!_paged || _hasTasks) {
+    if (!_paged) {
+      final title = _name.text.trim();
+      if (title.isEmpty) {
+        setState(() => _error = l10n.chapterNameNeeded);
+        return;
+      }
       widget.onDone(ChapterSave(title: title));
       return;
     }
-    final start = int.tryParse(_from.text.trim());
-    final end = int.tryParse(_to.text.trim());
-    final total = widget.view.source.totalUnits;
-    if (start == null ||
-        end == null ||
-        start < 1 ||
-        end < start ||
-        (total != null && end > total)) {
+    final r = _range;
+    final total = _total;
+    if (r == null || (!_endsSource && total != null && r.end > total)) {
       setState(() => _error = l10n.chapterPagesInvalid(total ?? 0));
       return;
     }
-    for (final (i, c) in _all.indexed) {
-      if (i == widget.index) continue;
-      final (s, e) = (c.chunk.startUnit, c.chunk.endUnit);
-      if (s != null && e != null && start <= e && s <= end) {
-        setState(() => _error = l10n.chapterOverlaps(c.chunk.title));
-        return;
-      }
+    if (_fit?.blocker case final id?) {
+      final other = _all.firstWhere((c) => c.chunk.id == id).chunk.title;
+      setState(() => _error = l10n.chapterSwallows(other));
+      return;
     }
-    widget.onDone(ChapterSave(title: title, start: start, end: end));
+    widget.onDone(
+      ChapterSave(
+        title: _title(r),
+        start: r.start,
+        end: r.end,
+        endsSource: _endsSource && r.end != total,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
+    final unit = widget.view.source.unitType;
     final adding = widget.index == null;
     final canDelete = !adding && !_hasTasks && !_laterRead;
+    final trims = _fit?.trims ?? const <String, UnitRange>{};
 
-    Widget note(String text) => Padding(
+    Widget note(String text, {Color? color}) => Padding(
       padding: const EdgeInsets.only(top: AppSpace.sm),
-      child: Text(text, style: AppText.caption.copyWith(color: c.muted)),
+      child: Text(
+        text,
+        style: AppText.caption.copyWith(color: color ?? c.muted),
+      ),
     );
 
     return SingleChildScrollView(
@@ -185,48 +243,71 @@ class _ChapterSheetState extends State<ChapterSheet> {
           LabeledField(
             label: l10n.chapterName,
             controller: _name,
-            onChanged: (_) => setState(() => _error = null),
+            hint: _paged ? l10n.chapterNameHint : null,
+            onChanged: (_) {
+              _nameEdited = true;
+              _changed();
+            },
           ),
           if (_paged) ...[
             const SizedBox(height: AppSpace.lg),
-            if (_hasTasks)
-              Text(
-                l10n.chapterPagesFixed(
-                  widget.view.source.unitType.range(
-                    l10n,
-                    _initial.$1,
-                    _initial.$2,
+            Row(
+              children: [
+                Expanded(
+                  child: LabeledField(
+                    label: l10n.addTaskFrom,
+                    controller: _from,
+                    keyboardType: TextInputType.number,
+                    onChanged: (_) => _changed(),
                   ),
                 ),
-                style: AppText.body.copyWith(color: c.ink),
-              )
-            else
-              Row(
-                children: [
-                  Expanded(
-                    child: LabeledField(
-                      label: l10n.addTaskFrom,
-                      controller: _from,
-                      keyboardType: TextInputType.number,
-                      onChanged: (_) => setState(() => _error = null),
-                    ),
+                const SizedBox(width: AppSpace.md),
+                Expanded(
+                  child: LabeledField(
+                    label: l10n.addTaskTo,
+                    controller: _to,
+                    keyboardType: TextInputType.number,
+                    onChanged: (_) => _changed(),
                   ),
-                  const SizedBox(width: AppSpace.md),
-                  Expanded(
-                    child: LabeledField(
-                      label: l10n.addTaskTo,
-                      controller: _to,
-                      keyboardType: TextInputType.number,
-                      onChanged: (_) => setState(() => _error = null),
-                    ),
+                ),
+              ],
+            ),
+            for (final MapEntry(key: id, value: left) in trims.entries)
+              if (_all.firstWhere((ch) => ch.chunk.id == id).chunk
+                  case final other)
+                note(
+                  l10n.chapterTakes(
+                    // What the neighbour gives up: the end of the one
+                    // before, or the start of the one after.
+                    left.start == other.startUnit
+                        ? unit.range(l10n, left.end + 1, other.endUnit!)
+                        : unit.range(l10n, other.startUnit!, left.start - 1),
+                    other.title,
                   ),
-                ],
+                  color: c.warningText,
+                ),
+            if (_hasTasks) note(l10n.chapterTasksKeepPages),
+            if (_isLast) ...[
+              const SizedBox(height: AppSpace.sm),
+              CheckboxListTile(
+                value: _endsSource,
+                onChanged: (v) => setState(() {
+                  _endsSource = v ?? false;
+                  _error = null;
+                }),
+                title: Text(
+                  l10n.chapterEndsSource,
+                  style: AppText.body.copyWith(color: c.ink),
+                ),
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.zero,
+                activeColor: c.accent,
+                checkColor: c.onAccent,
+                side: BorderSide(color: c.chipBorder, width: 1.5),
               ),
+            ],
           ],
-          if (_error case final e?) ...[
-            const SizedBox(height: AppSpace.sm),
-            Text(e, style: AppText.caption.copyWith(color: c.warningText)),
-          ],
+          if (_error case final e?) note(e, color: c.warningText),
           const SizedBox(height: AppSpace.xxl),
           PrimaryButton(
             label: adding ? l10n.chapterAdd : l10n.save,

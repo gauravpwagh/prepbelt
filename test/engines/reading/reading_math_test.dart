@@ -86,4 +86,25 @@ void main() {
       expect(plan.isEmpty, isTrue);
     });
   });
+
+  test('fitChapter trims edge overlaps and refuses swallowing or cutting '
+      'a chapter in two (D58)', () {
+    const others = {
+      'a': UnitRange(1, 10),
+      'b': UnitRange(11, 20),
+      'c': UnitRange(21, 30),
+    };
+    final fit = fitChapter(const UnitRange(8, 22), {
+      'a': others['a']!,
+      'c': others['c']!,
+    });
+    expect(fit.blocker, isNull);
+    expect(fit.trims, {
+      'a': const UnitRange(1, 7),
+      'c': const UnitRange(23, 30),
+    });
+    expect(fitChapter(const UnitRange(5, 25), others).blocker, 'b');
+    expect(fitChapter(const UnitRange(13, 15), others).blocker, 'b');
+    expect(fitChapter(const UnitRange(31, 40), others).trims, isEmpty);
+  });
 }

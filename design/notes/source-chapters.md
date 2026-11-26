@@ -173,8 +173,15 @@ The chapters card has a full-width **Add task** primary button above Survey and 
 ## Edit, add and delete chapters (D56)
 
 - **Edit:** tap a chapter's name (and its details line) to open the Edit chapter sheet: Chapter name, then From and To number fields for sources with pages or minutes, then Save and a "Delete chapter" text link.
-- **Covered by a task:** the pages show as "Pages 1–3 · fixed while tasks cover it" instead of fields, and Delete chapter is muted with "1 task covers this chapter. Delete it first, then the chapter." Renaming still works.
+- **Covered by a task:** Delete chapter is muted with "1 task covers this chapter. Delete it first, then the chapter." Renaming still works.
 - **Read by chapter:** no page fields; Delete is muted with "Chapters after this one are read already, so it stays." when a later chapter has reading.
 - **Add:** a full-width "+ Add chapter" button ends the list. The sheet starts From right after the last chapter and To at the end of the source.
 - **Errors** show under the fields: an empty name, numbers out of range, or "These overlap {chapter}."
 - Every save, add and delete shows a snackbar with Undo and replans.
+
+## Pages that follow the student (D58)
+
+- Pages are always editable (From and To). Under tasks a caption says "Its tasks keep their own pages."
+- Typing pages that reach into a neighbour shows, in warning colour, "Takes Page 12 from Pages 9-12." Saving trims that neighbour (renamed when its name was its pages). A range that would take a whole chapter or cut one in two shows "That would take in all of {chapter}. Change or delete it first." and does not save.
+- The name field hints "Leave empty to name it by its pages"; an empty name, or one still equal to the old range, becomes the new range.
+- The last chapter shows a checkbox "Last chapter: the source ends here". Saving with it ticked sets the source's total pages to the chapter's last page. The chapter whose last page is the source's last page shows "End of source" in its details line.

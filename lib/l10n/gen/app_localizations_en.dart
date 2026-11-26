@@ -638,6 +638,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addSourceMore => 'More';
 
   @override
+  String addSourceRangePage(int page) {
+    return 'Page $page';
+  }
+
+  @override
   String addSourceRangePages(int start, int end) {
     return 'Pages $start–$end';
   }
@@ -770,6 +775,28 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String chapterSwallows(String chapter) {
+    return 'That would take in all of $chapter. Change or delete it first.';
+  }
+
+  @override
+  String chapterTakes(String range, String chapter) {
+    return 'Takes $range from $chapter.';
+  }
+
+  @override
+  String get chapterNameHint => 'Leave empty to name it by its pages';
+
+  @override
+  String get chapterTasksKeepPages => 'Its tasks keep their own pages.';
+
+  @override
+  String get chapterEndsSource => 'Last chapter: the source ends here';
+
+  @override
+  String get chapterEndOfSource => 'End of source';
 
   @override
   String chapterOverlaps(String chapter) {

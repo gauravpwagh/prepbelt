@@ -102,6 +102,8 @@ class SourceActions extends _$SourceActions {
     required String title,
     int? start,
     int? end,
+    bool endsSource = false,
+    String Function(int start, int end)? autoTitle,
   }) => _thenReplan(
     () => ref
         .read(sourceRepositoryProvider)
@@ -111,6 +113,8 @@ class SourceActions extends _$SourceActions {
           title: title.trim(),
           start: start,
           end: end,
+          endsSource: endsSource,
+          autoTitle: autoTitle,
         ),
   );
 
@@ -119,10 +123,19 @@ class SourceActions extends _$SourceActions {
     required String title,
     int? start,
     int? end,
+    bool endsSource = false,
+    String Function(int start, int end)? autoTitle,
   }) => _thenReplan(
     () => ref
         .read(sourceRepositoryProvider)
-        .addChapter(sourceId, title: title.trim(), start: start, end: end),
+        .addChapter(
+          sourceId,
+          title: title.trim(),
+          start: start,
+          end: end,
+          endsSource: endsSource,
+          autoTitle: autoTitle,
+        ),
   );
 
   Future<void> deleteChapter(String sourceId, String chunkId) => _thenReplan(

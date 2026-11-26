@@ -121,13 +121,22 @@ class SourceChaptersScreen extends ConsumerWidget {
       final String done;
       try {
         switch (change) {
-          case ChapterSave(:final title, :final start, :final end):
+          case ChapterSave(
+            :final title,
+            :final start,
+            :final end,
+            :final endsSource,
+          ):
+            String auto(int a, int b) =>
+                v.source.unitType.chunkTitle(l10n, a, b);
             if (index == null) {
               await sources.addChapter(
                 sourceId,
                 title: title,
                 start: start,
                 end: end,
+                endsSource: endsSource,
+                autoTitle: auto,
               );
               done = l10n.chapterAdded;
             } else {
@@ -137,6 +146,8 @@ class SourceChaptersScreen extends ConsumerWidget {
                 title: title,
                 start: start,
                 end: end,
+                endsSource: endsSource,
+                autoTitle: auto,
               );
               done = l10n.chapterSaved;
             }
@@ -279,6 +290,10 @@ class SourceChaptersBody extends StatelessWidget {
               joined: c.hasTask && c.taskOrder > 0,
               onAddTask: () => onAddTask(v, i),
               onOpenTask: onOpenTask,
+              endsSource:
+                  c.range != null &&
+                  c.slot == null &&
+                  c.range!.end == v.source.totalUnits,
               onEdit: onEditChapter == null ? null : () => onEditChapter!(v, i),
             ),
         if (onAddChapter != null) ...[
@@ -598,9 +613,13 @@ class _ChapterRow extends StatelessWidget {
     required this.onAddTask,
     required this.onOpenTask,
     this.onEdit,
+    this.endsSource = false,
   });
 
   final int number;
+
+  /// The source ends with this chapter (D58).
+  final bool endsSource;
 
   /// Opens Edit chapter (D56); null leaves the name plain.
   final VoidCallback? onEdit;
@@ -663,6 +682,7 @@ class _ChapterRow extends StatelessWidget {
         ch.slot != null
             ? l10n.chapterInProgress
             : l10n.chapterReadPart(ch.readUnits, ch.sizeUnits),
+      if (endsSource) l10n.chapterEndOfSource,
     ].join(' · ');
 
     final Widget trailing;
