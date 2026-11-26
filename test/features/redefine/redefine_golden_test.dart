@@ -196,14 +196,14 @@ void main() {
         ),
       ),
     );
-    expect(find.text('after p. 219'), findsOneWidget);
+    expect(find.text('after page 219'), findsOneWidget);
     final bar = find.bySemanticsLabel(RegExp('^Split after'));
     final semantics = tester.getSemantics(bar);
-    expect(semantics.value, 'Split after p. 219');
+    expect(semantics.value, 'Split after page 219');
     // Drag to the far left: the split can't go below the first page.
     await tester.drag(bar, const Offset(-400, 0));
     await tester.pump();
-    expect(find.text('after p. 210'), findsOneWidget);
+    expect(find.text('after page 210'), findsOneWidget);
     await tester.tap(find.text('Split into 2 tasks'));
     await tester.pump();
     expect(after, 210);

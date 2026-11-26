@@ -28,7 +28,7 @@ extension UnitTypeLabels on UnitType {
   /// "480 pages", "95 min", "300 questions".
   String count(AppLocalizations l10n, int n) => l10n.sourceUnits(name, n);
 
-  /// A chapter's range: "pp. 40–62" for pages, else "40–62".
+  /// A chapter's range: "Pages 40–62" for pages, else "40–62".
   String range(AppLocalizations l10n, int start, int end) =>
       this == UnitType.page
       ? l10n.addSourceRangePages(start, end)
@@ -43,7 +43,7 @@ extension UnitTypeLabels on UnitType {
         UnitType.item => l10n.addSourceRange(start, end),
       };
 
-  /// One position in a source: "p. 121", "32 min", "Q12".
+  /// One position in a source: "page 121", "32 min", "Q12".
   String at(AppLocalizations l10n, int unit) => switch (this) {
     UnitType.page => l10n.unitAtPage(unit),
     UnitType.minute => l10n.unitAtMinute(unit),

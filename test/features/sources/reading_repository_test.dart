@@ -165,14 +165,14 @@ void main() {
         endUnit: 35,
         minutes: 70,
         taskNow: {ch3},
-        pagesTitle: (ch, a, b) => '$ch · pp. $a–$b',
+        pagesTitle: (ch, a, b) => '$ch · Pages $a–$b',
       );
-      expect(out.tasksCreated, ['Ch 1 – Ch 2', 'Ch 3 · pp. 31–35']);
+      expect(out.tasksCreated, ['Ch 1 – Ch 2', 'Ch 3 · Pages 31–35']);
       expect(out.partial, isEmpty);
       var c3 = (await reading.progress(book.id))!.chapters[2];
       expect((c3.hasTask, c3.read, c3.parts.length), (false, false, 1));
       expect(c3.uncovered, [const UnitRange(36, 45)]);
-      // 70 min over 35 pages: 10 min for pp. 31–35.
+      // 70 min over 35 pages: 10 min for Pages 31–35.
       expect((await firstReads()).last, ('firstRead', 10 * 60, 1));
 
       final s2 = await reading.start(book.id);
@@ -181,9 +181,9 @@ void main() {
         s2.id,
         endUnit: 45,
         minutes: 20,
-        pagesTitle: (ch, a, b) => '$ch · pp. $a–$b',
+        pagesTitle: (ch, a, b) => '$ch · Pages $a–$b',
       );
-      expect(out2.tasksCreated, ['Ch 3 · pp. 36–45']);
+      expect(out2.tasksCreated, ['Ch 3 · Pages 36–45']);
       c3 = (await reading.progress(book.id))!.chapters[2];
       expect((c3.hasTask, c3.read, c3.parts.length), (true, true, 2));
     },
@@ -444,7 +444,7 @@ void main() {
       await reading.addTask(
         book.id,
         chunkIds: [ch2.chunk.id],
-        title: 'Ch 2 · pp. 11–15',
+        title: 'Ch 2 · Pages 11–15',
         pages: const UnitRange(11, 15),
       );
       final c2 = (await reading.progress(book.id))!.chapters[1];
@@ -466,7 +466,7 @@ void main() {
       await reading.addTask(
         book.id,
         chunkIds: [ch2.chunk.id],
-        title: 'Ch 2 · pp. 16–30',
+        title: 'Ch 2 · Pages 16–30',
         pages: const UnitRange(16, 30),
       );
       expect((await reading.progress(book.id))!.chapters[1].hasTask, isTrue);

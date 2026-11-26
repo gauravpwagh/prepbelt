@@ -76,13 +76,13 @@ void main() {
     await tester.tap(find.bySemanticsLabel('Redefine task'));
     await settle();
     expect(find.text('Drag to choose where to split'), findsOneWidget);
-    expect(find.text('after p. 219'), findsOneWidget);
+    expect(find.text('after page 219'), findsOneWidget);
 
     await tester.tap(find.text('Split into 2 tasks'));
     await settle();
     expect(find.text('Split into 2 tasks'), findsOneWidget, reason: 'snackbar');
     expect(find.text('Thermodynamics, part 1'), findsWidgets);
-    expect(find.text('pp. 210–219'), findsOneWidget);
+    expect(find.text('Pages 210–219'), findsOneWidget);
     expect(find.text('Undo last change'), findsOneWidget);
 
     var tasks = await tester.runAsync(

@@ -204,7 +204,7 @@ class AppLocalizationsEn extends AppLocalizations {
       other: '$pages pages',
       one: '1 page',
     );
-    return 'pp. $start–$end · $_temp0';
+    return 'Pages $start–$end · $_temp0';
   }
 
   @override
@@ -639,7 +639,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String addSourceRangePages(int start, int end) {
-    return 'pp. $start–$end';
+    return 'Pages $start–$end';
   }
 
   @override
@@ -690,7 +690,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String unitAtPage(int unit) {
-    return 'p. $unit';
+    return 'page $unit';
   }
 
   @override

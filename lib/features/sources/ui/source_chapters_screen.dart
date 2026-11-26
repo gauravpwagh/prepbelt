@@ -554,10 +554,12 @@ class _ChapterRow extends StatelessWidget {
     final range = ch.range == null || ch.slot != null
         ? null
         : unitType.range(l10n, ch.range!.start, ch.range!.end);
+    // "Pages 1–3" titled "Pages 1–3" says it once.
+    final rangeLine = range == ch.chunk.title ? null : range;
     final parts = ch.parts;
     final survey = ch.survey;
     final details = [
-      ?range,
+      ?rangeLine,
       if (ch.importance case final i?) _importance(l10n, i),
       if (survey != null) ...[
         _familiarity(l10n, survey.familiarity),

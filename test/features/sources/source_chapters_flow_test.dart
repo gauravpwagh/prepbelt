@@ -93,7 +93,7 @@ void main() {
     await settle();
     expect(find.text('Task added'), findsOneWidget);
     expect(find.text('Create 2 tasks'), findsOneWidget);
-    expect(find.text('Read from p. 1'), findsNothing, reason: 'p. 1 is next');
+    expect(find.text('Read from page 1'), findsNothing, reason: 'page 1 is next');
     expect(find.text('Start reading'), findsOneWidget);
 
     // Read, leave the app for 45 minutes, come back.
@@ -111,15 +111,15 @@ void main() {
     expect(find.text('How far did you get?'), findsOneWidget);
     expect(find.text('You were away 45 min'), findsOneWidget);
 
-    // 45 min at the default 3 min a page: the guess is p. 15.
-    expect(find.text('p. 15'), findsOneWidget);
-    await tester.tap(find.text('End of Ch 1 Units · p. 20'));
+    // 45 min at the default 3 min a page: the guess is page 15.
+    expect(find.text('page 15'), findsOneWidget);
+    await tester.tap(find.text('End of Ch 1 Units · page 20'));
     await tester.pump();
     for (var i = 0; i < 20; i++) {
       await tester.tap(find.bySemanticsLabel('More').last);
       await tester.pump();
     }
-    expect(find.text('p. 40'), findsOneWidget);
+    expect(find.text('page 40'), findsOneWidget);
     expect(
       find.textContaining('Creates task Ch 1 Units – Ch 2 Motion'),
       findsOneWidget,

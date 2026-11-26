@@ -379,7 +379,7 @@ abstract class AppLocalizations {
   /// No description provided for @surveyRange.
   ///
   /// In en, this message translates to:
-  /// **'pp. {start}–{end} · {pages, plural, =1{1 page} other{{pages} pages}}'**
+  /// **'Pages {start}–{end} · {pages, plural, =1{1 page} other{{pages} pages}}'**
   String surveyRange(int start, int end, int pages);
 
   /// No description provided for @surveyImportanceFor.
@@ -997,7 +997,7 @@ abstract class AppLocalizations {
   /// No description provided for @addSourceRangePages.
   ///
   /// In en, this message translates to:
-  /// **'pp. {start}–{end}'**
+  /// **'Pages {start}–{end}'**
   String addSourceRangePages(int start, int end);
 
   /// No description provided for @addSourceRange.
@@ -1075,7 +1075,7 @@ abstract class AppLocalizations {
   /// No description provided for @unitAtPage.
   ///
   /// In en, this message translates to:
-  /// **'p. {unit}'**
+  /// **'page {unit}'**
   String unitAtPage(int unit);
 
   /// No description provided for @unitAtMinute.

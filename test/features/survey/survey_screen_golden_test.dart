@@ -11,7 +11,7 @@ import 'package:prepbelt/features/survey/ui/survey_screen.dart';
 import '../../support/pump.dart';
 
 /// The state of design/mockups/3-survey.html: HC Verma Vol 1, chapter 8
-/// of 22 (Work and Energy, pp. 130–158), the first 7 surveyed with High,
+/// of 22 (Work and Energy, Pages 130–158), the first 7 surveyed with High,
 /// Hard, Seen it.
 SurveyView mockupView({bool withExam = true}) => SurveyView(
   sourceId: 's1',

@@ -273,17 +273,17 @@ void main() {
         ),
       ),
     );
-    // 120 min at 2.5 min a page from p. 81: up to p. 128.
-    expect(find.text('p. 128'), findsOneWidget);
+    // 120 min at 2.5 min a page from page 81: up to page 128.
+    expect(find.text('page 128'), findsOneWidget);
     expect(
-      find.textContaining('Creates task Ch 4 The forces (pp. 63–120)'),
+      find.textContaining('Creates task Ch 4 The forces (Pages 63–120)'),
       findsOneWidget,
     );
     expect(find.textContaining('Ch 5 Newton’s laws'), findsWidgets);
 
-    await tester.tap(find.text('End of Ch 4 The forces · p. 120'));
+    await tester.tap(find.text('End of Ch 4 The forces · page 120'));
     await tester.pump();
-    expect(find.text('p. 120'), findsOneWidget);
+    expect(find.text('page 120'), findsOneWidget);
     expect(find.textContaining('Ch 5'), findsNothing);
 
     await tester.tap(find.text('Save'));

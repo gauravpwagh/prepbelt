@@ -139,7 +139,7 @@
       }
     }
   },
-  "surveyRange": "pp. {start}–{end} · {pages, plural, =1{1 page} other{{pages} pages}}",
+  "surveyRange": "Pages {start}–{end} · {pages, plural, =1{1 page} other{{pages} pages}}",
   "@surveyRange": {
     "placeholders": {
       "start": {
@@ -530,7 +530,7 @@
   },
   "addSourceFewer": "Fewer",
   "addSourceMore": "More",
-  "addSourceRangePages": "pp. {start}–{end}",
+  "addSourceRangePages": "Pages {start}–{end}",
   "@addSourceRangePages": {
     "placeholders": {
       "start": {
@@ -600,7 +600,7 @@
   "addSourceTitleMissing": "Add a title",
   "addSourceUnitsMissing": "Must be more than 0",
   "addSourceLinkMissing": "Add a link",
-  "unitAtPage": "p. {unit}",
+  "unitAtPage": "page {unit}",
   "@unitAtPage": {
     "placeholders": {
       "unit": {
