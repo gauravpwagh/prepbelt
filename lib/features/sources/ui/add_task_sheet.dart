@@ -37,11 +37,14 @@ final class AddTaskRequest {
 /// What a task on one chapter covers (D49).
 enum _Covers { whole, pages, parts }
 
-/// Opens the Add task sheet for chapter [index]. Returns null when closed.
+/// Opens the Add task sheet for chapter [index]. With [pickChapter] the
+/// student can move the start to any chapter still without a task (D55).
+/// Returns null when closed.
 Future<AddTaskRequest?> showAddTaskSheet(
   BuildContext context, {
   required SourceChaptersView view,
   required int index,
+  bool pickChapter = false,
 }) => showModalBottomSheet<AddTaskRequest>(
   context: context,
   isScrollControlled: true,
@@ -59,6 +62,7 @@ Future<AddTaskRequest?> showAddTaskSheet(
       child: AddTaskSheet(
         view: view,
         index: index,
+        pickChapter: pickChapter,
         onCreate: (r) => Navigator.of(sheet).pop(r),
       ),
     ),
@@ -71,11 +75,15 @@ class AddTaskSheet extends StatefulWidget {
     required this.view,
     required this.index,
     required this.onCreate,
+    this.pickChapter = false,
     super.key,
   });
 
   final SourceChaptersView view;
   final int index;
+
+  /// Shows a "Starts at" stepper over the chapters still without a task.
+  final bool pickChapter;
   final ValueChanged<AddTaskRequest> onCreate;
 
   @override
@@ -83,26 +91,54 @@ class AddTaskSheet extends StatefulWidget {
 }
 
 class _AddTaskSheetState extends State<AddTaskSheet> {
+  late int _start = widget.index;
   late int _last = widget.index;
   late final _name = TextEditingController();
   bool _nameEdited = false;
   Importance? _importance;
   bool _importanceSet = false;
-  late bool _alreadyRead = _chapters.every((c) => c.finished);
-
-  /// A chapter with page numbers, and pages of it without a task.
-  late final ChapterProgress _first = _all[widget.index];
-  late final bool _paged = _first.range != null && _first.slot == null;
-  late final UnitRange? _gap = _first.uncovered.firstOrNull;
-  late _Covers _covers = _first.tasks.isNotEmpty
-      ? _Covers.pages
-      : _Covers.whole;
-  late int _from = _gap?.start ?? 1;
-  late int _to = _gap?.end ?? 1;
+  late bool _alreadyRead;
+  late _Covers _covers;
+  late int _from;
+  late int _to;
   int _parts = 2;
 
+  /// The chapter the task starts at, and pages of it without a task.
+  ChapterProgress get _first => _all[_start];
+  bool get _paged => _first.range != null && _first.slot == null;
+  UnitRange? get _gap => _first.uncovered.firstOrNull;
+
   List<ChapterProgress> get _all => widget.view.chapters;
-  List<ChapterProgress> get _chapters => _all.sublist(widget.index, _last + 1);
+  List<ChapterProgress> get _chapters => _all.sublist(_start, _last + 1);
+
+  /// Chapters the task can start at: those with pages still without a task.
+  late final List<int> _open = [
+    for (final (i, ch) in _all.indexed)
+      if (!ch.hasTask || i == widget.index) i,
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _reset();
+  }
+
+  /// Fills the choices for the chapter at [_start].
+  void _reset() {
+    _last = _start;
+    _covers = _first.tasks.isNotEmpty ? _Covers.pages : _Covers.whole;
+    _from = _gap?.start ?? 1;
+    _to = _gap?.end ?? 1;
+    _parts = 2;
+    _alreadyRead = _chapters.every((c) => c.finished);
+  }
+
+  void _moveStart(int step) => setState(() {
+    final at = _open.indexOf(_start) + step;
+    _start = _open[at];
+    _reset();
+    _retitle();
+  });
 
   String _autoTitle(AppLocalizations l10n) => switch (_covers) {
     _Covers.pages => l10n.taskPagesTitle(
@@ -209,6 +245,17 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
             ),
           ),
           const SizedBox(height: AppSpace.xl),
+          if (widget.pickChapter && _open.length > 1) ...[
+            label(l10n.addTaskStartsAt),
+            ValueStepper(
+              value: _first.chunk.title,
+              lessLabel: l10n.addTaskEarlierChapter,
+              moreLabel: l10n.addTaskLaterChapter,
+              onLess: _open.first < _start ? () => _moveStart(-1) : null,
+              onMore: _open.last > _start ? () => _moveStart(1) : null,
+            ),
+            const SizedBox(height: AppSpace.xl),
+          ],
           label(l10n.addTaskChapters),
           Wrap(
             spacing: AppSpace.sm,
@@ -251,7 +298,7 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
               style: AppText.caption.copyWith(color: c.muted),
             ),
           ],
-          if (_last == widget.index &&
+          if (_last == _start &&
               (_paged ? _gap != null : _first.tasks.isEmpty)) ...[
             const SizedBox(height: AppSpace.xl),
             label(l10n.addTaskCovers),
@@ -296,7 +343,7 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                 lessLabel: l10n.readingLess,
                 moreLabel: l10n.readingMore,
                 onLess: _to > _from ? () => _setPages(to: _to - 1) : null,
-                onMore: _to < _gap.end ? () => _setPages(to: _to + 1) : null,
+                onMore: _to < _gap!.end ? () => _setPages(to: _to + 1) : null,
               ),
             ],
             if (_covers == _Covers.parts) ...[

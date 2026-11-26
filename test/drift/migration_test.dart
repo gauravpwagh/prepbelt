@@ -8,6 +8,7 @@ import 'generated/schema_v1.dart' as v1;
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
+import 'generated/schema_v5.dart' as v5;
 
 void main() {
   late SchemaVerifier verifier;
@@ -18,9 +19,9 @@ void main() {
   });
 
   test('a fresh database matches the current snapshot', () async {
-    final connection = await verifier.startAt(5);
+    final connection = await verifier.startAt(6);
     final db = AppDatabase(connection);
-    await verifier.migrateAndValidate(db, 5);
+    await verifier.migrateAndValidate(db, 6);
     await db.close();
   });
 
@@ -119,6 +120,23 @@ void main() {
     await db.close();
   });
 
+  test('v5 to v6 adds an empty task checklist and keeps tasks', () async {
+    final schema = await verifier.schemaAt(5);
+    final old = v5.DatabaseAtV5(schema.newConnection());
+    await old.customStatement(
+      'INSERT INTO tasks (id, created_at, updated_at, hlc, device_id, title, '
+      "kind, status, needs_detail) VALUES ('t', 0, 0, '0', 'd', 'Optics', "
+      "'learn', 'active', 0)",
+    );
+    await old.close();
+
+    final db = AppDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, 6);
+    expect((await db.select(db.tasks).getSingle()).title, 'Optics');
+    expect(await db.select(db.taskSteps).get(), isEmpty);
+    await db.close();
+  });
+
   test('every schema version up to the current one has a snapshot', () {
     final db = openTestDatabase();
     addTearDown(db.close);
@@ -126,9 +144,9 @@ void main() {
     expect(GeneratedHelper.versions.first, 1);
   });
 
-  test('the schema has the 27 tables of the data model', () {
+  test('the schema has the 28 tables of the data model', () {
     final db = openTestDatabase();
     addTearDown(db.close);
-    expect(db.allTables.length, 27);
+    expect(db.allTables.length, 28);
   });
 }

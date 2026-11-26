@@ -198,6 +198,55 @@ void main() {
       final row = await repo.watch(t.id).first;
       expect(content(row!), content(t));
     });
+
+    test('a checklist keeps its order, ticks and removals, each logged '
+        'under the item, not the task (D55)', () async {
+      final t = await repo.create(title: 'Optics');
+      final a = await repo.addStep(t.id, 'Read the derivations');
+      tick();
+      final b = await repo.addStep(t.id, 'Solve examples');
+      tick();
+      await repo.setStepDone(a.id, done: true);
+      tick();
+      await repo.removeStep(b.id);
+
+      var steps = await repo.watchSteps(t.id).first;
+      expect(
+        [for (final s in steps) (s.title, s.done)],
+        [('Read the derivations', true)],
+      );
+      expect(b.order, a.order + 1);
+      final log = await events();
+      expect(
+        log.where((e) => e.entity == TaskRepository.stepEntity),
+        hasLength(4),
+      );
+
+      tick();
+      await repo.undoStep(b.id);
+      steps = await repo.watchSteps(t.id).first;
+      expect(steps.map((s) => s.title), [
+        'Read the derivations',
+        'Solve examples',
+      ]);
+    });
+
+    test('delete takes the checklist with it, and undo brings both back '
+        '(D55)', () async {
+      final t = await repo.create(title: 'Optics');
+      await repo.addStep(t.id, 'Read the derivations');
+      tick();
+      await repo.softDelete(t.id);
+      expect(await repo.watch(t.id).first, isNull);
+      expect(await repo.watchSteps(t.id).first, isEmpty);
+
+      tick();
+      await repo.undo(t.id);
+      expect((await repo.watch(t.id).first)?.title, 'Optics');
+      expect((await repo.watchSteps(t.id).first).map((s) => s.title), [
+        'Read the derivations',
+      ]);
+    });
   });
 
   group('ExamRepository', () {

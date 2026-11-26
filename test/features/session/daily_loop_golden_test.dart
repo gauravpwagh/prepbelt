@@ -328,7 +328,25 @@ Widget detail(AsyncValue<TaskDetailView?> v) => Scaffold(
     onStart: () {},
     onOpenSource: (_) {},
     onRetry: () {},
+    onMore: (_) {},
+    steps: [
+      _step('s1', 'Read the derivations', done: true),
+      _step('s2', 'Solve examples 3-7'),
+    ],
+    onAddStep: (_) {},
   ),
+);
+
+TaskStep _step(String id, String title, {bool done = false}) => TaskStep(
+  id: id,
+  createdAt: 0,
+  updatedAt: 0,
+  hlc: '0',
+  deviceId: 'd',
+  taskId: 't1',
+  title: title,
+  done: done,
+  order: 0,
 );
 
 final _history = [

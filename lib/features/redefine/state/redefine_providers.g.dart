@@ -254,7 +254,7 @@ final class RedefineActionsProvider
   }
 }
 
-String _$redefineActionsHash() => r'bc6c91605254a16df8b736cf3c2ab998c79a87a4';
+String _$redefineActionsHash() => r'6545f0495a839818b934ad3efecb9e7410e9fb66';
 
 /// The redefinitions, each followed by a replan. Kept alive: they run
 /// past the sheet that started them.

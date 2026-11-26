@@ -114,6 +114,16 @@ class Tasks extends Table with SyncColumns {
   BoolColumn get needsDetail => boolean().withDefault(const Constant(false))();
 }
 
+/// A checklist item inside a task (D55): "Solve the examples". Ticks are
+/// the student's own notes; they never move the belt or the plan.
+@TableIndex(name: 'task_steps_task', columns: {#taskId})
+class TaskSteps extends Table with SyncColumns {
+  TextColumn get taskId => text().references(Tasks, #id)();
+  TextColumn get title => text()();
+  BoolColumn get done => boolean().withDefault(const Constant(false))();
+  IntColumn get order => integer().named('sort_order')();
+}
+
 @TableIndex(name: 'task_chunks_task', columns: {#taskId})
 class TaskChunks extends Table with SyncColumns {
   TextColumn get taskId => text().references(Tasks, #id)();

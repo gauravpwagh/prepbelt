@@ -73,6 +73,7 @@ There is no separate designer for 1.0. You own the UI:
 
 - One exam at a time in 1.0; multiple exams in 1.1.
 - A task belongs to exactly one topic. Merging across topics is blocked.
+- A task may hold an optional checklist of the student's own items (D55); ticks never move the belt. Subtasks with their own belts are not planned; Split makes smaller tasks.
 - Reviews (D53): rated Forgot, Shaky or Solid; gaps 1, 3, 7, 14, 30, 60 days from the first read (editable in Settings), at least 5 before the exam (squeezed when it is close), plus a final review before the exam when the next gap would pass it; Solid earns the next belt (six reach Black), Forgot/Shaky dims and repeats the step next day; any task may be reviewed early and it counts. Every review is planned on its due day regardless of daily minutes; Today lists them by importance, then due date. The survey no longer asks difficulty.
 - Source files live only in a study folder the student chooses, with an automatic database backup in it (D51, replacing "copied into app storage").
 - Sources open in external apps; there is no in-app PDF reader.

@@ -276,6 +276,148 @@ final class TaskStateFamily extends $Family
   String toString() => r'taskStateProvider';
 }
 
+/// The checklist inside a task (D55).
+
+@ProviderFor(taskSteps)
+final taskStepsProvider = TaskStepsFamily._();
+
+/// The checklist inside a task (D55).
+
+final class TaskStepsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<TaskStep>>,
+          List<TaskStep>,
+          Stream<List<TaskStep>>
+        >
+    with $FutureModifier<List<TaskStep>>, $StreamProvider<List<TaskStep>> {
+  /// The checklist inside a task (D55).
+  TaskStepsProvider._({
+    required TaskStepsFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'taskStepsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$taskStepsHash();
+
+  @override
+  String toString() {
+    return r'taskStepsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<List<TaskStep>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<TaskStep>> create(Ref ref) {
+    final argument = this.argument as String;
+    return taskSteps(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TaskStepsProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$taskStepsHash() => r'2b7ebe41061d7fa732aacb2037967c2f08ac9267';
+
+/// The checklist inside a task (D55).
+
+final class TaskStepsFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<List<TaskStep>>, String> {
+  TaskStepsFamily._()
+    : super(
+        retry: null,
+        name: r'taskStepsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// The checklist inside a task (D55).
+
+  TaskStepsProvider call(String taskId) =>
+      TaskStepsProvider._(argument: taskId, from: this);
+
+  @override
+  String toString() => r'taskStepsProvider';
+}
+
+/// Checklist writes. Ticks never move the belt, so no replan follows.
+
+@ProviderFor(TaskStepActions)
+final taskStepActionsProvider = TaskStepActionsProvider._();
+
+/// Checklist writes. Ticks never move the belt, so no replan follows.
+final class TaskStepActionsProvider
+    extends $NotifierProvider<TaskStepActions, void> {
+  /// Checklist writes. Ticks never move the belt, so no replan follows.
+  TaskStepActionsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'taskStepActionsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$taskStepActionsHash();
+
+  @$internal
+  @override
+  TaskStepActions create() => TaskStepActions();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(void value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<void>(value),
+    );
+  }
+}
+
+String _$taskStepActionsHash() => r'bff46ecb56cafca7c2e6dbca6a832732e9059805';
+
+/// Checklist writes. Ticks never move the belt, so no replan follows.
+
+abstract class _$TaskStepActions extends $Notifier<void> {
+  void build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<void, void>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<void, void>,
+              void,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
+
 /// The rebuild command, as an action for the debug menu. State is the
 /// number of tasks checked by the last run. Kept alive so a run started
 /// from a button finishes even if nothing is listening.

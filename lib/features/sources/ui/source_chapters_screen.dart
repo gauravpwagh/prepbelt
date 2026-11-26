@@ -79,9 +79,22 @@ class SourceChaptersScreen extends ConsumerWidget {
       if (n > 0) snack(l10n.chaptersTasksCreated(n), undo: true);
     }
 
-    Future<void> addTask(SourceChaptersView v, int index) async {
-      final request = await showAddTaskSheet(context, view: v, index: index);
+    Future<void> addTask(
+      SourceChaptersView v,
+      int index, {
+      bool pickChapter = false,
+    }) async {
+      final request = await showAddTaskSheet(
+        context,
+        view: v,
+        index: index,
+        pickChapter: pickChapter,
+      );
       if (request == null) return;
+      // The student may have moved the start to another chapter.
+      final start = v.chapters.indexWhere(
+        (c) => c.chunk.id == request.chunkIds.first,
+      );
       await actions.addTask(
         sourceId,
         chunkIds: request.chunkIds,
@@ -92,7 +105,7 @@ class SourceChaptersScreen extends ConsumerWidget {
         pages: request.pages,
         parts: request.parts,
         partTitle: (k, n) =>
-            l10n.taskPartTitle(v.chapters[index].chunk.title, k, n),
+            l10n.taskPartTitle(v.chapters[start].chunk.title, k, n),
       );
       snack(l10n.addTaskAdded, undo: true);
     }
@@ -114,6 +127,11 @@ class SourceChaptersScreen extends ConsumerWidget {
         onSurvey: () => context.push(Routes.survey(sourceId)),
         onCreateAll: createAll,
         onAddTask: addTask,
+        onAddAny: (v) => addTask(
+          v,
+          v.chapters.indexWhere((c) => !c.hasTask),
+          pickChapter: true,
+        ),
         onOpenTask: (id) => context.push(Routes.task(id)),
         onRetry: () => ref.invalidate(sourceChaptersProvider(sourceId)),
       ),
@@ -136,6 +154,7 @@ class SourceChaptersBody extends StatelessWidget {
     required this.onAddTask,
     required this.onOpenTask,
     required this.onRetry,
+    this.onAddAny,
     super.key,
   });
 
@@ -152,6 +171,10 @@ class SourceChaptersBody extends StatelessWidget {
   final VoidCallback onSurvey;
   final ValueChanged<SourceChaptersView> onCreateAll;
   final void Function(SourceChaptersView view, int index) onAddTask;
+
+  /// "Add task" at the top: starts at the first chapter without a task,
+  /// and the student picks the scope (D55).
+  final ValueChanged<SourceChaptersView>? onAddAny;
   final ValueChanged<String> onOpenTask;
   final VoidCallback onRetry;
 
@@ -177,6 +200,7 @@ class SourceChaptersBody extends StatelessWidget {
           view: v,
           onSurvey: onSurvey,
           onCreateAll: () => onCreateAll(v),
+          onAddTask: onAddAny == null ? null : () => onAddAny!(v),
         ),
         const SizedBox(height: AppSpace.xl),
         if (v.chapters.isEmpty)
@@ -417,11 +441,13 @@ class _SummaryCard extends StatelessWidget {
     required this.view,
     required this.onSurvey,
     required this.onCreateAll,
+    this.onAddTask,
   });
 
   final SourceChaptersView view;
   final VoidCallback onSurvey;
   final VoidCallback onCreateAll;
+  final VoidCallback? onAddTask;
 
   @override
   Widget build(BuildContext context) {
@@ -431,7 +457,6 @@ class _SummaryCard extends StatelessWidget {
     final missing = p.withoutTask;
     final surveyed = p.surveyedCount;
     final allSurveyed = surveyed > 0 && surveyed >= p.chapters.length;
-    final primary = !p.readable;
 
     final survey = SecondaryButton(
       label: allSurveyed ? l10n.chaptersEditSurvey : l10n.sourceSurvey,
@@ -439,11 +464,6 @@ class _SummaryCard extends StatelessWidget {
     );
     final create = missing == 0
         ? null
-        : primary
-        ? PrimaryButton(
-            label: l10n.chaptersCreateTasks(missing),
-            onPressed: onCreateAll,
-          )
         : SecondaryButton(
             label: l10n.chaptersCreateTasks(missing),
             onPressed: onCreateAll,
@@ -456,6 +476,10 @@ class _SummaryCard extends StatelessWidget {
           style: AppText.body.copyWith(color: c.ink),
         ),
         const SizedBox(height: AppSpace.lg),
+        if (missing > 0 && onAddTask != null) ...[
+          PrimaryButton(label: l10n.chaptersAddTask, onPressed: onAddTask),
+          const SizedBox(height: AppSpace.md),
+        ],
         LayoutBuilder(
           builder: (context, _) {
             // Side by side when both fit; stacked at large text sizes.

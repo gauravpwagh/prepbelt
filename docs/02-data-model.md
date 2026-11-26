@@ -25,14 +25,14 @@ Conventions on every syncable table:
 
 - Source 1–n SourceFile; Source 1–n Chunk; Chunk 1–1 ChunkSurvey.
 - Exam 1–n ExamChunk (survey importance) — prefills — ExamTask (exam ↔ task, importance, target).
-- Task n–n Chunk through TaskChunk. Task 1–1 TaskState (cache). Task 1–n Review (append-only). Task 1–n Card; Card 1–n CardResult.
+- Task 1–n TaskStep (checklist, D55). Task n–n Chunk through TaskChunk. Task 1–1 TaskState (cache). Task 1–n Review (append-only). Task 1–n Card; Card 1–n CardResult.
 - Topic 1–n Task (each task belongs to exactly one topic; a rough task may have none until refined).
 - Availability feeds PlanItem; PlanItem is generated from everything above.
 - Review is the only source of truth for mastery; TaskState, PlanItem and both grids are rebuilt from it.
 
 ## Tables
 
-27 tables in seven groups. Convention columns are omitted below. FK = foreign key; `?` = nullable.
+28 tables in seven groups. Convention columns are omitted below. FK = foreign key; `?` = nullable.
 
 ### Syllabus and sources
 
@@ -51,6 +51,7 @@ Conventions on every syncable table:
 | --- | --- | --- |
 | Task | topicId?, title, kind (learn, practice), status (active, paused, archived), needsDetail | The unit that earns a level. Belongs to exactly one Topic; a rough task may have none until refined. |
 | TaskChunk | taskId FK, chunkId FK, startUnit?, endUnit?, order | Many-to-many: a task can span several chunks or sources, or part of one. |
+| TaskStep | taskId FK, title, done, order | Optional checklist inside a task (D55). The student's own items; ticks never change the belt or the plan. Deleted with its task. |
 | TaskState | taskId FK (unique), level (0–7), step (scheduled reviews passed), dim (brightness steps lost), lastReviewAt?, dueAt?, reps, lapses, pausedAt? | Cache, rebuildable by replaying Review rows. level 0 = not started. |
 | Review | taskId FK, at, kind (firstRead, review, quiz), rating (1 Forgot, 2 Shaky, 3 Solid; 4 is a Solid stored before D53), durationSec, resumeUnit?, levelBefore, levelAfter, stepAfter, dueAfter? | Append-only. Source of truth for mastery and both grids. |
 | TaskLineage | childTaskId FK, parentTaskId FK, op (split, merge, expand), at | Lets history follow a task through redefinitions. |

@@ -6,7 +6,7 @@ import '../data/review_repository.dart';
 import '../data/task_detail_repository.dart';
 import 'task_providers.dart';
 
-export '../../../core/db/app_database.dart' show Review;
+export '../../../core/db/app_database.dart' show Review, TaskStep;
 export '../data/task_detail_repository.dart' show TaskDetail;
 
 part 'task_detail_providers.g.dart';

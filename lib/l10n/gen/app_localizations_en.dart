@@ -946,6 +946,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTaskTitle => 'Add task';
 
   @override
+  String get addTaskStartsAt => 'Starts at';
+
+  @override
+  String get addTaskEarlierChapter => 'Earlier chapter';
+
+  @override
+  String get addTaskLaterChapter => 'Later chapter';
+
+  @override
   String get addTaskChapters => 'Chapters';
 
   @override
@@ -1917,7 +1926,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get taskUndone => 'Change undone';
 
   @override
-  String get taskMore => 'Redefine task';
+  String get taskMore => 'Task options';
+
+  @override
+  String get taskEdit => 'Edit task';
+
+  @override
+  String get taskDelete => 'Delete task';
+
+  @override
+  String taskDeleteTitle(String title) {
+    return 'Delete \"$title\"?';
+  }
+
+  @override
+  String get taskDeleteBody =>
+      'Its belt, reviews and checklist go with it. You can undo this right after.';
+
+  @override
+  String get taskDeleted => 'Task deleted';
+
+  @override
+  String get taskChecklist => 'Checklist';
+
+  @override
+  String get taskChecklistHint =>
+      'Your own list. Ticks don\'t change the belt.';
+
+  @override
+  String get taskChecklistAdd => 'Add an item';
+
+  @override
+  String get taskChecklistAddButton => 'Add';
+
+  @override
+  String taskChecklistRemove(String item) {
+    return 'Remove $item';
+  }
+
+  @override
+  String get taskChecklistRemoved => 'Item removed';
 
   @override
   String taskPartOf(String title) {

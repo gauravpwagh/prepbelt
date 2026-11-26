@@ -73,7 +73,9 @@ void main() {
     await settle();
     expect(find.text('Thermodynamics'), findsWidgets);
 
-    await tester.tap(find.bySemanticsLabel('Redefine task'));
+    await tester.tap(find.bySemanticsLabel('Task options'));
+    await settle();
+    await tester.tap(find.text('Edit task'));
     await settle();
     expect(find.text('Drag to choose where to split'), findsOneWidget);
     expect(find.text('after page 219'), findsOneWidget);

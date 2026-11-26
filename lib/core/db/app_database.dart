@@ -19,6 +19,7 @@ part 'app_database.drift.dart';
     ReadingSessions,
     Tasks,
     TaskChunks,
+    TaskSteps,
     TaskStates,
     Reviews,
     TaskLineages,
@@ -47,7 +48,7 @@ class AppDatabase extends _$AppDatabase {
   factory AppDatabase.open() => AppDatabase(driftDatabase(name: 'prepbelt'));
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -77,6 +78,11 @@ class AppDatabase extends _$AppDatabase {
       from4To5: (m, schema) async {
         // Source files in the study folder (D51).
         await m.addColumn(schema.sourceFiles, schema.sourceFiles.place);
+      },
+      from5To6: (m, schema) async {
+        // Checklist items inside a task (D55).
+        await m.createTable(schema.taskSteps);
+        await m.createIndex(schema.taskStepsTask);
       },
     ),
     beforeOpen: (details) async {

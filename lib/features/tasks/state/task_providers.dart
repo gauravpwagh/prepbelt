@@ -35,6 +35,32 @@ Stream<Task?> task(Ref ref, String id) =>
 Stream<TaskState?> taskState(Ref ref, String taskId) =>
     ref.watch(taskRepositoryProvider).watchState(taskId);
 
+/// The checklist inside a task (D55).
+@riverpod
+Stream<List<TaskStep>> taskSteps(Ref ref, String taskId) =>
+    ref.watch(taskRepositoryProvider).watchSteps(taskId);
+
+/// Checklist writes. Ticks never move the belt, so no replan follows.
+@riverpod
+class TaskStepActions extends _$TaskStepActions {
+  @override
+  void build() {}
+
+  TaskRepository get _repo => ref.read(taskRepositoryProvider);
+
+  Future<void> add(String taskId, String title) async {
+    final t = title.trim();
+    if (t.isNotEmpty) await _repo.addStep(taskId, t);
+  }
+
+  Future<void> setDone(String stepId, {required bool done}) =>
+      _repo.setStepDone(stepId, done: done);
+
+  Future<void> remove(String stepId) => _repo.removeStep(stepId);
+
+  Future<void> undoRemove(String stepId) => _repo.undoStep(stepId);
+}
+
 /// The rebuild command, as an action for the debug menu. State is the
 /// number of tasks checked by the last run. Kept alive so a run started
 /// from a button finishes even if nothing is listening.

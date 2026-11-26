@@ -165,3 +165,7 @@ This is a change to `docs/04-planner-spec.md` and will be recorded as a decision
 
 - Knowing the current page inside another app; the page always comes from the student.
 - A timer screen inside PrepBelt while reading.
+
+## Add task at the top (D55)
+
+The chapters card has a full-width **Add task** primary button above Survey and Create N tasks (now both secondary) while any chapter has pages without a task. It opens the Add task sheet at the first such chapter, with a **Starts at** stepper over the chapters that still need a task; the rest of the sheet (more chapters, whole chapter or some pages, name, importance, already read) works as before. Page ranges read "Pages 12–15"; when a chapter's title already says its pages, the range line is not repeated.

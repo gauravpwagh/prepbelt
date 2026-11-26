@@ -1396,6 +1396,24 @@ abstract class AppLocalizations {
   /// **'Add task'**
   String get addTaskTitle;
 
+  /// No description provided for @addTaskStartsAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts at'**
+  String get addTaskStartsAt;
+
+  /// No description provided for @addTaskEarlierChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier chapter'**
+  String get addTaskEarlierChapter;
+
+  /// No description provided for @addTaskLaterChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'Later chapter'**
+  String get addTaskLaterChapter;
+
   /// No description provided for @addTaskChapters.
   ///
   /// In en, this message translates to:
@@ -2748,8 +2766,74 @@ abstract class AppLocalizations {
   /// No description provided for @taskMore.
   ///
   /// In en, this message translates to:
-  /// **'Redefine task'**
+  /// **'Task options'**
   String get taskMore;
+
+  /// No description provided for @taskEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit task'**
+  String get taskEdit;
+
+  /// No description provided for @taskDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete task'**
+  String get taskDelete;
+
+  /// No description provided for @taskDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{title}\"?'**
+  String taskDeleteTitle(String title);
+
+  /// No description provided for @taskDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Its belt, reviews and checklist go with it. You can undo this right after.'**
+  String get taskDeleteBody;
+
+  /// No description provided for @taskDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Task deleted'**
+  String get taskDeleted;
+
+  /// No description provided for @taskChecklist.
+  ///
+  /// In en, this message translates to:
+  /// **'Checklist'**
+  String get taskChecklist;
+
+  /// No description provided for @taskChecklistHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own list. Ticks don\'t change the belt.'**
+  String get taskChecklistHint;
+
+  /// No description provided for @taskChecklistAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an item'**
+  String get taskChecklistAdd;
+
+  /// No description provided for @taskChecklistAddButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get taskChecklistAddButton;
+
+  /// No description provided for @taskChecklistRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {item}'**
+  String taskChecklistRemove(String item);
+
+  /// No description provided for @taskChecklistRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Item removed'**
+  String get taskChecklistRemoved;
 
   /// No description provided for @taskPartOf.
   ///

@@ -131,4 +131,11 @@ class RedefineActions extends _$RedefineActions {
       (await _repo.undoable(taskId))?.action;
 
   Future<void> undo(String taskId) => _then(() => _repo.undo(taskId));
+
+  /// Deletes the task (D55); Undo in the snackbar brings it back.
+  Future<void> delete(String taskId) =>
+      _then(() => ref.read(taskRepositoryProvider).softDelete(taskId));
+
+  Future<void> undoDelete(String taskId) =>
+      _then(() => ref.read(taskRepositoryProvider).undo(taskId));
 }

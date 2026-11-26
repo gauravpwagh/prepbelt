@@ -125,7 +125,7 @@ final class SettingsActionsProvider
   }
 }
 
-String _$settingsActionsHash() => r'9168f004573d1c7dafcf8aa2ff1ada6aaf394c2c';
+String _$settingsActionsHash() => r'f0ec8e94eb2464e8062151bcc84c6a230821fb59';
 
 /// What the Settings screen changes (design/notes/settings.md).
 

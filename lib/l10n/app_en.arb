@@ -906,6 +906,9 @@
   "readingLess": "Less",
   "readingMore": "More",
   "addTaskTitle": "Add task",
+  "addTaskStartsAt": "Starts at",
+  "addTaskEarlierChapter": "Earlier chapter",
+  "addTaskLaterChapter": "Later chapter",
   "addTaskChapters": "Chapters",
   "addTaskNextChapter": "+ next chapter",
   "addTaskName": "Task name",
@@ -1729,7 +1732,32 @@
   "redefineFailed": "Couldn't save. Try again.",
   "taskUndoLast": "Undo last change",
   "taskUndone": "Change undone",
-  "taskMore": "Redefine task",
+  "taskMore": "Task options",
+  "taskEdit": "Edit task",
+  "taskDelete": "Delete task",
+  "taskDeleteTitle": "Delete \"{title}\"?",
+  "@taskDeleteTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "taskDeleteBody": "Its belt, reviews and checklist go with it. You can undo this right after.",
+  "taskDeleted": "Task deleted",
+  "taskChecklist": "Checklist",
+  "taskChecklistHint": "Your own list. Ticks don't change the belt.",
+  "taskChecklistAdd": "Add an item",
+  "taskChecklistAddButton": "Add",
+  "taskChecklistRemove": "Remove {item}",
+  "@taskChecklistRemove": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "taskChecklistRemoved": "Item removed",
   "taskPartOf": "Split from {title}",
   "@taskPartOf": {
     "placeholders": {

@@ -8,6 +8,7 @@ import '../../../core/db/enums.dart';
 import '../../../core/result/result.dart';
 import '../../../core/time/clock.dart';
 import '../../../core/ui/app_icons.dart';
+import '../../../core/ui/bottom_sheet.dart';
 import '../../../core/ui/buttons.dart';
 import '../../../core/ui/fields.dart';
 import '../../../l10n/gen/app_localizations.dart';
@@ -19,6 +20,7 @@ import '../../sources/state/reading_providers.dart';
 import '../../sources/ui/source_labels.dart';
 import '../../sources/ui/study_folder_dialogs.dart';
 import '../state/task_detail_providers.dart';
+import '../state/task_providers.dart';
 
 /// Task detail (design/notes/task-detail.md): belt, next review, what it
 /// covers and its history, with Start or Review early.
@@ -56,6 +58,84 @@ class TaskDetailScreen extends ConsumerWidget {
     }
   }
 
+  /// Asks first, then deletes the task and leaves, with Undo (D55).
+  Future<void> _delete(
+    BuildContext context,
+    WidgetRef ref,
+    String title,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final c = context.colors;
+    final messenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
+    final actions = ref.read(redefineActionsProvider.notifier);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (dialog) => AlertDialog(
+        backgroundColor: c.surface,
+        title: Text(
+          l10n.taskDeleteTitle(title),
+          style: AppText.section.copyWith(color: c.ink),
+        ),
+        content: Text(
+          l10n.taskDeleteBody,
+          style: AppText.body.copyWith(color: c.ink),
+        ),
+        actions: [
+          TextLinkButton(
+            label: l10n.redefineCancel,
+            onPressed: () => Navigator.of(dialog).pop(false),
+          ),
+          TextLinkButton(
+            label: l10n.taskDelete,
+            onPressed: () => Navigator.of(dialog).pop(true),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await actions.delete(taskId);
+    } on InvalidOperationError {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.sessionOpenFirst)));
+      return;
+    }
+    if (router.canPop()) router.pop();
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(l10n.taskDeleted),
+          action: SnackBarAction(
+            label: l10n.undo,
+            onPressed: () => actions.undoDelete(taskId),
+          ),
+        ),
+      );
+  }
+
+  Future<void> _removeStep(
+    BuildContext context,
+    WidgetRef ref,
+    TaskStep step,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final steps = ref.read(taskStepActionsProvider.notifier);
+    await steps.remove(step.id);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(l10n.taskChecklistRemoved),
+          action: SnackBarAction(
+            label: l10n.undo,
+            onPressed: () => steps.undoRemove(step.id),
+          ),
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
     body: SafeArea(
@@ -65,7 +145,31 @@ class TaskDetailScreen extends ConsumerWidget {
         onStart: () => _start(context, ref),
         onOpenSource: (id) => context.push(Routes.sourceChapters(id)),
         onRetry: () => ref.invalidate(taskDetailViewProvider(taskId)),
-        onRedefine: () => context.push(Routes.redefine(taskId)),
+        onMore: (title) async {
+          final l10n = AppLocalizations.of(context);
+          await showActionSheet(
+            context,
+            title: title,
+            actions: [
+              SheetAction(
+                l10n.taskEdit,
+                () => context.push(Routes.redefine(taskId)),
+              ),
+              SheetAction(
+                l10n.taskDelete,
+                () => _delete(context, ref, title),
+                destructive: true,
+              ),
+            ],
+          );
+        },
+        steps: ref.watch(taskStepsProvider(taskId)).value ?? const [],
+        onAddStep: (title) =>
+            ref.read(taskStepActionsProvider.notifier).add(taskId, title),
+        onToggleStep: (step) => ref
+            .read(taskStepActionsProvider.notifier)
+            .setDone(step.id, done: !step.done),
+        onRemoveStep: (step) => _removeStep(context, ref, step),
         canUndo: ref.watch(taskUndoableProvider(taskId)).value != null,
         onUndo: () async {
           final messenger = ScaffoldMessenger.of(context);
@@ -86,16 +190,27 @@ class TaskDetailBody extends StatefulWidget {
     required this.onStart,
     required this.onOpenSource,
     required this.onRetry,
-    this.onRedefine,
+    this.onMore,
     this.onUndo,
     this.canUndo = false,
+    this.steps = const [],
+    this.onAddStep,
+    this.onToggleStep,
+    this.onRemoveStep,
     super.key,
   });
 
   final AsyncValue<TaskDetailView?> view;
 
-  /// Opens the Redefine sheet; null hides the button.
-  final VoidCallback? onRedefine;
+  /// Opens Edit task / Delete task for the task with this title; null
+  /// hides the button.
+  final ValueChanged<String>? onMore;
+
+  /// The task's checklist (D55); hidden when [onAddStep] is null.
+  final List<TaskStep> steps;
+  final ValueChanged<String>? onAddStep;
+  final ValueChanged<TaskStep>? onToggleStep;
+  final ValueChanged<TaskStep>? onRemoveStep;
   final VoidCallback? onUndo;
   final bool canUndo;
   final VoidCallback onBack;
@@ -126,11 +241,11 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
               style: AppText.subtitle.copyWith(color: c.muted),
             ),
           ),
-          if (widget.onRedefine != null && widget.view.value != null)
+          if ((widget.onMore, widget.view.value) case (final onMore?, final v?))
             RoundIconButton(
               icon: AppIcon.more,
               semanticLabel: l10n.taskMore,
-              onPressed: widget.onRedefine,
+              onPressed: () => onMore(v.info.task.title),
             ),
         ],
       ),
@@ -143,6 +258,14 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
         onStart: widget.onStart,
         onOpenSource: widget.onOpenSource,
         onUndo: widget.canUndo ? widget.onUndo : null,
+        checklist: widget.onAddStep == null
+            ? null
+            : _Checklist(
+                steps: widget.steps,
+                onAdd: widget.onAddStep!,
+                onToggle: widget.onToggleStep ?? (_) {},
+                onRemove: widget.onRemoveStep ?? (_) {},
+              ),
       ),
       AsyncData() => _Centered(
         message: l10n.taskRemoved,
@@ -178,9 +301,13 @@ class _Filled extends StatelessWidget {
     required this.onStart,
     required this.onOpenSource,
     this.onUndo,
+    this.checklist,
   });
 
   final TaskDetailView view;
+
+  /// The checklist section, placed under the next review.
+  final Widget? checklist;
   final bool allHistory;
   final VoidCallback onShowAll;
   final VoidCallback onStart;
@@ -246,6 +373,10 @@ class _Filled extends StatelessWidget {
             alignment: AlignmentDirectional.centerStart,
             child: TextLinkButton(label: l10n.taskUndoLast, onPressed: onUndo),
           ),
+        if (checklist case final list?) ...[
+          const SizedBox(height: AppSpace.xxl),
+          list,
+        ],
         if (view.info.parts.isNotEmpty) ...[
           const SizedBox(height: AppSpace.xxl),
           Text(l10n.taskCovers, style: AppText.section.copyWith(color: c.ink)),
@@ -624,6 +755,194 @@ class _HistoryRow extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// The checklist inside a task (D55): the student's own items, ticked as
+/// they go. Ticks never move the belt or the plan.
+class _Checklist extends StatefulWidget {
+  const _Checklist({
+    required this.steps,
+    required this.onAdd,
+    required this.onToggle,
+    required this.onRemove,
+  });
+
+  final List<TaskStep> steps;
+  final ValueChanged<String> onAdd;
+  final ValueChanged<TaskStep> onToggle;
+  final ValueChanged<TaskStep> onRemove;
+
+  @override
+  State<_Checklist> createState() => _ChecklistState();
+}
+
+class _ChecklistState extends State<_Checklist> {
+  final _field = TextEditingController();
+
+  @override
+  void dispose() {
+    _field.dispose();
+    super.dispose();
+  }
+
+  void _add() {
+    final text = _field.text.trim();
+    if (text.isEmpty) return;
+    widget.onAdd(text);
+    _field.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final c = context.colors;
+    OutlineInputBorder border(Color color, [double width = 1]) =>
+        OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadii.chip),
+          borderSide: BorderSide(color: color, width: width),
+        );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(l10n.taskChecklist, style: AppText.section.copyWith(color: c.ink)),
+        const SizedBox(height: AppSpace.xs),
+        Text(
+          l10n.taskChecklistHint,
+          style: AppText.caption.copyWith(color: c.muted),
+        ),
+        const SizedBox(height: AppSpace.md),
+        _Panel(
+          children: [
+            for (final step in widget.steps)
+              _StepRow(
+                step: step,
+                onToggle: () => widget.onToggle(step),
+                onRemove: () => widget.onRemove(step),
+              ),
+            if (widget.steps.isNotEmpty) const SizedBox(height: AppSpace.sm),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _field,
+                    onSubmitted: (_) => _add(),
+                    textInputAction: TextInputAction.done,
+                    style: AppText.body.copyWith(color: c.ink),
+                    cursorColor: c.accentText,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      filled: true,
+                      fillColor: c.ground,
+                      hintText: l10n.taskChecklistAdd,
+                      hintStyle: AppText.body.copyWith(color: c.muted),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 13,
+                      ),
+                      enabledBorder: border(c.chipBorder),
+                      focusedBorder: border(c.accentText, 1.5),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpace.sm),
+                SmallButton(
+                  label: l10n.taskChecklistAddButton,
+                  onPressed: _add,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _StepRow extends StatelessWidget {
+  const _StepRow({
+    required this.step,
+    required this.onToggle,
+    required this.onRemove,
+  });
+
+  final TaskStep step;
+  final VoidCallback onToggle;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final c = context.colors;
+    return Row(
+      children: [
+        Expanded(
+          child: Semantics(
+            checked: step.done,
+            child: InkWell(
+              onTap: onToggle,
+              borderRadius: BorderRadius.circular(AppRadii.button),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: kMinTouchTarget),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: step.done ? c.accentSoft : null,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: step.done ? c.accent : c.chipBorder,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: step.done
+                          ? AppIconView(
+                              AppIcon.check,
+                              color: c.accentText,
+                              size: 16,
+                            )
+                          : null,
+                    ),
+                    const SizedBox(width: AppSpace.md),
+                    Expanded(
+                      child: Text(
+                        step.title,
+                        style: AppText.body.copyWith(
+                          color: c.ink,
+                          decoration: step.done
+                              ? TextDecoration.lineThrough
+                              : null,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        Semantics(
+          button: true,
+          label: l10n.taskChecklistRemove(step.title),
+          child: InkWell(
+            onTap: onRemove,
+            customBorder: const CircleBorder(),
+            child: SizedBox(
+              width: kMinTouchTarget,
+              height: kMinTouchTarget,
+              child: Center(
+                child: ExcludeSemantics(
+                  child: AppIconView(AppIcon.close, color: c.muted, size: 18),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

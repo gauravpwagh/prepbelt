@@ -69,3 +69,8 @@ One task: how strong it is, when it comes back, what it covers, and how its revi
 ## Data
 
 Read-only. It uses Task, TaskState, the task's TaskChunks with their Chunk and Source, the ExamTask for the upcoming exam, and the Review log. "Review early" and "Start" go through the same session flow as Today (ActiveSession, then Back from source).
+
+## Menu and checklist (D55)
+
+- **⋮ menu** (top right) opens an action sheet titled with the task name: **Edit task** opens the Redefine sheet (name, importance, scope, split, pause); **Delete task** (red) asks "Delete "{title}"?" with "Its belt, reviews and checklist go with it. You can undo this right after.", then leaves the screen and shows "Task deleted" with Undo. Refused with the usual message while the task's review is open.
+- **Checklist** sits under the next-review card: a section title, the hint "Your own list. Ticks don't change the belt.", then a panel. Each row is a 24 px tick box (accent-soft fill and accent check when done, text struck through) and a 44 px × to remove it, with Undo in a snackbar. The last row is an "Add an item" field with an Add button; Enter adds too. Empty state: just the field. Items keep the order they were added.

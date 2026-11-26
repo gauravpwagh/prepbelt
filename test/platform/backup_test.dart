@@ -133,7 +133,11 @@ void main() {
     await db.close();
     final kept = File(p.join(phoneB.path, Backup.sourcesFolder, 'old.pdf'))
       ..createSync(recursive: true);
-    Backup.stage(bytes, documents: phoneB, currentSchema: 5);
+    Backup.stage(
+      bytes,
+      documents: phoneB,
+      currentSchema: db.schemaVersion,
+    );
     expect(Backup.applyPendingRestore(phoneB), isTrue);
     expect(kept.existsSync(), isTrue);
   });

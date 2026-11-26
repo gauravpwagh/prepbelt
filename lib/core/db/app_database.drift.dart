@@ -5689,6 +5689,612 @@ class TaskChunksCompanion extends UpdateCompanion<TaskChunk> {
   }
 }
 
+class $TaskStepsTable extends TaskSteps
+    with TableInfo<$TaskStepsTable, TaskStep> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TaskStepsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<int> deletedAt = GeneratedColumn<int>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hlcMeta = const VerificationMeta('hlc');
+  @override
+  late final GeneratedColumn<String> hlc = GeneratedColumn<String>(
+    'hlc',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _taskIdMeta = const VerificationMeta('taskId');
+  @override
+  late final GeneratedColumn<String> taskId = GeneratedColumn<String>(
+    'task_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES tasks (id)',
+    ),
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _doneMeta = const VerificationMeta('done');
+  @override
+  late final GeneratedColumn<bool> done = GeneratedColumn<bool>(
+    'done',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("done" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _orderMeta = const VerificationMeta('order');
+  @override
+  late final GeneratedColumn<int> order = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    hlc,
+    deviceId,
+    taskId,
+    title,
+    done,
+    order,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'task_steps';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TaskStep> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('hlc')) {
+      context.handle(
+        _hlcMeta,
+        hlc.isAcceptableOrUnknown(data['hlc']!, _hlcMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_hlcMeta);
+    }
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('task_id')) {
+      context.handle(
+        _taskIdMeta,
+        taskId.isAcceptableOrUnknown(data['task_id']!, _taskIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_taskIdMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('done')) {
+      context.handle(
+        _doneMeta,
+        done.isAcceptableOrUnknown(data['done']!, _doneMeta),
+      );
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _orderMeta,
+        order.isAcceptableOrUnknown(data['sort_order']!, _orderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_orderMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TaskStep map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TaskStep(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      hlc: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}hlc'],
+      )!,
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      taskId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}task_id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      done: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}done'],
+      )!,
+      order: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+    );
+  }
+
+  @override
+  $TaskStepsTable createAlias(String alias) {
+    return $TaskStepsTable(attachedDatabase, alias);
+  }
+}
+
+class TaskStep extends DataClass implements Insertable<TaskStep> {
+  /// UUIDv7.
+  final String id;
+  final int createdAt;
+  final int updatedAt;
+
+  /// Soft delete; rows are never physically removed in phase 1.
+  final int? deletedAt;
+  final String hlc;
+  final String deviceId;
+  final String taskId;
+  final String title;
+  final bool done;
+  final int order;
+  const TaskStep({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.hlc,
+    required this.deviceId,
+    required this.taskId,
+    required this.title,
+    required this.done,
+    required this.order,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    map['hlc'] = Variable<String>(hlc);
+    map['device_id'] = Variable<String>(deviceId);
+    map['task_id'] = Variable<String>(taskId);
+    map['title'] = Variable<String>(title);
+    map['done'] = Variable<bool>(done);
+    map['sort_order'] = Variable<int>(order);
+    return map;
+  }
+
+  TaskStepsCompanion toCompanion(bool nullToAbsent) {
+    return TaskStepsCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      hlc: Value(hlc),
+      deviceId: Value(deviceId),
+      taskId: Value(taskId),
+      title: Value(title),
+      done: Value(done),
+      order: Value(order),
+    );
+  }
+
+  factory TaskStep.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TaskStep(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+      hlc: serializer.fromJson<String>(json['hlc']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      taskId: serializer.fromJson<String>(json['taskId']),
+      title: serializer.fromJson<String>(json['title']),
+      done: serializer.fromJson<bool>(json['done']),
+      order: serializer.fromJson<int>(json['order']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+      'hlc': serializer.toJson<String>(hlc),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'taskId': serializer.toJson<String>(taskId),
+      'title': serializer.toJson<String>(title),
+      'done': serializer.toJson<bool>(done),
+      'order': serializer.toJson<int>(order),
+    };
+  }
+
+  TaskStep copyWith({
+    String? id,
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+    String? hlc,
+    String? deviceId,
+    String? taskId,
+    String? title,
+    bool? done,
+    int? order,
+  }) => TaskStep(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    hlc: hlc ?? this.hlc,
+    deviceId: deviceId ?? this.deviceId,
+    taskId: taskId ?? this.taskId,
+    title: title ?? this.title,
+    done: done ?? this.done,
+    order: order ?? this.order,
+  );
+  TaskStep copyWithCompanion(TaskStepsCompanion data) {
+    return TaskStep(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      hlc: data.hlc.present ? data.hlc.value : this.hlc,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      taskId: data.taskId.present ? data.taskId.value : this.taskId,
+      title: data.title.present ? data.title.value : this.title,
+      done: data.done.present ? data.done.value : this.done,
+      order: data.order.present ? data.order.value : this.order,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TaskStep(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('hlc: $hlc, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('taskId: $taskId, ')
+          ..write('title: $title, ')
+          ..write('done: $done, ')
+          ..write('order: $order')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    hlc,
+    deviceId,
+    taskId,
+    title,
+    done,
+    order,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TaskStep &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.hlc == this.hlc &&
+          other.deviceId == this.deviceId &&
+          other.taskId == this.taskId &&
+          other.title == this.title &&
+          other.done == this.done &&
+          other.order == this.order);
+}
+
+class TaskStepsCompanion extends UpdateCompanion<TaskStep> {
+  final Value<String> id;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<String> hlc;
+  final Value<String> deviceId;
+  final Value<String> taskId;
+  final Value<String> title;
+  final Value<bool> done;
+  final Value<int> order;
+  final Value<int> rowid;
+  const TaskStepsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.hlc = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.taskId = const Value.absent(),
+    this.title = const Value.absent(),
+    this.done = const Value.absent(),
+    this.order = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TaskStepsCompanion.insert({
+    required String id,
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String hlc,
+    required String deviceId,
+    required String taskId,
+    required String title,
+    this.done = const Value.absent(),
+    required int order,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       hlc = Value(hlc),
+       deviceId = Value(deviceId),
+       taskId = Value(taskId),
+       title = Value(title),
+       order = Value(order);
+  static Insertable<TaskStep> custom({
+    Expression<String>? id,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<String>? hlc,
+    Expression<String>? deviceId,
+    Expression<String>? taskId,
+    Expression<String>? title,
+    Expression<bool>? done,
+    Expression<int>? order,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (hlc != null) 'hlc': hlc,
+      if (deviceId != null) 'device_id': deviceId,
+      if (taskId != null) 'task_id': taskId,
+      if (title != null) 'title': title,
+      if (done != null) 'done': done,
+      if (order != null) 'sort_order': order,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TaskStepsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<String>? hlc,
+    Value<String>? deviceId,
+    Value<String>? taskId,
+    Value<String>? title,
+    Value<bool>? done,
+    Value<int>? order,
+    Value<int>? rowid,
+  }) {
+    return TaskStepsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      hlc: hlc ?? this.hlc,
+      deviceId: deviceId ?? this.deviceId,
+      taskId: taskId ?? this.taskId,
+      title: title ?? this.title,
+      done: done ?? this.done,
+      order: order ?? this.order,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (hlc.present) {
+      map['hlc'] = Variable<String>(hlc.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (taskId.present) {
+      map['task_id'] = Variable<String>(taskId.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (done.present) {
+      map['done'] = Variable<bool>(done.value);
+    }
+    if (order.present) {
+      map['sort_order'] = Variable<int>(order.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TaskStepsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('hlc: $hlc, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('taskId: $taskId, ')
+          ..write('title: $title, ')
+          ..write('done: $done, ')
+          ..write('order: $order, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $TaskStatesTable extends TaskStates
     with TableInfo<$TaskStatesTable, TaskState> {
   @override
@@ -18065,6 +18671,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $TasksTable tasks = $TasksTable(this);
   late final $TaskChunksTable taskChunks = $TaskChunksTable(this);
+  late final $TaskStepsTable taskSteps = $TaskStepsTable(this);
   late final $TaskStatesTable taskStates = $TaskStatesTable(this);
   late final $ReviewsTable reviews = $ReviewsTable(this);
   late final $TaskLineagesTable taskLineages = $TaskLineagesTable(this);
@@ -18092,6 +18699,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final Index taskChunksTask = Index(
     'task_chunks_task',
     'CREATE INDEX task_chunks_task ON task_chunks (task_id)',
+  );
+  late final Index taskStepsTask = Index(
+    'task_steps_task',
+    'CREATE INDEX task_steps_task ON task_steps (task_id)',
   );
   late final Index reviewsTaskAt = Index(
     'reviews_task_at',
@@ -18122,6 +18733,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     readingSessions,
     tasks,
     taskChunks,
+    taskSteps,
     taskStates,
     reviews,
     taskLineages,
@@ -18143,6 +18755,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     activeSessions,
     readingSessionsSource,
     taskChunksTask,
+    taskStepsTask,
     reviewsTaskAt,
     examTasksExam,
     planItemsDate,
@@ -21661,6 +22274,24 @@ final class $$TasksTableReferences
     );
   }
 
+  static MultiTypedResultKey<$TaskStepsTable, List<TaskStep>>
+  _taskStepsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.taskSteps,
+    aliasName: $_aliasNameGenerator(db.tasks.id, db.taskSteps.taskId),
+  );
+
+  $$TaskStepsTableProcessedTableManager get taskStepsRefs {
+    final manager = $$TaskStepsTableTableManager(
+      $_db,
+      $_db.taskSteps,
+    ).filter((f) => f.taskId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_taskStepsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$TaskStatesTable, List<TaskState>>
   _taskStatesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.taskStates,
@@ -21907,6 +22538,31 @@ class $$TasksTableFilterComposer extends Composer<_$AppDatabase, $TasksTable> {
           }) => $$TaskChunksTableFilterComposer(
             $db: $db,
             $table: $db.taskChunks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> taskStepsRefs(
+    Expression<bool> Function($$TaskStepsTableFilterComposer f) f,
+  ) {
+    final $$TaskStepsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskSteps,
+      getReferencedColumn: (t) => t.taskId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskStepsTableFilterComposer(
+            $db: $db,
+            $table: $db.taskSteps,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -22289,6 +22945,31 @@ class $$TasksTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> taskStepsRefs<T extends Object>(
+    Expression<T> Function($$TaskStepsTableAnnotationComposer a) f,
+  ) {
+    final $$TaskStepsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskSteps,
+      getReferencedColumn: (t) => t.taskId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskStepsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.taskSteps,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> taskStatesRefs<T extends Object>(
     Expression<T> Function($$TaskStatesTableAnnotationComposer a) f,
   ) {
@@ -22506,6 +23187,7 @@ class $$TasksTableTableManager
           PrefetchHooks Function({
             bool topicId,
             bool taskChunksRefs,
+            bool taskStepsRefs,
             bool taskStatesRefs,
             bool reviewsRefs,
             bool childLineages,
@@ -22593,6 +23275,7 @@ class $$TasksTableTableManager
               ({
                 topicId = false,
                 taskChunksRefs = false,
+                taskStepsRefs = false,
                 taskStatesRefs = false,
                 reviewsRefs = false,
                 childLineages = false,
@@ -22606,6 +23289,7 @@ class $$TasksTableTableManager
                   db: db,
                   explicitlyWatchedTables: [
                     if (taskChunksRefs) db.taskChunks,
+                    if (taskStepsRefs) db.taskSteps,
                     if (taskStatesRefs) db.taskStates,
                     if (reviewsRefs) db.reviews,
                     if (childLineages) db.taskLineages,
@@ -22660,6 +23344,23 @@ class $$TasksTableTableManager
                                 table,
                                 p0,
                               ).taskChunksRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.taskId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (taskStepsRefs)
+                        await $_getPrefetchedData<Task, $TasksTable, TaskStep>(
+                          currentTable: table,
+                          referencedTable: $$TasksTableReferences
+                              ._taskStepsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TasksTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).taskStepsRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.taskId == item.id,
@@ -22829,6 +23530,7 @@ typedef $$TasksTableProcessedTableManager =
       PrefetchHooks Function({
         bool topicId,
         bool taskChunksRefs,
+        bool taskStepsRefs,
         bool taskStatesRefs,
         bool reviewsRefs,
         bool childLineages,
@@ -23395,6 +24097,419 @@ typedef $$TaskChunksTableProcessedTableManager =
       (TaskChunk, $$TaskChunksTableReferences),
       TaskChunk,
       PrefetchHooks Function({bool taskId, bool chunkId})
+    >;
+typedef $$TaskStepsTableCreateCompanionBuilder =
+    TaskStepsCompanion Function({
+      required String id,
+      required int createdAt,
+      required int updatedAt,
+      Value<int?> deletedAt,
+      required String hlc,
+      required String deviceId,
+      required String taskId,
+      required String title,
+      Value<bool> done,
+      required int order,
+      Value<int> rowid,
+    });
+typedef $$TaskStepsTableUpdateCompanionBuilder =
+    TaskStepsCompanion Function({
+      Value<String> id,
+      Value<int> createdAt,
+      Value<int> updatedAt,
+      Value<int?> deletedAt,
+      Value<String> hlc,
+      Value<String> deviceId,
+      Value<String> taskId,
+      Value<String> title,
+      Value<bool> done,
+      Value<int> order,
+      Value<int> rowid,
+    });
+
+final class $$TaskStepsTableReferences
+    extends BaseReferences<_$AppDatabase, $TaskStepsTable, TaskStep> {
+  $$TaskStepsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $TasksTable _taskIdTable(_$AppDatabase db) => db.tasks.createAlias(
+    $_aliasNameGenerator(db.taskSteps.taskId, db.tasks.id),
+  );
+
+  $$TasksTableProcessedTableManager get taskId {
+    final $_column = $_itemColumn<String>('task_id')!;
+
+    final manager = $$TasksTableTableManager(
+      $_db,
+      $_db.tasks,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_taskIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$TaskStepsTableFilterComposer
+    extends Composer<_$AppDatabase, $TaskStepsTable> {
+  $$TaskStepsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get hlc => $composableBuilder(
+    column: $table.hlc,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get done => $composableBuilder(
+    column: $table.done,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get order => $composableBuilder(
+    column: $table.order,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$TasksTableFilterComposer get taskId {
+    final $$TasksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskId,
+      referencedTable: $db.tasks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TasksTableFilterComposer(
+            $db: $db,
+            $table: $db.tasks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TaskStepsTableOrderingComposer
+    extends Composer<_$AppDatabase, $TaskStepsTable> {
+  $$TaskStepsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get hlc => $composableBuilder(
+    column: $table.hlc,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get done => $composableBuilder(
+    column: $table.done,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get order => $composableBuilder(
+    column: $table.order,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$TasksTableOrderingComposer get taskId {
+    final $$TasksTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskId,
+      referencedTable: $db.tasks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TasksTableOrderingComposer(
+            $db: $db,
+            $table: $db.tasks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TaskStepsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TaskStepsTable> {
+  $$TaskStepsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get hlc =>
+      $composableBuilder(column: $table.hlc, builder: (column) => column);
+
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<bool> get done =>
+      $composableBuilder(column: $table.done, builder: (column) => column);
+
+  GeneratedColumn<int> get order =>
+      $composableBuilder(column: $table.order, builder: (column) => column);
+
+  $$TasksTableAnnotationComposer get taskId {
+    final $$TasksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskId,
+      referencedTable: $db.tasks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TasksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.tasks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TaskStepsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TaskStepsTable,
+          TaskStep,
+          $$TaskStepsTableFilterComposer,
+          $$TaskStepsTableOrderingComposer,
+          $$TaskStepsTableAnnotationComposer,
+          $$TaskStepsTableCreateCompanionBuilder,
+          $$TaskStepsTableUpdateCompanionBuilder,
+          (TaskStep, $$TaskStepsTableReferences),
+          TaskStep,
+          PrefetchHooks Function({bool taskId})
+        > {
+  $$TaskStepsTableTableManager(_$AppDatabase db, $TaskStepsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TaskStepsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TaskStepsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TaskStepsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<int?> deletedAt = const Value.absent(),
+                Value<String> hlc = const Value.absent(),
+                Value<String> deviceId = const Value.absent(),
+                Value<String> taskId = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<bool> done = const Value.absent(),
+                Value<int> order = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TaskStepsCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                hlc: hlc,
+                deviceId: deviceId,
+                taskId: taskId,
+                title: title,
+                done: done,
+                order: order,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int createdAt,
+                required int updatedAt,
+                Value<int?> deletedAt = const Value.absent(),
+                required String hlc,
+                required String deviceId,
+                required String taskId,
+                required String title,
+                Value<bool> done = const Value.absent(),
+                required int order,
+                Value<int> rowid = const Value.absent(),
+              }) => TaskStepsCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                hlc: hlc,
+                deviceId: deviceId,
+                taskId: taskId,
+                title: title,
+                done: done,
+                order: order,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$TaskStepsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({taskId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (taskId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.taskId,
+                                referencedTable: $$TaskStepsTableReferences
+                                    ._taskIdTable(db),
+                                referencedColumn: $$TaskStepsTableReferences
+                                    ._taskIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$TaskStepsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TaskStepsTable,
+      TaskStep,
+      $$TaskStepsTableFilterComposer,
+      $$TaskStepsTableOrderingComposer,
+      $$TaskStepsTableAnnotationComposer,
+      $$TaskStepsTableCreateCompanionBuilder,
+      $$TaskStepsTableUpdateCompanionBuilder,
+      (TaskStep, $$TaskStepsTableReferences),
+      TaskStep,
+      PrefetchHooks Function({bool taskId})
     >;
 typedef $$TaskStatesTableCreateCompanionBuilder =
     TaskStatesCompanion Function({
@@ -32033,6 +33148,8 @@ class $AppDatabaseManager {
       $$TasksTableTableManager(_db, _db.tasks);
   $$TaskChunksTableTableManager get taskChunks =>
       $$TaskChunksTableTableManager(_db, _db.taskChunks);
+  $$TaskStepsTableTableManager get taskSteps =>
+      $$TaskStepsTableTableManager(_db, _db.taskSteps);
   $$TaskStatesTableTableManager get taskStates =>
       $$TaskStatesTableTableManager(_db, _db.taskStates);
   $$ReviewsTableTableManager get reviews =>

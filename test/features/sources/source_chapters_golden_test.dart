@@ -152,6 +152,7 @@ Widget chapters(AsyncValue<SourceChaptersView?> v) => Scaffold(
     onSurvey: () {},
     onCreateAll: (_) {},
     onAddTask: (_, _) {},
+    onAddAny: (_) {},
     onOpenTask: (_) {},
     onRetry: () {},
   ),
@@ -160,7 +161,12 @@ Widget chapters(AsyncValue<SourceChaptersView?> v) => Scaffold(
 Widget addTask() => Scaffold(
   body: Align(
     alignment: Alignment.bottomCenter,
-    child: AddTaskSheet(view: _view(), index: 3, onCreate: (_) {}),
+    child: AddTaskSheet(
+      view: _view(),
+      index: 3,
+      pickChapter: true,
+      onCreate: (_) {},
+    ),
   ),
 );
 
