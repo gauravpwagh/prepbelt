@@ -1138,6 +1138,30 @@ abstract class AppLocalizations {
   /// **'Add task'**
   String get chaptersAddTask;
 
+  /// No description provided for @chaptersViewChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters'**
+  String get chaptersViewChapters;
+
+  /// No description provided for @chaptersViewTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks'**
+  String get chaptersViewTasks;
+
+  /// No description provided for @chaptersNoTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks yet. Add one with Add task.'**
+  String get chaptersNoTasks;
+
+  /// No description provided for @chaptersTaskIn.
+  ///
+  /// In en, this message translates to:
+  /// **'in {chapters}'**
+  String chaptersTaskIn(String chapters);
+
   /// No description provided for @chapterEditTitle.
   ///
   /// In en, this message translates to:

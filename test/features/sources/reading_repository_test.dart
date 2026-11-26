@@ -523,13 +523,14 @@ void main() {
         book.id,
         ch2,
         title: 'Ch 2',
-        start: 10,
+        start: 9,
         end: 30,
         autoTitle: auto,
       );
+      // Ch 2 now begins on Ch 1's last page, which they share (D59).
       expect((await chaptersOf(book.id)).take(2), [
         ('Pages 1–9', 1, 9),
-        ('Ch 2', 10, 30),
+        ('Ch 2', 9, 30),
       ]);
 
       wait(1);
@@ -543,7 +544,7 @@ void main() {
       p = (await reading.progress(book.id))!;
       expect(
         [for (final c in p.chapters) (c.chunk.startUnit, c.chunk.endUnit)],
-        [(1, 9), (10, 30), (31, 39), (40, 50), (51, 60)],
+        [(1, 9), (9, 30), (31, 40), (40, 50), (50, 60)],
       );
     });
 

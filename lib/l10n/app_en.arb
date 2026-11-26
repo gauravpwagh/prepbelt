@@ -659,6 +659,17 @@
   "chaptersCaptionNoSurvey": "Chapters count as Medium. A survey makes this sharper.",
   "chaptersCaptionAll": "Every chapter has a task.",
   "chaptersAddTask": "Add task",
+  "chaptersViewChapters": "Chapters",
+  "chaptersViewTasks": "Tasks",
+  "chaptersNoTasks": "No tasks yet. Add one with Add task.",
+  "chaptersTaskIn": "in {chapters}",
+  "@chaptersTaskIn": {
+    "placeholders": {
+      "chapters": {
+        "type": "String"
+      }
+    }
+  },
   "chapterEditTitle": "Edit chapter",
   "chapterAddTitle": "Add chapter",
   "chapterName": "Chapter name",

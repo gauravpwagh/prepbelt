@@ -144,22 +144,24 @@ SourceChaptersView _view({bool fresh = false}) => SourceChaptersView(
   examName: 'JEE Main',
 );
 
-Widget chapters(AsyncValue<SourceChaptersView?> v) => Scaffold(
-  body: SourceChaptersBody(
-    view: v,
-    onBack: () {},
-    onRead: () {},
-    onFinish: () {},
-    onSurvey: () {},
-    onCreateAll: (_) {},
-    onAddTask: (_, _) {},
-    onAddAny: (_) {},
-    onEditChapter: (_, _) {},
-    onAddChapter: (_) {},
-    onOpenTask: (_) {},
-    onRetry: () {},
-  ),
-);
+Widget chapters(AsyncValue<SourceChaptersView?> v, {bool tasks = false}) =>
+    Scaffold(
+      body: SourceChaptersBody(
+        view: v,
+        onBack: () {},
+        onRead: () {},
+        onFinish: () {},
+        onSurvey: () {},
+        onCreateAll: (_) {},
+        onAddTask: (_, _) {},
+        onAddAny: (_) {},
+        onEditChapter: (_, _) {},
+        onAddChapter: (_) {},
+        showTasks: tasks,
+        onOpenTask: (_) {},
+        onRetry: () {},
+      ),
+    );
 
 Widget addTask() => Scaffold(
   body: Align(
@@ -203,6 +205,12 @@ Widget readingSheet() => ProviderScope(
 
 void main() {
   goldenBoth('chapters_390', () => chapters(AsyncData(_view())), height: 960);
+  // The same source as a list of its tasks (D59).
+  goldenBoth(
+    'chapters_tasks',
+    () => chapters(AsyncData(_view()), tasks: true),
+    height: 700,
+  );
   goldenBoth(
     'chapters_360',
     () => chapters(AsyncData(_view())),

@@ -8,6 +8,7 @@ import '../../../core/db/enums.dart';
 import '../../../core/result/result.dart';
 import '../../../core/ui/app_icons.dart';
 import '../../../core/ui/buttons.dart';
+import '../../../core/ui/chips.dart';
 import '../../../core/ui/fields.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../theme/level_theme.dart';
@@ -222,8 +223,12 @@ class SourceChaptersBody extends StatelessWidget {
     this.onAddAny,
     this.onEditChapter,
     this.onAddChapter,
+    this.showTasks = false,
     super.key,
   });
+
+  /// Opens on the Tasks list instead of Chapters (D59).
+  final bool showTasks;
 
   final AsyncValue<SourceChaptersView?> view;
   final VoidCallback onBack;
@@ -275,34 +280,42 @@ class SourceChaptersBody extends StatelessWidget {
           onAddTask: onAddAny == null ? null : () => onAddAny!(v),
         ),
         const SizedBox(height: AppSpace.xl),
-        if (v.chapters.isEmpty)
-          _Muted(
-            v.progress.readable && !v.progress.finished
-                ? l10n.chaptersSplitAsYouRead
-                : l10n.surveyEmpty,
-          )
-        else
-          for (final (i, c) in v.chapters.indexed)
-            _ChapterRow(
-              number: i + 1,
-              chapter: c,
-              unitType: v.source.unitType,
-              joined: c.hasTask && c.taskOrder > 0,
-              onAddTask: () => onAddTask(v, i),
-              onOpenTask: onOpenTask,
-              endsSource:
-                  c.range != null &&
-                  c.slot == null &&
-                  c.range!.end == v.source.totalUnits,
-              onEdit: onEditChapter == null ? null : () => onEditChapter!(v, i),
-            ),
-        if (onAddChapter != null) ...[
-          const SizedBox(height: AppSpace.md),
-          SecondaryButton(
-            label: l10n.chapterAddButton,
-            onPressed: () => onAddChapter!(v),
-          ),
-        ],
+        _ListSwitch(
+          initialTasks: showTasks,
+          tasks: _TaskList(view: v, onOpenTask: onOpenTask),
+          chapters: [
+            if (v.chapters.isEmpty)
+              _Muted(
+                v.progress.readable && !v.progress.finished
+                    ? l10n.chaptersSplitAsYouRead
+                    : l10n.surveyEmpty,
+              )
+            else
+              for (final (i, c) in v.chapters.indexed)
+                _ChapterRow(
+                  number: i + 1,
+                  chapter: c,
+                  unitType: v.source.unitType,
+                  joined: c.hasTask && c.taskOrder > 0,
+                  onAddTask: () => onAddTask(v, i),
+                  onOpenTask: onOpenTask,
+                  endsSource:
+                      c.range != null &&
+                      c.slot == null &&
+                      c.range!.end == v.source.totalUnits,
+                  onEdit: onEditChapter == null
+                      ? null
+                      : () => onEditChapter!(v, i),
+                ),
+            if (onAddChapter != null) ...[
+              const SizedBox(height: AppSpace.md),
+              SecondaryButton(
+                label: l10n.chapterAddButton,
+                onPressed: () => onAddChapter!(v),
+              ),
+            ],
+          ],
+        ),
       ],
       AsyncError() => [
         WarningCard(
@@ -631,36 +644,6 @@ class _ChapterRow extends StatelessWidget {
   final VoidCallback onAddTask;
   final ValueChanged<String> onOpenTask;
 
-  Widget _badge(BuildContext context, ChapterTask task) {
-    final l10n = AppLocalizations.of(context);
-    final dim = task.dim;
-    return Semantics(
-      button: true,
-      label: l10n.chapterOpenTask(task.title),
-      child: InkWell(
-        onTap: () => onOpenTask(task.taskId),
-        borderRadius: BorderRadius.circular(AppRadii.button),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            minWidth: kMinTouchTarget,
-            minHeight: kMinTouchTarget,
-          ),
-          child: Center(
-            child: context.levels.badge(
-              context,
-              LevelBadgeData(
-                level: task.level,
-                stripes: (2 - dim).clamp(0, 2),
-                fading: dim >= Defaults.maxDimSteps,
-                showCaption: false,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -694,7 +677,7 @@ class _ChapterRow extends StatelessWidget {
     } else if (joined) {
       trailing = const SizedBox(width: 44);
     } else {
-      trailing = _badge(context, ch.tasks.first);
+      trailing = _taskBadge(context, onOpenTask, ch.tasks.first);
     }
 
     final read = ch.finished;
@@ -761,14 +744,29 @@ class _ChapterRow extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            ch.chunk.title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppText.cardTitle.copyWith(
-                              color: c.ink,
-                              fontSize: 15,
-                            ),
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  ch.chunk.title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppText.cardTitle.copyWith(
+                                    color: c.ink,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                              // Name and pages can be changed (D59).
+                              if (onEdit != null) ...[
+                                const SizedBox(width: AppSpace.xs),
+                                AppIconView(
+                                  AppIcon.edit,
+                                  color: c.muted,
+                                  size: 14,
+                                ),
+                              ],
+                            ],
                           ),
                           if (details.isNotEmpty) ...[
                             const SizedBox(height: AppSpace.xxs),
@@ -796,7 +794,7 @@ class _ChapterRow extends StatelessWidget {
                             _ => t.title,
                           }, style: AppText.caption.copyWith(color: c.ink)),
                         ),
-                        _badge(context, t),
+                        _taskBadge(context, onOpenTask, t),
                       ],
                     ),
                 ],
@@ -821,6 +819,190 @@ class _ChapterRow extends StatelessWidget {
     2 => l10n.familiarityComfortable,
     _ => l10n.familiarityNew,
   };
+}
+
+/// A task's belt that opens the task.
+Widget _taskBadge(
+  BuildContext context,
+  ValueChanged<String> onOpenTask,
+  ChapterTask task,
+) {
+  final l10n = AppLocalizations.of(context);
+  final dim = task.dim;
+  return Semantics(
+    button: true,
+    label: l10n.chapterOpenTask(task.title),
+    child: InkWell(
+      onTap: () => onOpenTask(task.taskId),
+      borderRadius: BorderRadius.circular(AppRadii.button),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minWidth: kMinTouchTarget,
+          minHeight: kMinTouchTarget,
+        ),
+        child: Center(
+          child: context.levels.badge(
+            context,
+            LevelBadgeData(
+              level: task.level,
+              stripes: (2 - dim).clamp(0, 2),
+              fading: dim >= Defaults.maxDimSteps,
+              showCaption: false,
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/// "Chapters" and "Tasks" (D59): the same source seen by chapter, or as
+/// the list of its tasks with their pages and belts.
+class _ListSwitch extends StatefulWidget {
+  const _ListSwitch({
+    required this.chapters,
+    required this.tasks,
+    this.initialTasks = false,
+  });
+
+  final List<Widget> chapters;
+  final Widget tasks;
+  final bool initialTasks;
+
+  @override
+  State<_ListSwitch> createState() => _ListSwitchState();
+}
+
+class _ListSwitchState extends State<_ListSwitch> {
+  late bool _tasks = widget.initialTasks;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // 48 high: this screen meets Android's tap-target guideline.
+        SizedBox(
+          height: 48,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: ChoiceChipButton(
+                  label: l10n.chaptersViewChapters,
+                  selected: !_tasks,
+                  onPressed: () => setState(() => _tasks = false),
+                ),
+              ),
+              const SizedBox(width: AppSpace.sm),
+              Expanded(
+                child: ChoiceChipButton(
+                  label: l10n.chaptersViewTasks,
+                  selected: _tasks,
+                  onPressed: () => setState(() => _tasks = true),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpace.md),
+        if (_tasks) widget.tasks else ...widget.chapters,
+      ],
+    );
+  }
+}
+
+/// The source's tasks in page order, each once with all the pages it
+/// covers here, its chapters and its belt (D59).
+class _TaskList extends StatelessWidget {
+  const _TaskList({required this.view, required this.onOpenTask});
+
+  final SourceChaptersView view;
+  final ValueChanged<String> onOpenTask;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final c = context.colors;
+    final unit = view.source.unitType;
+    final byId =
+        <
+          String,
+          ({ChapterTask task, UnitRange? range, List<String> chapters})
+        >{};
+    for (final ch in view.chapters) {
+      for (final t in ch.tasks) {
+        final r = ch.slot == null ? ch.rangeOf(t) : null;
+        final seen = byId[t.taskId];
+        byId[t.taskId] = (
+          task: t,
+          range: switch ((seen?.range, r)) {
+            (final a?, final b?) => UnitRange(
+              a.start < b.start ? a.start : b.start,
+              a.end > b.end ? a.end : b.end,
+            ),
+            (final a, final b) => a ?? b,
+          },
+          chapters: [...?seen?.chapters, ch.chunk.title],
+        );
+      }
+    }
+    final rows = byId.values.toList()
+      ..sort(
+        (a, b) =>
+            (a.range?.start ?? 1 << 30).compareTo(b.range?.start ?? 1 << 30),
+      );
+    if (rows.isEmpty) return _Muted(l10n.chaptersNoTasks);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final row in rows)
+          Container(
+            constraints: const BoxConstraints(minHeight: 56),
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: c.line)),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: AppSpace.sm),
+            child: Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () => onOpenTask(row.task.taskId),
+                    borderRadius: BorderRadius.circular(AppRadii.button),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          row.task.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppText.cardTitle.copyWith(
+                            color: c.ink,
+                            fontSize: 15,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpace.xxs),
+                        Text(
+                          [
+                            if (row.range case final r?)
+                              unit.range(l10n, r.start, r.end),
+                            l10n.chaptersTaskIn(row.chapters.join(', ')),
+                          ].join(' · '),
+                          style: AppText.caption.copyWith(color: c.muted),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpace.sm),
+                _taskBadge(context, onOpenTask, row.task),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
 }
 
 class _Muted extends StatelessWidget {

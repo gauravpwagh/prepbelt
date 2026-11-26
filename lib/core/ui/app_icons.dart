@@ -32,6 +32,7 @@ enum AppIcon {
   grip(['M9 5v14M15 5v14'], strokeWidth: 1.6),
   minus(['M5 12h14'], strokeWidth: 2.4),
   check(['M5 12.5l4.5 4.5L19 7.5']),
+  edit(['M4 20h4L19 9l-4-4L4 16z', 'M13.5 6.5l4 4']),
   pdf(['M6 3h8l4 4v14H6z', 'M14 3v4h4', 'M9 13h6M9 17h4']),
   book(['M5 4h12a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2z', 'M5 18a2 2 0 0 1 2-2h12']),
   video([

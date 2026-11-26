@@ -185,3 +185,9 @@ The chapters card has a full-width **Add task** primary button above Survey and 
 - Typing pages that reach into a neighbour shows, in warning colour, "Takes Page 12 from Pages 9-12." Saving trims that neighbour (renamed when its name was its pages). A range that would take a whole chapter or cut one in two shows "That would take in all of {chapter}. Change or delete it first." and does not save.
 - The name field hints "Leave empty to name it by its pages"; an empty name, or one still equal to the old range, becomes the new range.
 - The last chapter shows a checkbox "Last chapter: the source ends here". Saving with it ticked sets the source's total pages to the chapter's last page. The chapter whose last page is the source's last page shows "End of source" in its details line.
+
+## Shared pages, Tasks view, pencil (D59)
+
+- A chapter may begin on the page where the previous one ends; that one page belongs to both. Taking more pages trims the neighbour back to the shared page.
+- Under the chapters card a two-button switch, **Chapters** | **Tasks** (48 px high), picks the list. **Tasks** shows each task once, ordered by first page: its name, then "Pages 12–15 · in Pages 12-15" (all chapters it is in), and its belt on the right; tapping opens the task. Empty: "No tasks yet. Add one with Add task."
+- Each chapter name has a small pencil after it (muted, 14 px). Tapping the name, the pencil or the details line opens Edit chapter, where the real pages are the From and To fields.

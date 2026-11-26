@@ -202,7 +202,8 @@ List<UnitRange> gapsIn(UnitRange range, Iterable<UnitRange> taken) {
 }
 
 /// How putting one chapter at a range changes the others (D58): each
-/// neighbour it overlaps at an edge gives up those units. Null [blocker]
+/// neighbour it overlaps at an edge gives up those units, but for a
+/// shared boundary page (D59). Null [blocker]
 /// means it fits.
 final class ChapterFit {
   const ChapterFit({this.trims = const {}, this.blocker});
@@ -215,6 +216,9 @@ final class ChapterFit {
 }
 
 /// Fits [range] among [others] (id to range), trimming edge overlaps.
+///
+/// Chapters may share the page where one ends and the next begins (D59),
+/// so a neighbour is trimmed back to that shared page, not past it.
 ChapterFit fitChapter(UnitRange range, Map<String, UnitRange> others) {
   final trims = <String, UnitRange>{};
   for (final MapEntry(key: id, value: o) in others.entries) {
@@ -223,9 +227,9 @@ ChapterFit fitChapter(UnitRange range, Map<String, UnitRange> others) {
     final keepsAfter = o.end > range.end;
     if (keepsBefore && keepsAfter) return ChapterFit(blocker: id);
     if (keepsBefore) {
-      trims[id] = UnitRange(o.start, range.start - 1);
+      if (o.end > range.start) trims[id] = UnitRange(o.start, range.start);
     } else if (keepsAfter) {
-      trims[id] = UnitRange(range.end + 1, o.end);
+      if (o.start < range.end) trims[id] = UnitRange(range.end, o.end);
     } else {
       return ChapterFit(blocker: id);
     }

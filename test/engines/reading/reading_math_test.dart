@@ -100,11 +100,15 @@ void main() {
     });
     expect(fit.blocker, isNull);
     expect(fit.trims, {
-      'a': const UnitRange(1, 7),
-      'c': const UnitRange(23, 30),
+      'a': const UnitRange(1, 8),
+      'c': const UnitRange(22, 30),
     });
     expect(fitChapter(const UnitRange(5, 25), others).blocker, 'b');
     expect(fitChapter(const UnitRange(13, 15), others).blocker, 'b');
     expect(fitChapter(const UnitRange(31, 40), others).trims, isEmpty);
+    // A chapter may begin on the page where the previous one ends (D59).
+    final shared = fitChapter(const UnitRange(10, 11), {'a': others['a']!});
+    expect(shared.blocker, isNull);
+    expect(shared.trims, isEmpty);
   });
 }

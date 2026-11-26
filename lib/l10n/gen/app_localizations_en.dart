@@ -754,6 +754,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chaptersAddTask => 'Add task';
 
   @override
+  String get chaptersViewChapters => 'Chapters';
+
+  @override
+  String get chaptersViewTasks => 'Tasks';
+
+  @override
+  String get chaptersNoTasks => 'No tasks yet. Add one with Add task.';
+
+  @override
+  String chaptersTaskIn(String chapters) {
+    return 'in $chapters';
+  }
+
+  @override
   String get chapterEditTitle => 'Edit chapter';
 
   @override
